@@ -7,5 +7,11 @@
         <Nullable>enable</Nullable>
         <UserSecretsId>f2ed584d-4bb3-4b96-bfbc-9563647f34e2</UserSecretsId>
     </PropertyGroup>
-
+    <ItemGroup>
+        <PackageReference Include="CommunityToolkit.Aspire.Hosting.NodeJS.Extensions"/>
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\Mavrynt.AdminApp\Mavrynt.AdminApp.csproj" />
+      <ProjectReference Include="..\Mavrynt.Api\Mavrynt.Api.csproj" />
+    </ItemGroup>
 </Project>
