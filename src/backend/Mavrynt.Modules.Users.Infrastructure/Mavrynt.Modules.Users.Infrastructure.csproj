@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Mavrynt.BuildingBlocks.Application\Mavrynt.BuildingBlocks.Application.csproj" />
+      <ProjectReference Include="..\Mavrynt.BuildingBlocks.Domain\Mavrynt.BuildingBlocks.Domain.csproj" />
+      <ProjectReference Include="..\Mavrynt.BuildingBlocks.Infrastructure\Mavrynt.BuildingBlocks.Infrastructure.csproj" />
+      <ProjectReference Include="..\Mavrynt.BuildingBlocksContracts\Mavrynt.BuildingBlocksContracts.csproj" />
+      <ProjectReference Include="..\Mavrynt.Modules.Users.Application\Mavrynt.Modules.Users.Application.csproj" />
+      <ProjectReference Include="..\Mavrynt.Modules.Users.Domain\Mavrynt.Modules.Users.Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Configuration\" />
+      <Folder Include="DependencyInjection\" />
+      <Folder Include="Persistence\" />
+      <Folder Include="Repositories\" />
+    </ItemGroup>
+
+</Project>

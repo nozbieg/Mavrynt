@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Mavrynt.BuildingBlocks.Application\Mavrynt.BuildingBlocks.Application.csproj" />
+      <ProjectReference Include="..\Mavrynt.BuildingBlocks.Domain\Mavrynt.BuildingBlocks.Domain.csproj" />
+      <ProjectReference Include="..\Mavrynt.Modules.Users.Domain\Mavrynt.Modules.Users.Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Abstractions\" />
+      <Folder Include="Commands\" />
+      <Folder Include="DependencyInjection\" />
+      <Folder Include="DTOs\" />
+      <Folder Include="Queries\" />
+    </ItemGroup>
+
+</Project>
