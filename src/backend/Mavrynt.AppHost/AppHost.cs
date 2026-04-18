@@ -1,7 +1,7 @@
 const string apiName = "api";
-const string adminApiName = "admin-api";
+const string adminApiName = "adminApi";
 const string webAppName = "web";
-const string adminWebAppName = "admin-web";
+const string adminWebAppName = "adminWeb";
 const string landingAppName = "landing";
 
 var builder = DistributedApplication.CreateBuilder(args);
