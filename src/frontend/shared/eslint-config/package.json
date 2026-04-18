@@ -1,0 +1,21 @@
+{
+  "name": "@mavrynt/eslint-config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared ESLint flat config for Mavrynt frontend SPAs and packages.",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./react": "./react.js",
+    "./library": "./library.js"
+  },
+  "peerDependencies": {
+    "@eslint/js": "^9.39.4",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.4.0",
+    "typescript-eslint": "^8.58.0"
+  }
+}

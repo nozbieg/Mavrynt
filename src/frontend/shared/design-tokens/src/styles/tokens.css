@@ -1,0 +1,164 @@
+/*
+ * @mavrynt/design-tokens — global token sheet.
+ *
+ * Layered intentionally:
+ *   1. `@theme` — static design tokens exposed as Tailwind v4 utilities
+ *      (e.g. `bg-brand-500`, `text-fg`, `rounded-md`, `font-display`).
+ *   2. `:root / [data-theme]` — semantic theme variables that swap on
+ *      light / dark mode, referenced by Tailwind utilities through the
+ *      `@theme inline` block below so utilities remain theme-aware.
+ *
+ * Consumers should `@import` this file once, AFTER `@import "tailwindcss"`.
+ */
+
+/* -----------------------------------------------------------------------
+ * 1. Static design tokens — picked up by Tailwind v4 as utility classes.
+ * ----------------------------------------------------------------------- */
+
+@theme {
+  /* Brand palette */
+  --color-brand-50: oklch(0.97 0.02 255);
+  --color-brand-100: oklch(0.94 0.04 255);
+  --color-brand-200: oklch(0.88 0.07 255);
+  --color-brand-300: oklch(0.80 0.11 255);
+  --color-brand-400: oklch(0.71 0.16 255);
+  --color-brand-500: oklch(0.62 0.20 255);
+  --color-brand-600: oklch(0.54 0.21 255);
+  --color-brand-700: oklch(0.46 0.19 255);
+  --color-brand-800: oklch(0.38 0.16 255);
+  --color-brand-900: oklch(0.30 0.12 255);
+  --color-brand-950: oklch(0.22 0.08 255);
+
+  /* Neutral palette */
+  --color-neutral-0: oklch(1 0 0);
+  --color-neutral-50: oklch(0.985 0 0);
+  --color-neutral-100: oklch(0.97 0 0);
+  --color-neutral-200: oklch(0.93 0 0);
+  --color-neutral-300: oklch(0.87 0 0);
+  --color-neutral-400: oklch(0.71 0 0);
+  --color-neutral-500: oklch(0.55 0 0);
+  --color-neutral-600: oklch(0.44 0 0);
+  --color-neutral-700: oklch(0.34 0 0);
+  --color-neutral-800: oklch(0.24 0 0);
+  --color-neutral-900: oklch(0.16 0 0);
+  --color-neutral-950: oklch(0.10 0 0);
+
+  /* Status colors */
+  --color-success-500: oklch(0.66 0.18 150);
+  --color-success-600: oklch(0.58 0.18 150);
+  --color-warning-500: oklch(0.78 0.16 80);
+  --color-warning-600: oklch(0.68 0.18 70);
+  --color-danger-500: oklch(0.62 0.22 25);
+  --color-danger-600: oklch(0.54 0.22 25);
+
+  /* Typography */
+  --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-display: "Inter Display", "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Spacing scale extensions (Tailwind defaults remain available) */
+  --spacing-section: 6rem;
+  --spacing-section-sm: 4rem;
+  --spacing-section-lg: 8rem;
+
+  /* Radii */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.06);
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 0.08);
+  --shadow-lg: 0 12px 32px rgb(0 0 0 / 0.10);
+  --shadow-xl: 0 24px 48px rgb(0 0 0 / 0.12);
+
+  /* Breakpoints (Tailwind defaults remain) */
+  --breakpoint-xs: 480px;
+
+  /* Motion */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.3, 0, 0, 1);
+}
+
+/* -----------------------------------------------------------------------
+ * 2. Semantic theme tokens — swap with light / dark mode.
+ *    These are plain CSS variables (NOT inside @theme) so they can change
+ *    based on `data-theme` or `prefers-color-scheme`.
+ * ----------------------------------------------------------------------- */
+
+:root,
+[data-theme="light"] {
+  --color-bg: var(--color-neutral-0);
+  --color-bg-subtle: var(--color-neutral-50);
+  --color-bg-muted: var(--color-neutral-100);
+  --color-fg: var(--color-neutral-900);
+  --color-fg-muted: var(--color-neutral-600);
+  --color-fg-subtle: var(--color-neutral-500);
+  --color-border: var(--color-neutral-200);
+  --color-border-strong: var(--color-neutral-300);
+  --color-primary: var(--color-brand-600);
+  --color-primary-hover: var(--color-brand-700);
+  --color-primary-fg: var(--color-neutral-0);
+  --color-focus-ring: var(--color-brand-500);
+
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --color-bg: var(--color-neutral-950);
+  --color-bg-subtle: var(--color-neutral-900);
+  --color-bg-muted: var(--color-neutral-800);
+  --color-fg: var(--color-neutral-50);
+  --color-fg-muted: var(--color-neutral-400);
+  --color-fg-subtle: var(--color-neutral-500);
+  --color-border: var(--color-neutral-800);
+  --color-border-strong: var(--color-neutral-700);
+  --color-primary: var(--color-brand-400);
+  --color-primary-hover: var(--color-brand-300);
+  --color-primary-fg: var(--color-neutral-950);
+  --color-focus-ring: var(--color-brand-300);
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --color-bg: var(--color-neutral-950);
+    --color-bg-subtle: var(--color-neutral-900);
+    --color-bg-muted: var(--color-neutral-800);
+    --color-fg: var(--color-neutral-50);
+    --color-fg-muted: var(--color-neutral-400);
+    --color-fg-subtle: var(--color-neutral-500);
+    --color-border: var(--color-neutral-800);
+    --color-border-strong: var(--color-neutral-700);
+    --color-primary: var(--color-brand-400);
+    --color-primary-hover: var(--color-brand-300);
+    --color-primary-fg: var(--color-neutral-950);
+    --color-focus-ring: var(--color-brand-300);
+
+    color-scheme: dark;
+  }
+}
+
+/* -----------------------------------------------------------------------
+ * 3. Expose semantic tokens as Tailwind utilities (e.g. `bg-bg`,
+ *    `text-fg`, `border-border`). `@theme inline` references runtime CSS
+ *    variables instead of fixed values, so utilities stay theme-aware.
+ * ----------------------------------------------------------------------- */
+
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-bg-subtle: var(--color-bg-subtle);
+  --color-bg-muted: var(--color-bg-muted);
+  --color-fg: var(--color-fg);
+  --color-fg-muted: var(--color-fg-muted);
+  --color-fg-subtle: var(--color-fg-subtle);
+  --color-border: var(--color-border);
+  --color-border-strong: var(--color-border-strong);
+  --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-primary-fg: var(--color-primary-fg);
+  --color-focus-ring: var(--color-focus-ring);
+}

@@ -1,0 +1,10 @@
+{
+  "extends": "@mavrynt/tsconfig-base/base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo",
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "noEmit": true
+  },
+  "include": ["src"]
+}

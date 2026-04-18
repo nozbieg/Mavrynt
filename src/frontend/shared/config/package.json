@@ -1,0 +1,45 @@
+{
+  "name": "@mavrynt/config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared runtime concerns for Mavrynt frontends — typed env loader, feature-flag client interface, and i18n bootstrap factory.",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    },
+    "./env": {
+      "types": "./src/env.ts",
+      "import": "./src/env.ts"
+    },
+    "./feature-flags": {
+      "types": "./src/feature-flags.ts",
+      "import": "./src/feature-flags.ts"
+    },
+    "./i18n": {
+      "types": "./src/i18n.ts",
+      "import": "./src/i18n.ts"
+    }
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint ."
+  },
+  "peerDependencies": {
+    "i18next": "^25.0.0",
+    "react": "^19.2.4",
+    "react-i18next": "^16.0.0"
+  },
+  "peerDependenciesMeta": {
+    "i18next": { "optional": true },
+    "react-i18next": { "optional": true }
+  },
+  "devDependencies": {
+    "@mavrynt/tsconfig-base": "*",
+    "typescript": "~6.0.2"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "@mavrynt/design-tokens",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Mavrynt design tokens — single source of truth for colors, spacing, typography, radii and breakpoints. Exposes both TypeScript values and Tailwind v4 / CSS variables.",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    },
+    "./tokens": {
+      "types": "./src/tokens.ts",
+      "import": "./src/tokens.ts"
+    },
+    "./styles/tokens.css": "./src/styles/tokens.css",
+    "./styles/reset.css": "./src/styles/reset.css"
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@mavrynt/tsconfig-base": "*",
+    "typescript": "~6.0.2"
+  },
+  "sideEffects": [
+    "*.css"
+  ]
+}

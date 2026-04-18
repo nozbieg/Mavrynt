@@ -3,3 +3,13 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+
+# Frontend workspace
+node_modules/
+dist/
+dist-ssr/
+*.local
+.vite/
+.turbo/
+.eslintcache
+*.tsbuildinfo
