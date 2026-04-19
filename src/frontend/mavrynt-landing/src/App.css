@@ -1,5 +1,4 @@
-/* App.css — intentionally empty.
- * The Vite/React template styles have been replaced by the shared
- * design-token CSS imported from `index.css`. Phase 2 may delete this
- * file entirely once the rest of the cleanup lands.
+/* Deprecated — orphaned in Phase 2.
+ * All styling comes from `@mavrynt/design-tokens` via `index.css`.
+ * Remove this file from git in the Phase 2 commit.
  */

@@ -25,8 +25,8 @@ export type {
   ButtonStyleOptions,
 } from "./Button.tsx";
 
-export { Link } from "./Link.tsx";
-export type { LinkProps, LinkVariant } from "./Link.tsx";
+export { Link, linkStyles } from "./Link.tsx";
+export type { LinkProps, LinkVariant, LinkStyleOptions } from "./Link.tsx";
 
 export { Logo } from "./Logo.tsx";
 export type { LogoProps } from "./Logo.tsx";

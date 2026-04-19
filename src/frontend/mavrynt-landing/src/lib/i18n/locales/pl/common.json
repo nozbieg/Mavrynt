@@ -1,0 +1,66 @@
+{
+  "nav": {
+    "features": "Funkcje",
+    "pricing": "Cennik",
+    "contact": "Kontakt"
+  },
+  "cta": {
+    "getStarted": "Rozpocznij",
+    "readDocs": "Dokumentacja"
+  },
+  "footer": {
+    "tagline": "Platforma modular monolith dla nowoczesnych zespołów produktowych.",
+    "product": { "title": "Produkt" },
+    "company": { "title": "Firma" },
+    "legal": {
+      "title": "Informacje prawne",
+      "privacy": "Polityka prywatności",
+      "terms": "Regulamin"
+    },
+    "copyright": "© {{year}} Mavrynt. Wszelkie prawa zastrzeżone."
+  },
+  "home": {
+    "eyebrow": "Platforma Mavrynt",
+    "title": "Dostarczaj szybciej dzięki modularnemu monolitowi, któremu możesz zaufać.",
+    "subtitle": "Mavrynt daje zespołowi czysty fundament do budowania, wdrażania i skalowania — bez utopienia się w mikrousługach."
+  },
+  "features": {
+    "title": "Funkcje",
+    "subtitle": "W Fazie 3 ta strona zostanie zastąpiona właściwą siatką funkcji."
+  },
+  "pricing": {
+    "title": "Cennik",
+    "subtitle": "W Fazie 3 dodamy tabelę cenową."
+  },
+  "contact": {
+    "title": "Porozmawiajmy",
+    "subtitle": "W Fazie 3 podłączymy formularz kontaktowy przez adapter LeadService."
+  },
+  "legal": {
+    "privacy": {
+      "title": "Polityka prywatności",
+      "subtitle": "Placeholder — właściwa treść w Fazie 3."
+    },
+    "terms": {
+      "title": "Regulamin",
+      "subtitle": "Placeholder — właściwa treść w Fazie 3."
+    }
+  },
+  "notFound": {
+    "title": "Nie znaleziono strony",
+    "subtitle": "Strona, której szukasz, nie istnieje.",
+    "cta": "Wróć na stronę główną"
+  },
+  "theme": {
+    "toggle": "Przełącz motyw",
+    "light": "Jasny",
+    "dark": "Ciemny",
+    "system": "Systemowy"
+  },
+  "language": {
+    "label": "Język",
+    "pl": "Polski",
+    "en": "English"
+  },
+  "skip": "Przejdź do treści"
+}

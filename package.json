@@ -1,0 +1,27 @@
+{
+  "name": "mavrynt-frontend",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Mavrynt frontend workspace — three React/Vite SPAs (web, admin, landing) sharing a design system.",
+  "workspaces": [
+    "src/frontend/mavrynt-web",
+    "src/frontend/mavrynt-admin",
+    "src/frontend/mavrynt-landing",
+    "src/frontend/shared/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace mavrynt-web",
+    "dev:admin": "npm run dev --workspace mavrynt-admin",
+    "dev:landing": "npm run dev --workspace mavrynt-landing",
+    "build:web": "npm run build --workspace mavrynt-web",
+    "build:admin": "npm run build --workspace mavrynt-admin",
+    "build:landing": "npm run build --workspace mavrynt-landing",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=20.10.0",
+    "npm": ">=10.2.0"
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "nav": {
+    "features": "Features",
+    "pricing": "Pricing",
+    "contact": "Contact"
+  },
+  "cta": {
+    "getStarted": "Get started",
+    "readDocs": "Read the docs"
+  },
+  "footer": {
+    "tagline": "The modular monolith platform for modern product teams.",
+    "product": { "title": "Product" },
+    "company": { "title": "Company" },
+    "legal": {
+      "title": "Legal",
+      "privacy": "Privacy policy",
+      "terms": "Terms of service"
+    },
+    "copyright": "© {{year}} Mavrynt. All rights reserved."
+  },
+  "home": {
+    "eyebrow": "Mavrynt platform",
+    "title": "Ship faster with a modular monolith you can trust.",
+    "subtitle": "Mavrynt gives your team a clean foundation to build, deploy, and scale — without drowning in microservices."
+  },
+  "features": {
+    "title": "Features",
+    "subtitle": "Phase 3 will replace this page with the real feature grid."
+  },
+  "pricing": {
+    "title": "Pricing",
+    "subtitle": "Phase 3 will add the pricing matrix."
+  },
+  "contact": {
+    "title": "Talk to us",
+    "subtitle": "Phase 3 will wire up the contact form via the LeadService adapter."
+  },
+  "legal": {
+    "privacy": {
+      "title": "Privacy policy",
+      "subtitle": "Placeholder — real copy ships in Phase 3."
+    },
+    "terms": {
+      "title": "Terms of service",
+      "subtitle": "Placeholder — real copy ships in Phase 3."
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "subtitle": "The page you were looking for does not exist.",
+    "cta": "Back home"
+  },
+  "theme": {
+    "toggle": "Toggle theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "language": {
+    "label": "Language",
+    "pl": "Polski",
+    "en": "English"
+  },
+  "skip": "Skip to main content"
+}

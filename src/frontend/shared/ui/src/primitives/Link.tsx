@@ -21,15 +21,27 @@ const variantClasses: Record<LinkVariant, string> = {
   muted: "text-fg-muted hover:text-fg transition-colors",
 };
 
+const focusClasses =
+  "rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg";
+
+export interface LinkStyleOptions {
+  readonly variant?: LinkVariant;
+}
+
+/**
+ * Shared link className recipe — exposed so router-aware links (React
+ * Router `<Link>`, Next `<Link>`, etc.) can reuse the exact same look as
+ * the headless `<Link>` primitive without duplicating the class lists.
+ */
+export const linkStyles = ({
+  variant = "inline",
+}: LinkStyleOptions = {}): string => cn(variantClasses[variant], focusClasses);
+
 export const Link = forwardRef<HTMLAnchorElement, LinkProps>(
   ({ variant = "inline", external, className, children, ...rest }, ref) => (
     <a
       ref={ref}
-      className={cn(
-        variantClasses[variant],
-        "rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
-        className,
-      )}
+      className={cn(linkStyles({ variant }), className)}
       {...(external
         ? { target: "_blank", rel: "noopener noreferrer" }
         : undefined)}
