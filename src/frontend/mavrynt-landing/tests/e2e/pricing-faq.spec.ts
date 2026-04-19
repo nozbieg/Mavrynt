@@ -38,8 +38,8 @@ test.describe("Pricing → FAQ", () => {
     const faqRegion = page.getByRole("region", { name: /najczęściej zadawane/i });
     await expect(faqRegion).toBeVisible();
 
-    const q1 = faqItem(page, /czy mavrynt jest open source/i);
-    const q2 = faqItem(page, /dlaczego modularny monolit/i);
+    const q1 = faqItem(page, /jakie rynki obsługuje mavrynt/i);
+    const q2 = faqItem(page, /czy mavrynt jest brokerem/i);
 
     await expect(q1).toBeVisible();
     await expect(q2).toBeVisible();
@@ -53,7 +53,7 @@ test.describe("Pricing → FAQ", () => {
     await q1.getByRole("heading", { level: 3 }).click();
     await expect(q1).toHaveJSProperty("open", true);
     await expect(
-      q1.getByText(/open source na licencji mit/i),
+      q1.getByText(/forex/i),
     ).toBeVisible();
 
     // Opening Q2 closes Q1 (exclusive accordion via `name="faq"`).

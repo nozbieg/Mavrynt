@@ -31,8 +31,8 @@ test.describe("Language switcher", () => {
     // --- Start in Polish (the default locale). -------------------------
     await expect(page.locator("html")).toHaveAttribute("lang", "pl");
     // Hero h1 is the loudest content signal — pick the start of the PL string.
-    const plHero = /dostarczaj szybciej/i;
-    const enHero = /ship faster with a modular monolith/i;
+    const plHero = /inteligencja rynkowa/i;
+    const enHero = /market intelligence for traders/i;
 
     await expect(page.getByRole("heading", { level: 1 })).toContainText(plHero);
 

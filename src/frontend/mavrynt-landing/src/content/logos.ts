@@ -1,8 +1,10 @@
 /**
- * Placeholder "logo cloud" — fictional customers rendered as wordmarks.
- * Phase 4+ swaps these for real partner logos served from `/public/logos`.
+ * Placeholder "logo cloud" — neutral wordmarks used as social proof
+ * while real partner assets aren't available. The strip signals the
+ * kind of audience Mavrynt targets (desks, research groups, prop
+ * shops) without making claims about specific customers.
  *
- * Kept as plain data so the component stays declarative.
+ * Phase 4+ swaps these for real partner logos served from `/public/logos`.
  */
 export interface LogoEntry {
   readonly id: string;
@@ -10,10 +12,10 @@ export interface LogoEntry {
 }
 
 export const logos: ReadonlyArray<LogoEntry> = [
-  { id: "finstack", label: "FinStack" },
-  { id: "orbit", label: "Orbit" },
-  { id: "greenline", label: "Greenline" },
-  { id: "northwind", label: "Northwind" },
-  { id: "halcyon", label: "Halcyon" },
-  { id: "lumen", label: "Lumen Labs" },
+  { id: "arculus", label: "Arculus Capital" },
+  { id: "northquant", label: "NorthQuant" },
+  { id: "varenne", label: "Varenne Research" },
+  { id: "orbis-fx", label: "Orbis FX" },
+  { id: "linden", label: "Linden Markets" },
+  { id: "meridian", label: "Meridian Trading" },
 ];

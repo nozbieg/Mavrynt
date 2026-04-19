@@ -5,18 +5,18 @@
     "contact": "Contact"
   },
   "cta": {
-    "getStarted": "Get started",
-    "readDocs": "Read the docs",
-    "talkToSales": "Talk to sales",
+    "getStarted": "Request access",
+    "readDocs": "Explore features",
+    "talkToSales": "Talk to our team",
     "banner": {
-      "title": "Ready to ship with a cleaner foundation?",
-      "subtitle": "Spin up your first Mavrynt module in under ten minutes.",
-      "primary": "Start free",
+      "title": "Ready to read the market more clearly?",
+      "subtitle": "See signals, price context, and news side-by-side in one analytical workspace.",
+      "primary": "Request access",
       "secondary": "Book a demo"
     }
   },
   "footer": {
-    "tagline": "The modular monolith platform for modern product teams.",
+    "tagline": "Market intelligence for traders, analysts, and teams.",
     "product": { "title": "Product" },
     "company": { "title": "Company" },
     "legal": {
@@ -27,70 +27,70 @@
     "copyright": "© {{year}} Mavrynt. All rights reserved."
   },
   "home": {
-    "eyebrow": "Mavrynt platform",
-    "title": "Ship faster with a modular monolith you can trust.",
-    "subtitle": "Mavrynt gives your team a clean foundation to build, deploy, and scale — without drowning in microservices."
+    "eyebrow": "Market intelligence platform",
+    "title": "Market intelligence for traders and analysts.",
+    "subtitle": "Mavrynt brings market signals, price context, and news into one analytical workspace — so you can read the market faster and act with clarity."
   },
   "hero": {
     "stat": {
-      "label": "Production-tested",
-      "value": "99.99% uptime across design partners"
+      "label": "Built for serious analysis",
+      "value": "Market data, signals, and news context unified in one view"
     }
   },
   "logos": {
-    "title": "Built with care by teams at"
+    "title": "Trusted by traders and analysts at"
   },
   "features": {
     "title": "Features",
-    "subtitle": "Everything your team needs to build durable product software — without ceremony.",
+    "subtitle": "Everything you need to monitor, interpret, and react to the market — in one focused workspace.",
     "items": {
-      "modular": {
-        "title": "Modular by default",
-        "desc": "Bounded modules keep ownership crisp and refactors safe. No premature distributed systems."
+      "monitoring": {
+        "title": "Real-time market monitoring",
+        "desc": "Track Forex pairs, indices, and commodities as they move — with a clean read on price, volatility, and session context."
       },
-      "typed": {
-        "title": "Type-safe, end to end",
-        "desc": "Strict TypeScript in the frontend, nullable-aware C# in the backend, contract-first APIs in between."
+      "signals": {
+        "title": "Signal aggregation",
+        "desc": "Bring technical, momentum, and contextual signals into one feed, each annotated with the data behind it so you can judge relevance fast."
       },
-      "observable": {
-        "title": "Observable out of the box",
-        "desc": "Structured logs, traces, and health checks ship preconfigured — not as an afterthought."
+      "trends": {
+        "title": "Trend & momentum analysis",
+        "desc": "Surface trend structure, momentum shifts, and volatility regimes across instruments — without jumping between charts."
       },
-      "secure": {
-        "title": "Secure by design",
-        "desc": "Sensible defaults for auth, secrets, and CSP. Security headers and threat models baked in."
+      "context": {
+        "title": "News & market context",
+        "desc": "Pair price action with relevant news, economic calendar events, and macro drivers so signals never arrive without context."
       },
-      "scalable": {
-        "title": "Scales with you",
-        "desc": "Start as a single deployable, split a module into its own service the day you need to."
+      "watchlists": {
+        "title": "Watchlists & instrument focus",
+        "desc": "Organize the instruments that matter to you into focused watchlists, with per-list alerts and analytical layouts."
       },
-      "extensible": {
-        "title": "Extensible through ports",
-        "desc": "Ports and adapters everywhere: swap analytics, email, payments, or search without rewriting callers."
+      "alerts": {
+        "title": "Structured alerts",
+        "desc": "Configure alerts on signals, price levels, and news events — delivered in a structured way, so notifications stay useful, not noisy."
       }
     }
   },
   "how": {
     "title": "How it works",
-    "subtitle": "Three moves from zero to first value.",
+    "subtitle": "Three steps from raw market noise to structured insight.",
     "steps": {
       "1": {
-        "title": "Start clean",
-        "desc": "Clone the template, pick your modules, and boot locally in minutes."
+        "title": "Track the markets you care about",
+        "desc": "Select Forex pairs, indices, or commodities and build focused watchlists around the instruments you actually trade or analyze."
       },
       "2": {
-        "title": "Build features",
-        "desc": "Add capabilities inside bounded modules. The platform keeps contracts and observability consistent."
+        "title": "Analyze signals and context",
+        "desc": "See signals, price structure, and news context in one view — each data point paired with the reason it showed up."
       },
       "3": {
-        "title": "Scale with confidence",
-        "desc": "Ship to production with tracing, feature flags, and zero-downtime deploys already wired up."
+        "title": "Act faster with clearer reads",
+        "desc": "Make discretionary decisions with more confidence, or hand off a structured read to your team — Mavrynt supports the call, you make it."
       }
     }
   },
   "pricing": {
     "title": "Pricing",
-    "subtitle": "Simple plans that grow with your product. No per-seat surprises.",
+    "subtitle": "Straightforward plans for individual traders, analysts, and teams. No hidden fees.",
     "billing": {
       "monthly": "Monthly",
       "yearly": "Yearly",
@@ -102,63 +102,63 @@
         "name": "Starter",
         "price": "$0",
         "period": "forever",
-        "desc": "For solo developers exploring the platform.",
+        "desc": "For individual traders exploring Mavrynt.",
         "cta": "Start free",
         "features": {
-          "1": "Up to 3 modules",
-          "2": "Community support",
-          "3": "Core observability",
-          "4": "MIT-licensed template"
+          "1": "Up to 5 instruments on a single watchlist",
+          "2": "Core market signals",
+          "3": "End-of-day news & context",
+          "4": "Community support"
         }
       },
       "team": {
-        "name": "Team",
-        "price": "$99",
+        "name": "Pro",
+        "price": "$49",
         "period": "per month",
-        "desc": "For growing teams shipping real product.",
+        "desc": "For active traders and independent analysts.",
         "cta": "Start 14-day trial",
         "features": {
-          "1": "Unlimited modules",
-          "2": "Priority support",
-          "3": "Advanced observability",
-          "4": "Preview environments",
-          "5": "SSO-ready"
+          "1": "Unlimited watchlists and instruments",
+          "2": "Real-time signal feed",
+          "3": "Full news & macro context",
+          "4": "Structured alerts on signals and events",
+          "5": "Priority support"
         }
       },
       "enterprise": {
         "name": "Enterprise",
         "price": "Custom",
         "period": "tailored",
-        "desc": "For regulated orgs that need guarantees.",
-        "cta": "Talk to sales",
+        "desc": "For trading desks, research teams, and firms.",
+        "cta": "Talk to our team",
         "features": {
-          "1": "Everything in Team",
-          "2": "SLA & dedicated support",
-          "3": "On-prem & air-gapped options",
-          "4": "Security review & DPA",
-          "5": "Custom adapters"
+          "1": "Everything in Pro",
+          "2": "Shared team watchlists and notes",
+          "3": "Dedicated onboarding and success contact",
+          "4": "Data export & API access",
+          "5": "Custom coverage and integrations"
         }
       }
     }
   },
   "testimonials": {
-    "title": "Teams shipping with Mavrynt",
-    "subtitle": "Stories from engineering leaders who stopped drowning in services and started shipping features.",
+    "title": "Built for how traders and analysts actually work",
+    "subtitle": "Early perspectives from traders and analysts exploring Mavrynt as their daily market workspace.",
     "items": {
       "1": {
-        "quote": "We collapsed four half-built services back into a Mavrynt monolith and halved our incident rate in a quarter.",
-        "author": "Ana Kowalski",
-        "role": "Head of Platform, FinStack"
+        "quote": "Having signals, price context, and the news that drives them in one view means I spend less time hopping between tools and more time making a decision.",
+        "author": "Discretionary FX trader",
+        "role": "Early access user"
       },
       "2": {
-        "quote": "The module boundaries are real. New engineers find their way in a day, not a week.",
-        "author": "Marek Novák",
-        "role": "Staff Engineer, Orbit"
+        "quote": "What I value is the structure. The signals arrive with context — I can see why something moved, not just that it did.",
+        "author": "Independent market analyst",
+        "role": "Early access user"
       },
       "3": {
-        "quote": "Observability was the thing we always pushed to next quarter. Mavrynt shipped it on day one.",
-        "author": "Lena Sørensen",
-        "role": "CTO, Greenline"
+        "quote": "For a small desk, having a shared market read the whole team can follow has changed how we start each session.",
+        "author": "Head of trading desk",
+        "role": "Pilot customer"
       }
     }
   },
@@ -167,39 +167,39 @@
     "subtitle": "Can't find what you're looking for? Reach out — we answer every message.",
     "items": {
       "1": {
-        "q": "Is Mavrynt open source?",
-        "a": "The core template and module SDK are open source under MIT. Paid tiers add tooling, support, and enterprise features."
+        "q": "What markets does Mavrynt cover?",
+        "a": "Mavrynt focuses on Forex majors and minors, plus major index and commodity CFDs. Coverage of additional instruments is expanded based on user feedback."
       },
       "2": {
-        "q": "Why a modular monolith and not microservices?",
-        "a": "Monoliths with hard module boundaries are simpler to operate for most teams. When a module genuinely needs to scale independently, Mavrynt makes extraction safe and boring."
+        "q": "Is Mavrynt a broker?",
+        "a": "No. Mavrynt is a market analysis platform — we don't execute orders, hold client funds, or act as a regulated broker. We help you interpret the market; execution stays with your broker of choice."
       },
       "3": {
-        "q": "What stack does it use?",
-        "a": ".NET 10 on the backend, React 19 + Vite on the frontend, Postgres by default, OpenTelemetry for observability. Adapters let you swap any of these."
+        "q": "Does Mavrynt guarantee trading outcomes?",
+        "a": "No. Mavrynt is a decision-support tool, not a trading guarantee. It aggregates signals, context, and news so you can analyze faster — it does not promise profits or remove market risk."
       },
       "4": {
-        "q": "Can I self-host?",
-        "a": "Yes — all tiers support self-hosting. Enterprise adds air-gapped installs and signed artifacts."
+        "q": "How are signals generated and interpreted?",
+        "a": "Signals combine quantitative market data (price, momentum, volatility) with contextual sources (news, economic calendar). Each one is presented with the data behind it so you can judge relevance, not just react to a number."
       },
       "5": {
-        "q": "How are upgrades handled?",
-        "a": "Semantic versioning on the SDK, explicit migration guides on every minor, and automated codemods for the common cases."
+        "q": "Can teams use Mavrynt together?",
+        "a": "Yes. Pro and Enterprise plans support shared watchlists, notes, and alert channels so traders and analysts can work from the same market view."
       },
       "6": {
-        "q": "Does it support multi-tenant apps?",
-        "a": "Yes. Tenancy is a first-class concern — row-level isolation, per-tenant config, and metrics tagging are built in."
+        "q": "Who is Mavrynt built for?",
+        "a": "Discretionary traders who need faster market context, independent analysts who need structured reads, and firms that want a shared analytical workspace for their desk or research team."
       }
     }
   },
   "contact": {
-    "title": "Talk to us",
-    "subtitle": "Tell us about your team and what you're building. We reply within one business day.",
+    "title": "Talk to our team",
+    "subtitle": "Tell us about your trading or research setup and what you're trying to see more clearly. We reply within one business day.",
     "form": {
       "name": { "label": "Name", "placeholder": "Your full name" },
       "email": { "label": "Work email", "placeholder": "you@company.com" },
-      "company": { "label": "Company", "placeholder": "Your company (optional)" },
-      "message": { "label": "Message", "placeholder": "What are you trying to ship?" },
+      "company": { "label": "Company / desk", "placeholder": "Firm, desk, or fund (optional)" },
+      "message": { "label": "Message", "placeholder": "What markets or workflows would you like Mavrynt to support?" },
       "submit": "Send message",
       "submitting": "Sending…",
       "success": {
@@ -220,11 +220,11 @@
   "legal": {
     "privacy": {
       "title": "Privacy policy",
-      "subtitle": "Placeholder — real copy ships shortly."
+      "subtitle": "How Mavrynt handles your data."
     },
     "terms": {
       "title": "Terms of service",
-      "subtitle": "Placeholder — real copy ships shortly."
+      "subtitle": "The terms that apply to using Mavrynt."
     }
   },
   "notFound": {

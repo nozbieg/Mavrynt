@@ -9,7 +9,7 @@ export interface TestimonialItem {
 }
 
 export const testimonials: ReadonlyArray<TestimonialItem> = [
-  { id: "1", initials: "AK" },
-  { id: "2", initials: "MN" },
-  { id: "3", initials: "LS" },
+  { id: "1", initials: "FX" },
+  { id: "2", initials: "MA" },
+  { id: "3", initials: "TD" },
 ];

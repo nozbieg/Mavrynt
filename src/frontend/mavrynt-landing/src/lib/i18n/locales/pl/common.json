@@ -5,18 +5,18 @@
     "contact": "Kontakt"
   },
   "cta": {
-    "getStarted": "Rozpocznij",
-    "readDocs": "Dokumentacja",
+    "getStarted": "Poproś o dostęp",
+    "readDocs": "Zobacz funkcje",
     "talkToSales": "Porozmawiaj z nami",
     "banner": {
-      "title": "Gotowy, by wdrażać na czystszym fundamencie?",
-      "subtitle": "Postaw pierwszy moduł Mavrynt w mniej niż dziesięć minut.",
-      "primary": "Zacznij za darmo",
+      "title": "Gotowy, by czytać rynek z większą jasnością?",
+      "subtitle": "Sygnały, kontekst cenowy i newsy w jednym analitycznym widoku — bez przełączania się między narzędziami.",
+      "primary": "Poproś o dostęp",
       "secondary": "Umów demo"
     }
   },
   "footer": {
-    "tagline": "Platforma modular monolith dla nowoczesnych zespołów produktowych.",
+    "tagline": "Inteligencja rynkowa dla traderów, analityków i zespołów.",
     "product": { "title": "Produkt" },
     "company": { "title": "Firma" },
     "legal": {
@@ -27,70 +27,70 @@
     "copyright": "© {{year}} Mavrynt. Wszelkie prawa zastrzeżone."
   },
   "home": {
-    "eyebrow": "Platforma Mavrynt",
-    "title": "Dostarczaj szybciej dzięki modularnemu monolitowi, któremu możesz zaufać.",
-    "subtitle": "Mavrynt daje zespołowi czysty fundament do budowania, wdrażania i skalowania — bez utopienia się w mikrousługach."
+    "eyebrow": "Platforma analizy rynku",
+    "title": "Inteligencja rynkowa dla traderów i analityków.",
+    "subtitle": "Mavrynt łączy sygnały rynkowe, kontekst cenowy i newsy w jednym analitycznym środowisku — abyś szybciej rozumiał rynek i reagował z większą pewnością."
   },
   "hero": {
     "stat": {
-      "label": "Sprawdzone na produkcji",
-      "value": "99,99% dostępności u partnerów wdrożeniowych"
+      "label": "Stworzone do poważnej analizy",
+      "value": "Dane rynkowe, sygnały i kontekst newsów w jednym widoku"
     }
   },
   "logos": {
-    "title": "Budują z nami zespoły z"
+    "title": "Zaufali nam traderzy i analitycy z"
   },
   "features": {
     "title": "Funkcje",
-    "subtitle": "Wszystko, czego zespół potrzebuje do budowy trwałego produktu — bez zbędnej ceremonii.",
+    "subtitle": "Wszystko, czego potrzebujesz, by monitorować, interpretować i reagować na rynek — w jednym, skupionym środowisku pracy.",
     "items": {
-      "modular": {
-        "title": "Modułowo z definicji",
-        "desc": "Ograniczone moduły utrzymują własność czytelną, a refaktoryzacje bezpieczne. Bez przedwczesnych systemów rozproszonych."
+      "monitoring": {
+        "title": "Monitoring rynku w czasie rzeczywistym",
+        "desc": "Śledź pary Forex, indeksy i surowce w ruchu — z czytelnym odczytem ceny, zmienności i kontekstu sesji."
       },
-      "typed": {
-        "title": "Typy od końca do końca",
-        "desc": "Ścisły TypeScript we frontendzie, nullable-aware C# w backendzie, kontrakty API pomiędzy nimi."
+      "signals": {
+        "title": "Agregacja sygnałów",
+        "desc": "Jeden feed z sygnałami technicznymi, momentum i kontekstowymi — każdy opatrzony danymi, z których wynika, byś mógł szybko ocenić jego trafność."
       },
-      "observable": {
-        "title": "Obserwowalność od razu",
-        "desc": "Strukturalne logi, trace'y i health-check'i — skonfigurowane z pudełka, a nie dopisywane później."
+      "trends": {
+        "title": "Analiza trendów i momentum",
+        "desc": "Rozpoznawaj strukturę trendu, zmiany momentum i reżimy zmienności dla wielu instrumentów — bez przeskakiwania między wykresami."
       },
-      "secure": {
-        "title": "Bezpieczeństwo od podstaw",
-        "desc": "Sensowne domyślne dla auth, secretów i CSP. Nagłówki bezpieczeństwa i modelowanie zagrożeń wbudowane."
+      "context": {
+        "title": "Kontekst newsów i rynku",
+        "desc": "Łącz ruch ceny z istotnymi newsami, kalendarzem ekonomicznym i czynnikami makro, aby sygnał nigdy nie pojawiał się bez kontekstu."
       },
-      "scalable": {
-        "title": "Skaluje się z Tobą",
-        "desc": "Start jako jeden deployable, wydzielenie modułu jako osobnej usługi — dokładnie w dniu, w którym tego potrzebujesz."
+      "watchlists": {
+        "title": "Listy obserwowanych i fokus na instrumenty",
+        "desc": "Organizuj instrumenty, które mają dla Ciebie znaczenie, w dedykowane listy obserwowanych z własnymi alertami i układem analitycznym."
       },
-      "extensible": {
-        "title": "Rozszerzalne przez porty",
-        "desc": "Porty i adaptery wszędzie: wymień analitykę, email, płatności lub wyszukiwarkę bez przepisywania wywołań."
+      "alerts": {
+        "title": "Strukturalne alerty",
+        "desc": "Konfiguruj alerty na sygnały, poziomy cenowe i wydarzenia informacyjne — dostarczane w sposób uporządkowany, byś nie tonął w szumie."
       }
     }
   },
   "how": {
     "title": "Jak to działa",
-    "subtitle": "Trzy kroki od zera do pierwszej wartości.",
+    "subtitle": "Trzy kroki od szumu rynkowego do uporządkowanego wglądu.",
     "steps": {
       "1": {
-        "title": "Zacznij czysto",
-        "desc": "Sklonuj szablon, wybierz moduły i uruchom lokalnie w parę minut."
+        "title": "Obserwuj wybrane rynki i instrumenty",
+        "desc": "Wybierz pary Forex, indeksy lub surowce i zbuduj listy obserwowanych wokół instrumentów, na których faktycznie handlujesz lub które analizujesz."
       },
       "2": {
-        "title": "Buduj funkcje",
-        "desc": "Dodawaj zdolności w ograniczonych modułach. Platforma pilnuje kontraktów i obserwowalności."
+        "title": "Analizuj sygnały i kontekst",
+        "desc": "Widok łączący sygnały, strukturę cenową i kontekst newsów — każda informacja połączona z powodem, dla którego się pojawiła."
       },
       "3": {
-        "title": "Skaluj z pewnością",
-        "desc": "Wdrażaj na produkcję z tracingiem, feature-flagami i deployami bez przestojów — wszystko już podłączone."
+        "title": "Reaguj szybciej z pełniejszym odczytem",
+        "desc": "Podejmuj decyzje dyskrecjonalne z większą pewnością lub przekaż zespołowi uporządkowany odczyt rynku — Mavrynt wspiera decyzję, Ty ją podejmujesz."
       }
     }
   },
   "pricing": {
     "title": "Cennik",
-    "subtitle": "Proste plany, które rosną razem z Twoim produktem. Bez ukrytych kosztów per użytkownik.",
+    "subtitle": "Przejrzyste plany dla traderów indywidualnych, analityków i zespołów. Bez ukrytych opłat.",
     "billing": {
       "monthly": "Miesięcznie",
       "yearly": "Rocznie",
@@ -102,63 +102,63 @@
         "name": "Starter",
         "price": "0 zł",
         "period": "na zawsze",
-        "desc": "Dla pojedynczych developerów poznających platformę.",
+        "desc": "Dla indywidualnych traderów poznających Mavrynt.",
         "cta": "Zacznij za darmo",
         "features": {
-          "1": "Do 3 modułów",
-          "2": "Wsparcie społeczności",
-          "3": "Podstawowa obserwowalność",
-          "4": "Szablon na licencji MIT"
+          "1": "Do 5 instrumentów na jednej liście obserwowanych",
+          "2": "Podstawowe sygnały rynkowe",
+          "3": "Newsy i kontekst na zakończenie dnia",
+          "4": "Wsparcie społeczności"
         }
       },
       "team": {
-        "name": "Team",
-        "price": "399 zł",
+        "name": "Pro",
+        "price": "199 zł",
         "period": "miesięcznie",
-        "desc": "Dla rosnących zespołów dostarczających produkt.",
+        "desc": "Dla aktywnych traderów i niezależnych analityków.",
         "cta": "Rozpocznij 14-dniowy trial",
         "features": {
-          "1": "Nielimitowane moduły",
-          "2": "Wsparcie priorytetowe",
-          "3": "Zaawansowana obserwowalność",
-          "4": "Środowiska preview",
-          "5": "Gotowość na SSO"
+          "1": "Nielimitowane listy obserwowanych i instrumenty",
+          "2": "Feed sygnałów w czasie rzeczywistym",
+          "3": "Pełny kontekst newsów i makro",
+          "4": "Strukturalne alerty na sygnały i wydarzenia",
+          "5": "Wsparcie priorytetowe"
         }
       },
       "enterprise": {
         "name": "Enterprise",
         "price": "Indywidualnie",
         "period": "dopasowane",
-        "desc": "Dla organizacji regulowanych potrzebujących gwarancji.",
+        "desc": "Dla biur tradingowych, zespołów analitycznych i firm.",
         "cta": "Porozmawiaj z nami",
         "features": {
-          "1": "Wszystko z Team",
-          "2": "SLA i wsparcie dedykowane",
-          "3": "On-prem i instalacje offline",
-          "4": "Security review i DPA",
-          "5": "Adaptery na zamówienie"
+          "1": "Wszystko z Pro",
+          "2": "Współdzielone listy i notatki zespołu",
+          "3": "Dedykowany onboarding i kontakt opiekuna",
+          "4": "Eksport danych i dostęp do API",
+          "5": "Dopasowane pokrycie rynków i integracje"
         }
       }
     }
   },
   "testimonials": {
-    "title": "Zespoły, które dostarczają z Mavrynt",
-    "subtitle": "Historie liderów inżynierii, którzy przestali tonąć w usługach i wrócili do dostarczania funkcji.",
+    "title": "Zbudowane pod realną pracę traderów i analityków",
+    "subtitle": "Wczesne opinie traderów i analityków, którzy testują Mavrynt jako codzienne środowisko pracy z rynkiem.",
     "items": {
       "1": {
-        "quote": "Zwinęliśmy cztery niedokończone usługi z powrotem do monolitu Mavrynt i zmniejszyliśmy liczbę incydentów o połowę w kwartał.",
-        "author": "Anna Kowalska",
-        "role": "Head of Platform, FinStack"
+        "quote": "Sygnały, kontekst cenowy i newsy, które je napędzają — wszystko w jednym widoku. Mniej przełączania między narzędziami, więcej czasu na decyzję.",
+        "author": "Trader dyskrecjonalny FX",
+        "role": "Użytkownik wczesnego dostępu"
       },
       "2": {
-        "quote": "Granice modułów są realne. Nowi inżynierowie odnajdują się w jeden dzień, nie w tydzień.",
-        "author": "Marek Novák",
-        "role": "Staff Engineer, Orbit"
+        "quote": "Doceniam strukturę. Sygnały przychodzą z kontekstem — widzę, dlaczego coś się poruszyło, a nie tylko że się poruszyło.",
+        "author": "Niezależny analityk rynkowy",
+        "role": "Użytkownik wczesnego dostępu"
       },
       "3": {
-        "quote": "Obserwowalność zawsze odkładaliśmy na następny kwartał. Mavrynt dostarczył ją w pierwszym dniu.",
-        "author": "Lena Sørensen",
-        "role": "CTO, Greenline"
+        "quote": "Dla małego biura wspólny, uporządkowany odczyt rynku zmienił sposób, w jaki zaczynamy każdą sesję.",
+        "author": "Kierownik biura tradingowego",
+        "role": "Klient pilotażowy"
       }
     }
   },
@@ -167,39 +167,39 @@
     "subtitle": "Nie znajdujesz tego, czego szukasz? Napisz — odpowiadamy na każdą wiadomość.",
     "items": {
       "1": {
-        "q": "Czy Mavrynt jest open source?",
-        "a": "Podstawowy szablon i SDK modułów są open source na licencji MIT. Plany płatne dodają narzędzia, wsparcie i funkcje enterprise."
+        "q": "Jakie rynki obsługuje Mavrynt?",
+        "a": "Mavrynt koncentruje się na głównych i pobocznych parach walutowych Forex oraz najważniejszych CFD na indeksy i surowce. Pokrycie kolejnych instrumentów jest rozszerzane na podstawie opinii użytkowników."
       },
       "2": {
-        "q": "Dlaczego modularny monolit, a nie mikrousługi?",
-        "a": "Monolity z twardymi granicami modułów są dla większości zespołów prostsze operacyjnie. Gdy moduł naprawdę wymaga niezależnego skalowania, Mavrynt pozwala na bezpieczne wydzielenie."
+        "q": "Czy Mavrynt jest brokerem?",
+        "a": "Nie. Mavrynt to platforma analityczna — nie realizujemy zleceń, nie przechowujemy środków klientów i nie działamy jako regulowany broker. Pomagamy interpretować rynek; wykonanie pozostaje u Twojego brokera."
       },
       "3": {
-        "q": "Jakiego stacka używa?",
-        "a": ".NET 10 w backendzie, React 19 + Vite we frontendzie, Postgres domyślnie, OpenTelemetry dla obserwowalności. Adaptery pozwalają wymienić każdy z tych elementów."
+        "q": "Czy Mavrynt gwarantuje wyniki tradingu?",
+        "a": "Nie. Mavrynt jest narzędziem wspierającym decyzje, nie gwarancją wyniku. Agreguje sygnały, kontekst i newsy, byś mógł analizować szybciej — nie obiecuje zysków ani nie usuwa ryzyka rynkowego."
       },
       "4": {
-        "q": "Czy mogę hostować u siebie?",
-        "a": "Tak — wszystkie plany wspierają self-hosting. Enterprise dodaje instalacje offline i podpisane artefakty."
+        "q": "Jak powstają i jak są interpretowane sygnały?",
+        "a": "Sygnały łączą dane ilościowe (cena, momentum, zmienność) z kontekstem informacyjnym (newsy, kalendarz ekonomiczny). Każdy prezentowany jest wraz z danymi, z których wynika, byś mógł ocenić trafność, a nie reagować na samą liczbę."
       },
       "5": {
-        "q": "Jak wyglądają aktualizacje?",
-        "a": "Semantyczne wersjonowanie SDK, jawne przewodniki migracji na każdy minor, automatyczne codemods dla typowych przypadków."
+        "q": "Czy zespół może korzystać z Mavrynt wspólnie?",
+        "a": "Tak. Plany Pro i Enterprise wspierają współdzielone listy obserwowanych, notatki i kanały alertów, by traderzy i analitycy mogli pracować na tym samym widoku rynku."
       },
       "6": {
-        "q": "Czy obsługuje aplikacje multi-tenant?",
-        "a": "Tak. Tenancy jest obywatelem pierwszej klasy — izolacja na poziomie wiersza, konfiguracja per-tenant i tagowanie metryk wbudowane."
+        "q": "Dla kogo jest Mavrynt?",
+        "a": "Dla traderów dyskrecjonalnych, którzy potrzebują szybszego kontekstu rynku, niezależnych analityków wymagających strukturalnych odczytów oraz firm, które chcą ujednolicić sposób obserwacji rynku w zespole."
       }
     }
   },
   "contact": {
     "title": "Porozmawiajmy",
-    "subtitle": "Opowiedz nam o swoim zespole i o tym, co budujesz. Odpowiadamy w ciągu jednego dnia roboczego.",
+    "subtitle": "Opowiedz nam o swoim setupie tradingowym lub badawczym i o tym, co chciałbyś widzieć wyraźniej. Odpowiadamy w ciągu jednego dnia roboczego.",
     "form": {
       "name": { "label": "Imię i nazwisko", "placeholder": "Twoje pełne imię" },
       "email": { "label": "Email służbowy", "placeholder": "ty@firma.com" },
-      "company": { "label": "Firma", "placeholder": "Twoja firma (opcjonalnie)" },
-      "message": { "label": "Wiadomość", "placeholder": "Co próbujesz dostarczyć?" },
+      "company": { "label": "Firma / biuro", "placeholder": "Firma, biuro lub fundusz (opcjonalnie)" },
+      "message": { "label": "Wiadomość", "placeholder": "Jakie rynki lub procesy Mavrynt ma wspierać?" },
       "submit": "Wyślij wiadomość",
       "submitting": "Wysyłanie…",
       "success": {
@@ -220,11 +220,11 @@
   "legal": {
     "privacy": {
       "title": "Polityka prywatności",
-      "subtitle": "Placeholder — właściwa treść wkrótce."
+      "subtitle": "Jak Mavrynt traktuje Twoje dane."
     },
     "terms": {
       "title": "Regulamin",
-      "subtitle": "Placeholder — właściwa treść wkrótce."
+      "subtitle": "Warunki korzystania z Mavrynt."
     }
   },
   "notFound": {
