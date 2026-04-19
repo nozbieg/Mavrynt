@@ -337,6 +337,36 @@ Dokumentacja blisko kodu:
 
 ---
 
+## ADR-015 — Landing marketingowy: niezależny cykl życia ze wspólnym toolingiem
+
+**Status:** zaakceptowana  
+**Data:** 2026-04-19
+
+### Decyzja
+Landing marketingowy (`mavrynt-landing`) dostarczany jest jako niezależna aplikacja SPA (React + Vite), która:
+- jest orkiestrowana przez `Mavrynt.AppHost` w środowisku deweloperskim dla spójności uruchamiania,
+- wdraża się na dowolny hosting statyczny (CDN / object storage) bez runtime-owej zależności od `Mavrynt.Api`,
+- korzysta ze wspólnego frontendowego toolingu (`@mavrynt/design-tokens`, `@mavrynt/ui`, `@mavrynt/config`, `@mavrynt/eslint-config`, `@mavrynt/tsconfig-base`) z wewnętrznej przestrzeni roboczej `src/frontend/shared/*`,
+- używa portów i adapterów dla wszystkich elementów przekrojowych (analityka, formularz kontaktu, feature flags), z konsolowymi / no-op adapterami jako domyślnym runtime.
+
+### Uzasadnienie
+Landing jest publicznym wejściem do produktu i ma inną domenę awarii niż backend:
+- musi działać nawet, gdy API jest w trybie konserwacji,
+- jego cykl wydań wyznaczają potrzeby marketingu, a nie deploye backendu,
+- korzysta z najtańszego możliwego modelu hostingu (CDN / statyczny) i agresywnego cache'owania.
+
+Jednocześnie wyjmowanie landingu z monorepo obniżyłoby spójność wizualną i jakościową. Współdzielenie tokenów, prymitywów UI, konfiguracji ESLint i tsconfig utrzymuje standardy identyczne z pozostałymi aplikacjami SPA. Porty i adaptery zachowują opcję integracji z `Mavrynt.Api` w przyszłości (adapter HTTP `LeadService`) bez przepisywania komponentów.
+
+### Konsekwencje
+- landing nie może importować niczego z `src/backend/*`; integracje odbywają się wyłącznie przez adaptery,
+- wszystkie ścieżki zbierania leadów idą przez port `LeadService` — bezpośrednie `fetch` w komponentach są niedozwolone,
+- piramida testów landingu żyje wewnątrz aplikacji: Vitest (unit + integracyjne, jsdom) i Playwright (Chromium smoke dla kluczowych ścieżek),
+- zasoby statyczne są wstępnie kompresowane (gzip + brotli) na etapie builda; hosting / CDN odpowiada za serwowanie,
+- nowe wspólne pojęcia frontendowe (np. prymityw UI) trafiają do `src/frontend/shared/*`, a nie do konkretnej aplikacji SPA,
+- poziomem bazowym dostępności jest WCAG 2.1 AA; regresje w etykietach, landmarkach czy zarządzaniu fokusem powinny łamać smoke e2e.
+
+---
+
 ## Zasady dopisywania kolejnych decyzji
 
 Każda nowa decyzja powinna zawierać:

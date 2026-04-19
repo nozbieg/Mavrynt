@@ -337,6 +337,36 @@ Documentation kept close to the code:
 
 ---
 
+## ADR-015 — Marketing landing SPA: independent lifecycle with shared tooling
+
+**Status:** Accepted  
+**Date:** 2026-04-19
+
+### Decision
+The marketing landing page (`mavrynt-landing`) ships as an independent React + Vite SPA that:
+- is orchestrated by `Mavrynt.AppHost` during local development for a consistent launch experience,
+- deploys to any static host (CDN / object storage) without a runtime dependency on `Mavrynt.Api`,
+- consumes shared frontend tooling (`@mavrynt/design-tokens`, `@mavrynt/ui`, `@mavrynt/config`, `@mavrynt/eslint-config`, `@mavrynt/tsconfig-base`) from the internal `src/frontend/shared/*` workspace,
+- uses ports-and-adapters for every cross-cutting concern (analytics, lead submission, feature flags), with console / no-op adapters as the default runtime.
+
+### Rationale
+The landing page is the product's public front door and has a different failure domain than the backend:
+- it must stay live even when the API is in maintenance,
+- its release cadence follows marketing needs, not backend deploys,
+- it benefits from the cheapest possible hosting model (CDN / static) and aggressive caching.
+
+At the same time, forking the landing away from the monorepo would dilute design consistency. Sharing tokens, UI primitives, ESLint, and tsconfig packages keeps visual and code-quality standards identical across all SPAs. Ports-and-adapters preserve the option to integrate with `Mavrynt.Api` later (an HTTP `LeadService` adapter) without rewriting any components.
+
+### Consequences
+- the landing must not import anything from `src/backend/*`; integration happens only through adapters,
+- all lead-capture paths must go through the `LeadService` port — direct `fetch` calls inside components are not allowed,
+- the landing test pyramid lives inside the app: Vitest (unit + integration, jsdom) and Playwright (Chromium smoke for key journeys),
+- static assets are pre-compressed (gzip + brotli) at build time; the CDN / host is expected to serve them,
+- new shared frontend concepts (e.g., a UI primitive) go into `src/frontend/shared/*`, not into any individual SPA,
+- WCAG 2.1 AA is the accessibility baseline; regressions in labels, landmarks, or focus management should break the e2e smoke suite.
+
+---
+
 ## Rules for adding future decisions
 
 Each new decision should include:

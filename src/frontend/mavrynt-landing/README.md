@@ -27,14 +27,17 @@ are wired through **ports & adapters** — see `src/lib/` and `src/app/Providers
 ## Scripts
 
 ```bash
-pnpm --filter mavrynt-landing dev          # Vite dev server (HMR)
-pnpm --filter mavrynt-landing build        # tsc -b && vite build (+ .gz/.br)
-pnpm --filter mavrynt-landing preview      # serve ./dist locally
-pnpm --filter mavrynt-landing lint         # ESLint flat config
-pnpm --filter mavrynt-landing typecheck    # tsc -b --noEmit
-pnpm --filter mavrynt-landing test         # vitest run
-pnpm --filter mavrynt-landing test:watch   # vitest (watch mode)
-pnpm --filter mavrynt-landing test:cov     # vitest run --coverage
+pnpm --filter mavrynt-landing dev              # Vite dev server (HMR)
+pnpm --filter mavrynt-landing build            # tsc -b && vite build (+ .gz/.br)
+pnpm --filter mavrynt-landing preview          # serve ./dist locally
+pnpm --filter mavrynt-landing lint             # ESLint flat config
+pnpm --filter mavrynt-landing typecheck        # tsc -b --noEmit
+pnpm --filter mavrynt-landing test             # vitest run
+pnpm --filter mavrynt-landing test:watch       # vitest (watch mode)
+pnpm --filter mavrynt-landing test:cov         # vitest run --coverage
+pnpm --filter mavrynt-landing test:e2e         # playwright smoke suite
+pnpm --filter mavrynt-landing test:e2e:ui      # playwright in UI mode
+pnpm --filter mavrynt-landing test:e2e:install # install Chromium + deps (first run)
 ```
 
 ---
@@ -139,7 +142,30 @@ future phase).
 - **Coverage:** `pnpm --filter mavrynt-landing test:cov` emits v8 HTML
   reports under `coverage/`.
 
-E2E smoke tests (Playwright) land in the next phase under `tests/e2e/`.
+### End-to-end (Playwright)
+
+Smoke suite lives under `tests/e2e/` and runs against Chromium only.
+Three journeys cover the paths a real visitor follows:
+
+1. **Home → Contact happy path** — fills and submits the contact form,
+   verifies the success banner (`role="status"`) announces via ARIA.
+2. **Pricing → FAQ expand** — opens a question in the native
+   `<details>` accordion and verifies the `name="faq"` exclusive-open
+   semantics (opening a second question closes the first).
+3. **Language switch (PL ↔ EN)** — swaps the locale via the nav's
+   `<select>` and verifies both the visible copy and `<html lang>`
+   update.
+
+First-time setup (installs the browser binary):
+
+```bash
+pnpm --filter mavrynt-landing test:e2e:install
+```
+
+The Playwright config starts `pnpm dev` as the `webServer` (fast
+feedback). For a production-representative run, `pnpm build` first,
+then point `webServer.command` at `pnpm preview` in
+`playwright.config.ts`.
 
 ---
 
@@ -155,6 +181,8 @@ src/
   lib/           # Ports + adapters (analytics, lead, i18n, router, seo)
   pages/         # Route-level compositions
   test/          # Vitest setup + harness (not shipped)
+tests/
+  e2e/           # Playwright smoke journeys
 ```
 
 ---

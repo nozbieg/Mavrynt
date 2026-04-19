@@ -23,6 +23,12 @@ var adminWeb = builder.AddViteApp(adminWebAppName, "../../frontend/mavrynt-admin
     .WaitFor(adminApi)
     .WithExternalHttpEndpoints();
 
+// The marketing landing SPA is intentionally NOT wired to `api` via
+// `.WithReference(api)` / `.WaitFor(api)` — per ADR-010 and ADR-015 the
+// landing must stay deployable and runnable independently of the
+// backend. Any future integration (e.g. contact-form submission) goes
+// through the in-app LeadService port + HTTP adapter, not a runtime
+// AppHost reference.
 var landing = builder.AddViteApp(landingAppName, "../../frontend/mavrynt-landing")
     .WithNpmPackageInstallation()
     .WithExternalHttpEndpoints();

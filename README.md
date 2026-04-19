@@ -78,10 +78,10 @@ W katalogu `tests` znajdują się miejsce na:
 
 ### Dokumentacja techniczna
 
-Najważniejsze dokumenty znajdują się w katalogu `docs`:
-- `docs/architecture.md`
-- `docs/decisions.md`
-- `docs/repo-structure.md`
+Najważniejsze dokumenty znajdują się w katalogu `docs` (każdy w wersji PL i EN):
+- `docs/architecture.pl.md` / `docs/architecture.en.md`,
+- `docs/decisions.pl.md` / `docs/decisions.en.md`,
+- `docs/repo-structure.pl.md` / `docs/repo-structure.en.md`.
 
 Dokumenty te opisują:
 - architekturę rozwiązania,
@@ -97,17 +97,17 @@ Repozytorium jest budowane ręcznie od czystego pliku solution `.sln`, krok po k
 - nazewnictwem,
 - odpowiedzialnością poszczególnych warstw.
 
-To podejście ma zapewnić wysoką jakość architektury startowej oraz ułatwić dalszy rozwój projektu.
+Fundament backendowy (hosty, building blocks, moduł Users) oraz wszystkie trzy aplikacje frontendowe (`mavrynt-web`, `mavrynt-admin`, `mavrynt-landing`) są już na miejscu. Aplikacja landing przeszła pełny cykl fundament → treść → dostępność (WCAG 2.1 AA) → wydajność → testy end-to-end (Vitest + Playwright).
 
 ### Cele najbliższych etapów
 
 Najbliższe etapy rozwoju obejmują:
-- rozbudowę wspólnych building blocks,
-- rozwój pierwszych modułów domenowych,
-- dodanie projektów testowych,
-- konfigurację wspólnego builda i pakietów,
-- dodanie frontendów,
-- przygotowanie środowiska lokalnego i wdrożeniowego.
+- implementację właściwej logiki modułu Users (autoryzacja, role, uprawnienia),
+- dopięcie kolejnych modułów domenowych,
+- rozbudowę piramidy testów na backendzie (unit, integracyjne, architektoniczne),
+- produkcyjne adaptery portów frontendowych (HTTP `LeadService`, real-world `AnalyticsClient`),
+- konfigurację CI/CD oraz kontenerizacji środowiska,
+- pierwsze środowisko wdrożeniowe (staging).
 
 ### Zasady organizacyjne
 
@@ -116,22 +116,35 @@ W projekcie obowiązują następujące zasady:
 - nie mieszamy warstw domeny, aplikacji i infrastruktury,
 - każdy moduł powinien zachowywać spójny układ,
 - dokumentacja architektury jest utrzymywana razem z kodem,
-- większe decyzje techniczne powinny być dopisywane do `docs/decisions.md`.
+- większe decyzje techniczne powinny być dopisywane do `docs/decisions.pl.md` (oraz `docs/decisions.en.md`),
+- landing marketingowy jest niezależny od backendu — integracje idą wyłącznie przez adaptery (ADR-015).
 
 ### Uruchomienie
 
-Na obecnym etapie repozytorium stanowi bazę architektoniczną i strukturalną. Szczegółowe instrukcje uruchomienia poszczególnych komponentów będą uzupełniane wraz z dalszym rozwojem projektu.
+**Wymagania środowiskowe:**
+- .NET 10 SDK,
+- Node.js 22+ oraz pnpm 9+,
+- Docker (opcjonalnie, pod przyszłe zależności infrastrukturalne).
 
-Docelowo README powinno zawierać:
-- wymagania środowiskowe,
-- instrukcję uruchomienia lokalnego,
-- opis zależności infrastrukturalnych,
-- informacje o buildzie i testach,
-- informacje o deploymencie.
+**Cały stos przez Aspire AppHost (backend + wszystkie SPA):**
+
+    cd src/backend/Mavrynt.AppHost
+    dotnet run
+
+`Mavrynt.AppHost` orkiestruje API, Admin API, `mavrynt-web`, `mavrynt-admin` oraz `mavrynt-landing`. Landing jest świadomie niezwiązany z API — działa samodzielnie również wtedy, gdy backend jest wyłączony.
+
+**Tylko landing (szybka iteracja marketingu):**
+
+    pnpm --filter mavrynt-landing dev        # serwer deweloperski (HMR)
+    pnpm --filter mavrynt-landing test       # testy jednostkowe Vitest
+    pnpm --filter mavrynt-landing test:e2e   # smoke Playwright (Chromium)
+    pnpm --filter mavrynt-landing build      # build produkcyjny (gzip + brotli)
+
+Szczegółowa instrukcja landingu: [`src/frontend/mavrynt-landing/README.md`](src/frontend/mavrynt-landing/README.md).
 
 ### Status
 
-Projekt jest w fazie aktywnej inicjalizacji architektury i struktury repozytorium.
+Fundament architektoniczny gotowy. Pierwszy z frontendów (landing) jest w pełni funkcjonalny i gotowy do wdrożenia. Następny krok: rozwój modułów domenowych i środowiska CI/CD.
 
 ## EN
 
@@ -211,10 +224,10 @@ The `tests` folder is reserved for:
 
 ### Technical documentation
 
-The most important documents are located in the `docs` folder:
-- `docs/architecture.md`
-- `docs/decisions.md`
-- `docs/repo-structure.md`
+The most important documents are located in the `docs` folder (each is shipped in PL and EN):
+- `docs/architecture.pl.md` / `docs/architecture.en.md`,
+- `docs/decisions.pl.md` / `docs/decisions.en.md`,
+- `docs/repo-structure.pl.md` / `docs/repo-structure.en.md`.
 
 These documents describe:
 - the solution architecture,
@@ -230,17 +243,17 @@ The repository is being built manually from a clean `.sln` file, step by step, w
 - naming,
 - responsibility boundaries.
 
-This approach is intended to ensure high architectural quality at the foundation stage and to support long-term maintainability.
+The backend foundation (hosts, building blocks, the Users module) and all three frontend applications (`mavrynt-web`, `mavrynt-admin`, `mavrynt-landing`) are now in place. The landing app has completed a full lifecycle: foundation → content → accessibility (WCAG 2.1 AA) → performance → end-to-end testing (Vitest + Playwright).
 
 ### Near-term goals
 
 The next stages of development include:
-- expanding the shared building blocks,
-- developing the first domain modules,
-- adding test projects,
-- configuring shared build and package management,
-- adding frontend applications,
-- preparing local and deployment environments.
+- implementing the real Users module logic (authn/authz, roles, permissions),
+- wiring additional domain modules,
+- expanding the backend test pyramid (unit, integration, architectural),
+- production adapters for the frontend ports (HTTP `LeadService`, real-world `AnalyticsClient`),
+- CI/CD configuration and environment containerisation,
+- the first deployment environment (staging).
 
 ### Organizational rules
 
@@ -249,19 +262,32 @@ The following rules apply in the project:
 - domain, application, and infrastructure layers must not be mixed,
 - every module should follow a consistent structure,
 - architecture documentation is maintained together with the code,
-- major technical decisions should be added to `docs/decisions.md`.
+- major technical decisions should be added to `docs/decisions.en.md` (and `docs/decisions.pl.md`),
+- the marketing landing page is independent of the backend — integrations go through adapters only (ADR-015).
 
 ### Running the solution
 
-At the current stage, the repository serves as an architectural and structural foundation. Detailed instructions for running individual components will be added as the project evolves.
+**Requirements:**
+- .NET 10 SDK,
+- Node.js 22+ and pnpm 9+,
+- Docker (optional — for future infrastructure dependencies).
 
-Eventually, this README should include:
-- environment requirements,
-- local setup instructions,
-- infrastructure dependency details,
-- build and test instructions,
-- deployment information.
+**Full stack via Aspire AppHost (backend + all SPAs):**
+
+    cd src/backend/Mavrynt.AppHost
+    dotnet run
+
+`Mavrynt.AppHost` orchestrates the API, the Admin API, `mavrynt-web`, `mavrynt-admin`, and `mavrynt-landing`. The landing is deliberately not coupled to the API — it still runs when the backend is stopped.
+
+**Landing only (fast marketing iteration):**
+
+    pnpm --filter mavrynt-landing dev        # dev server (HMR)
+    pnpm --filter mavrynt-landing test       # Vitest unit + integration tests
+    pnpm --filter mavrynt-landing test:e2e   # Playwright smoke (Chromium)
+    pnpm --filter mavrynt-landing build      # production build (gzip + brotli)
+
+Detailed landing docs: [`src/frontend/mavrynt-landing/README.md`](src/frontend/mavrynt-landing/README.md).
 
 ### Status
 
-The project is currently in the active architecture and repository structure initialization phase.
+Architectural foundation complete. The first frontend (landing) is fully functional and deploy-ready. Next steps: domain-module build-out and CI/CD.

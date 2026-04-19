@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 
 /**
  * Journey 3 — Language switch (PL ↔ EN).
@@ -17,9 +17,11 @@ import { expect, test } from "@playwright/test";
 
 // The landing page renders two <LanguageSwitcher>s (nav + footer). Both
 // wrap a native <select>; we target the one inside the navigation
-// landmark to avoid ambiguity.
-const navLocaleSelect = (page: import("@playwright/test").Page) =>
-  page.getByRole("navigation", { name: /nawigacja główna|primary navigation/i })
+// landmark to avoid ambiguity. The nav's aria-label is localised, so
+// we match either language to keep the helper direction-agnostic.
+const navLocaleSelect = (page: Page): Locator =>
+  page
+    .getByRole("navigation", { name: /nawigacja główna|primary navigation/i })
     .locator("select");
 
 test.describe("Language switcher", () => {
