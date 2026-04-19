@@ -8,6 +8,11 @@ import {
   noopAnalytics,
   type AnalyticsClient,
 } from "../lib/analytics/index.ts";
+import {
+  LeadServiceContext,
+  createConsoleLeadService,
+  type LeadService,
+} from "../lib/lead/index.ts";
 
 /**
  * Providers — single composition root for cross-cutting app concerns.
@@ -17,28 +22,37 @@ import {
  *  2. I18nextProvider (everything below can translate)
  *  3. ThemeProvider (<html data-theme="...">)
  *  4. AnalyticsContext (routing-aware consumers)
+ *  5. LeadServiceContext (forms submit through a port, not a global fetch)
  *
- * Analytics defaults to the noop adapter so nothing fires in dev/tests
- * unless an explicit client is injected by the host app.
+ * Analytics + LeadService both default to no-op/console adapters so
+ * the app runs end-to-end in any environment. Host/host-tests inject
+ * real adapters without touching component code.
  */
 export interface ProvidersProps {
   readonly i18n: I18nInstance;
   readonly analytics?: AnalyticsClient;
+  readonly leadService?: LeadService;
   readonly children: ReactNode;
 }
 
 export const Providers = ({
   i18n,
   analytics = noopAnalytics,
+  leadService,
   children,
-}: ProvidersProps) => (
-  <HelmetProvider>
-    <I18nextProvider i18n={i18n}>
-      <ThemeProvider defaultMode="system">
-        <AnalyticsContext.Provider value={analytics}>
-          {children}
-        </AnalyticsContext.Provider>
-      </ThemeProvider>
-    </I18nextProvider>
-  </HelmetProvider>
-);
+}: ProvidersProps) => {
+  const resolvedLeadService = leadService ?? createConsoleLeadService();
+  return (
+    <HelmetProvider>
+      <I18nextProvider i18n={i18n}>
+        <ThemeProvider defaultMode="system">
+          <AnalyticsContext.Provider value={analytics}>
+            <LeadServiceContext.Provider value={resolvedLeadService}>
+              {children}
+            </LeadServiceContext.Provider>
+          </AnalyticsContext.Provider>
+        </ThemeProvider>
+      </I18nextProvider>
+    </HelmetProvider>
+  );
+};

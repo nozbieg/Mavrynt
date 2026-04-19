@@ -13,3 +13,26 @@
 @import "@mavrynt/design-tokens/styles/reset.css";
 
 @source "../../shared/ui/src/**/*.{ts,tsx}";
+
+/*
+ * A11y — prefers-reduced-motion.
+ *
+ * Neutralises animations, transitions, and smooth scrolling for users
+ * who have requested reduced motion at the OS level (WCAG 2.3.3). The
+ * 0.01ms durations rather than `none` preserve transition *end* events
+ * that some components listen for, without producing perceivable motion.
+ *
+ * Lives in the landing app for Phase 4; promote to
+ * `@mavrynt/design-tokens/styles/reset.css` when we stop treating
+ * reduced-motion as a per-app concern (Phase 5+).
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

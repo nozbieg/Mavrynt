@@ -25,8 +25,13 @@ export const MarketingFooter = () => {
     )),
   }));
 
+  // External links open in a new tab — include an a11y hint so screen
+  // readers announce the behaviour and match the visual affordance.
+  const externalHint = t("a11y.externalLink");
+
   return (
     <Footer
+      ariaLabel={t("a11y.footer")}
       tagline={t("footer.tagline")}
       columns={columns}
       bottom={
@@ -35,17 +40,19 @@ export const MarketingFooter = () => {
           <div className="flex items-center gap-4">
             <a
               href={siteConfig.social.github}
-              className="text-fg-muted hover:text-fg"
+              className="rounded-sm text-fg-muted hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
               rel="noopener noreferrer"
               target="_blank"
+              aria-label={`GitHub (${externalHint})`}
             >
               GitHub
             </a>
             <a
               href={siteConfig.social.linkedin}
-              className="text-fg-muted hover:text-fg"
+              className="rounded-sm text-fg-muted hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
               rel="noopener noreferrer"
               target="_blank"
+              aria-label={`LinkedIn (${externalHint})`}
             >
               LinkedIn
             </a>

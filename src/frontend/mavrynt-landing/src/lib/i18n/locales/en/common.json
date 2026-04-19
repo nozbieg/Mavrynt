@@ -6,7 +6,14 @@
   },
   "cta": {
     "getStarted": "Get started",
-    "readDocs": "Read the docs"
+    "readDocs": "Read the docs",
+    "talkToSales": "Talk to sales",
+    "banner": {
+      "title": "Ready to ship with a cleaner foundation?",
+      "subtitle": "Spin up your first Mavrynt module in under ten minutes.",
+      "primary": "Start free",
+      "secondary": "Book a demo"
+    }
   },
   "footer": {
     "tagline": "The modular monolith platform for modern product teams.",
@@ -24,26 +31,200 @@
     "title": "Ship faster with a modular monolith you can trust.",
     "subtitle": "Mavrynt gives your team a clean foundation to build, deploy, and scale — without drowning in microservices."
   },
+  "hero": {
+    "stat": {
+      "label": "Production-tested",
+      "value": "99.99% uptime across design partners"
+    }
+  },
+  "logos": {
+    "title": "Built with care by teams at"
+  },
   "features": {
     "title": "Features",
-    "subtitle": "Phase 3 will replace this page with the real feature grid."
+    "subtitle": "Everything your team needs to build durable product software — without ceremony.",
+    "items": {
+      "modular": {
+        "title": "Modular by default",
+        "desc": "Bounded modules keep ownership crisp and refactors safe. No premature distributed systems."
+      },
+      "typed": {
+        "title": "Type-safe, end to end",
+        "desc": "Strict TypeScript in the frontend, nullable-aware C# in the backend, contract-first APIs in between."
+      },
+      "observable": {
+        "title": "Observable out of the box",
+        "desc": "Structured logs, traces, and health checks ship preconfigured — not as an afterthought."
+      },
+      "secure": {
+        "title": "Secure by design",
+        "desc": "Sensible defaults for auth, secrets, and CSP. Security headers and threat models baked in."
+      },
+      "scalable": {
+        "title": "Scales with you",
+        "desc": "Start as a single deployable, split a module into its own service the day you need to."
+      },
+      "extensible": {
+        "title": "Extensible through ports",
+        "desc": "Ports and adapters everywhere: swap analytics, email, payments, or search without rewriting callers."
+      }
+    }
+  },
+  "how": {
+    "title": "How it works",
+    "subtitle": "Three moves from zero to first value.",
+    "steps": {
+      "1": {
+        "title": "Start clean",
+        "desc": "Clone the template, pick your modules, and boot locally in minutes."
+      },
+      "2": {
+        "title": "Build features",
+        "desc": "Add capabilities inside bounded modules. The platform keeps contracts and observability consistent."
+      },
+      "3": {
+        "title": "Scale with confidence",
+        "desc": "Ship to production with tracing, feature flags, and zero-downtime deploys already wired up."
+      }
+    }
   },
   "pricing": {
     "title": "Pricing",
-    "subtitle": "Phase 3 will add the pricing matrix."
+    "subtitle": "Simple plans that grow with your product. No per-seat surprises.",
+    "billing": {
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "savings": "Save 20%"
+    },
+    "popular": "Most popular",
+    "tiers": {
+      "starter": {
+        "name": "Starter",
+        "price": "$0",
+        "period": "forever",
+        "desc": "For solo developers exploring the platform.",
+        "cta": "Start free",
+        "features": {
+          "1": "Up to 3 modules",
+          "2": "Community support",
+          "3": "Core observability",
+          "4": "MIT-licensed template"
+        }
+      },
+      "team": {
+        "name": "Team",
+        "price": "$99",
+        "period": "per month",
+        "desc": "For growing teams shipping real product.",
+        "cta": "Start 14-day trial",
+        "features": {
+          "1": "Unlimited modules",
+          "2": "Priority support",
+          "3": "Advanced observability",
+          "4": "Preview environments",
+          "5": "SSO-ready"
+        }
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "price": "Custom",
+        "period": "tailored",
+        "desc": "For regulated orgs that need guarantees.",
+        "cta": "Talk to sales",
+        "features": {
+          "1": "Everything in Team",
+          "2": "SLA & dedicated support",
+          "3": "On-prem & air-gapped options",
+          "4": "Security review & DPA",
+          "5": "Custom adapters"
+        }
+      }
+    }
+  },
+  "testimonials": {
+    "title": "Teams shipping with Mavrynt",
+    "subtitle": "Stories from engineering leaders who stopped drowning in services and started shipping features.",
+    "items": {
+      "1": {
+        "quote": "We collapsed four half-built services back into a Mavrynt monolith and halved our incident rate in a quarter.",
+        "author": "Ana Kowalski",
+        "role": "Head of Platform, FinStack"
+      },
+      "2": {
+        "quote": "The module boundaries are real. New engineers find their way in a day, not a week.",
+        "author": "Marek Novák",
+        "role": "Staff Engineer, Orbit"
+      },
+      "3": {
+        "quote": "Observability was the thing we always pushed to next quarter. Mavrynt shipped it on day one.",
+        "author": "Lena Sørensen",
+        "role": "CTO, Greenline"
+      }
+    }
+  },
+  "faq": {
+    "title": "Frequently asked questions",
+    "subtitle": "Can't find what you're looking for? Reach out — we answer every message.",
+    "items": {
+      "1": {
+        "q": "Is Mavrynt open source?",
+        "a": "The core template and module SDK are open source under MIT. Paid tiers add tooling, support, and enterprise features."
+      },
+      "2": {
+        "q": "Why a modular monolith and not microservices?",
+        "a": "Monoliths with hard module boundaries are simpler to operate for most teams. When a module genuinely needs to scale independently, Mavrynt makes extraction safe and boring."
+      },
+      "3": {
+        "q": "What stack does it use?",
+        "a": ".NET 10 on the backend, React 19 + Vite on the frontend, Postgres by default, OpenTelemetry for observability. Adapters let you swap any of these."
+      },
+      "4": {
+        "q": "Can I self-host?",
+        "a": "Yes — all tiers support self-hosting. Enterprise adds air-gapped installs and signed artifacts."
+      },
+      "5": {
+        "q": "How are upgrades handled?",
+        "a": "Semantic versioning on the SDK, explicit migration guides on every minor, and automated codemods for the common cases."
+      },
+      "6": {
+        "q": "Does it support multi-tenant apps?",
+        "a": "Yes. Tenancy is a first-class concern — row-level isolation, per-tenant config, and metrics tagging are built in."
+      }
+    }
   },
   "contact": {
     "title": "Talk to us",
-    "subtitle": "Phase 3 will wire up the contact form via the LeadService adapter."
+    "subtitle": "Tell us about your team and what you're building. We reply within one business day.",
+    "form": {
+      "name": { "label": "Name", "placeholder": "Your full name" },
+      "email": { "label": "Work email", "placeholder": "you@company.com" },
+      "company": { "label": "Company", "placeholder": "Your company (optional)" },
+      "message": { "label": "Message", "placeholder": "What are you trying to ship?" },
+      "submit": "Send message",
+      "submitting": "Sending…",
+      "success": {
+        "title": "Thanks — message received.",
+        "message": "We'll get back to you within one business day."
+      },
+      "error": {
+        "title": "Something went wrong.",
+        "message": "Please try again, or email {{email}} directly."
+      },
+      "validation": {
+        "required": "This field is required.",
+        "email": "Please enter a valid email address.",
+        "minLength": "Please write a little more — at least {{min}} characters."
+      }
+    }
   },
   "legal": {
     "privacy": {
       "title": "Privacy policy",
-      "subtitle": "Placeholder — real copy ships in Phase 3."
+      "subtitle": "Placeholder — real copy ships shortly."
     },
     "terms": {
       "title": "Terms of service",
-      "subtitle": "Placeholder — real copy ships in Phase 3."
+      "subtitle": "Placeholder — real copy ships shortly."
     }
   },
   "notFound": {
@@ -62,5 +243,10 @@
     "pl": "Polski",
     "en": "English"
   },
-  "skip": "Skip to main content"
+  "skip": "Skip to main content",
+  "a11y": {
+    "nav": "Primary navigation",
+    "footer": "Site footer",
+    "externalLink": "opens in a new tab"
+  }
 }

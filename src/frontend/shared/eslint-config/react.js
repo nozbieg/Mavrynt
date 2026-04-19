@@ -86,6 +86,25 @@ const config = [
       "@typescript-eslint/no-unsafe-assignment": "off",
     },
   },
+  {
+    // Test files: relax the unsafe-* rules for pragmatic mocking, and
+    // turn off React Refresh export checks (tests aren't HMR surfaces).
+    // Keep all other strictness — test code is still production-quality.
+    files: [
+      "**/*.{test,spec}.{ts,tsx}",
+      "**/test/**/*.{ts,tsx}",
+      "**/__tests__/**/*.{ts,tsx}",
+    ],
+    rules: {
+      "@typescript-eslint/no-unsafe-argument": "off",
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-unsafe-return": "off",
+      "@typescript-eslint/unbound-method": "off",
+      "react-refresh/only-export-components": "off",
+    },
+  },
 ];
 
 export default config;

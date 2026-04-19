@@ -40,5 +40,5 @@ export const MarketingNav = () => {
     </>
   );
 
-  return <Navbar links={links} actions={actions} />;
+  return <Navbar links={links} actions={actions} ariaLabel={t("a11y.nav")} />;
 };

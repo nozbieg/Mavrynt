@@ -6,7 +6,14 @@
   },
   "cta": {
     "getStarted": "Rozpocznij",
-    "readDocs": "Dokumentacja"
+    "readDocs": "Dokumentacja",
+    "talkToSales": "Porozmawiaj z nami",
+    "banner": {
+      "title": "Gotowy, by wdrażać na czystszym fundamencie?",
+      "subtitle": "Postaw pierwszy moduł Mavrynt w mniej niż dziesięć minut.",
+      "primary": "Zacznij za darmo",
+      "secondary": "Umów demo"
+    }
   },
   "footer": {
     "tagline": "Platforma modular monolith dla nowoczesnych zespołów produktowych.",
@@ -24,26 +31,200 @@
     "title": "Dostarczaj szybciej dzięki modularnemu monolitowi, któremu możesz zaufać.",
     "subtitle": "Mavrynt daje zespołowi czysty fundament do budowania, wdrażania i skalowania — bez utopienia się w mikrousługach."
   },
+  "hero": {
+    "stat": {
+      "label": "Sprawdzone na produkcji",
+      "value": "99,99% dostępności u partnerów wdrożeniowych"
+    }
+  },
+  "logos": {
+    "title": "Budują z nami zespoły z"
+  },
   "features": {
     "title": "Funkcje",
-    "subtitle": "W Fazie 3 ta strona zostanie zastąpiona właściwą siatką funkcji."
+    "subtitle": "Wszystko, czego zespół potrzebuje do budowy trwałego produktu — bez zbędnej ceremonii.",
+    "items": {
+      "modular": {
+        "title": "Modułowo z definicji",
+        "desc": "Ograniczone moduły utrzymują własność czytelną, a refaktoryzacje bezpieczne. Bez przedwczesnych systemów rozproszonych."
+      },
+      "typed": {
+        "title": "Typy od końca do końca",
+        "desc": "Ścisły TypeScript we frontendzie, nullable-aware C# w backendzie, kontrakty API pomiędzy nimi."
+      },
+      "observable": {
+        "title": "Obserwowalność od razu",
+        "desc": "Strukturalne logi, trace'y i health-check'i — skonfigurowane z pudełka, a nie dopisywane później."
+      },
+      "secure": {
+        "title": "Bezpieczeństwo od podstaw",
+        "desc": "Sensowne domyślne dla auth, secretów i CSP. Nagłówki bezpieczeństwa i modelowanie zagrożeń wbudowane."
+      },
+      "scalable": {
+        "title": "Skaluje się z Tobą",
+        "desc": "Start jako jeden deployable, wydzielenie modułu jako osobnej usługi — dokładnie w dniu, w którym tego potrzebujesz."
+      },
+      "extensible": {
+        "title": "Rozszerzalne przez porty",
+        "desc": "Porty i adaptery wszędzie: wymień analitykę, email, płatności lub wyszukiwarkę bez przepisywania wywołań."
+      }
+    }
+  },
+  "how": {
+    "title": "Jak to działa",
+    "subtitle": "Trzy kroki od zera do pierwszej wartości.",
+    "steps": {
+      "1": {
+        "title": "Zacznij czysto",
+        "desc": "Sklonuj szablon, wybierz moduły i uruchom lokalnie w parę minut."
+      },
+      "2": {
+        "title": "Buduj funkcje",
+        "desc": "Dodawaj zdolności w ograniczonych modułach. Platforma pilnuje kontraktów i obserwowalności."
+      },
+      "3": {
+        "title": "Skaluj z pewnością",
+        "desc": "Wdrażaj na produkcję z tracingiem, feature-flagami i deployami bez przestojów — wszystko już podłączone."
+      }
+    }
   },
   "pricing": {
     "title": "Cennik",
-    "subtitle": "W Fazie 3 dodamy tabelę cenową."
+    "subtitle": "Proste plany, które rosną razem z Twoim produktem. Bez ukrytych kosztów per użytkownik.",
+    "billing": {
+      "monthly": "Miesięcznie",
+      "yearly": "Rocznie",
+      "savings": "Oszczędź 20%"
+    },
+    "popular": "Najpopularniejszy",
+    "tiers": {
+      "starter": {
+        "name": "Starter",
+        "price": "0 zł",
+        "period": "na zawsze",
+        "desc": "Dla pojedynczych developerów poznających platformę.",
+        "cta": "Zacznij za darmo",
+        "features": {
+          "1": "Do 3 modułów",
+          "2": "Wsparcie społeczności",
+          "3": "Podstawowa obserwowalność",
+          "4": "Szablon na licencji MIT"
+        }
+      },
+      "team": {
+        "name": "Team",
+        "price": "399 zł",
+        "period": "miesięcznie",
+        "desc": "Dla rosnących zespołów dostarczających produkt.",
+        "cta": "Rozpocznij 14-dniowy trial",
+        "features": {
+          "1": "Nielimitowane moduły",
+          "2": "Wsparcie priorytetowe",
+          "3": "Zaawansowana obserwowalność",
+          "4": "Środowiska preview",
+          "5": "Gotowość na SSO"
+        }
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "price": "Indywidualnie",
+        "period": "dopasowane",
+        "desc": "Dla organizacji regulowanych potrzebujących gwarancji.",
+        "cta": "Porozmawiaj z nami",
+        "features": {
+          "1": "Wszystko z Team",
+          "2": "SLA i wsparcie dedykowane",
+          "3": "On-prem i instalacje offline",
+          "4": "Security review i DPA",
+          "5": "Adaptery na zamówienie"
+        }
+      }
+    }
+  },
+  "testimonials": {
+    "title": "Zespoły, które dostarczają z Mavrynt",
+    "subtitle": "Historie liderów inżynierii, którzy przestali tonąć w usługach i wrócili do dostarczania funkcji.",
+    "items": {
+      "1": {
+        "quote": "Zwinęliśmy cztery niedokończone usługi z powrotem do monolitu Mavrynt i zmniejszyliśmy liczbę incydentów o połowę w kwartał.",
+        "author": "Anna Kowalska",
+        "role": "Head of Platform, FinStack"
+      },
+      "2": {
+        "quote": "Granice modułów są realne. Nowi inżynierowie odnajdują się w jeden dzień, nie w tydzień.",
+        "author": "Marek Novák",
+        "role": "Staff Engineer, Orbit"
+      },
+      "3": {
+        "quote": "Obserwowalność zawsze odkładaliśmy na następny kwartał. Mavrynt dostarczył ją w pierwszym dniu.",
+        "author": "Lena Sørensen",
+        "role": "CTO, Greenline"
+      }
+    }
+  },
+  "faq": {
+    "title": "Najczęściej zadawane pytania",
+    "subtitle": "Nie znajdujesz tego, czego szukasz? Napisz — odpowiadamy na każdą wiadomość.",
+    "items": {
+      "1": {
+        "q": "Czy Mavrynt jest open source?",
+        "a": "Podstawowy szablon i SDK modułów są open source na licencji MIT. Plany płatne dodają narzędzia, wsparcie i funkcje enterprise."
+      },
+      "2": {
+        "q": "Dlaczego modularny monolit, a nie mikrousługi?",
+        "a": "Monolity z twardymi granicami modułów są dla większości zespołów prostsze operacyjnie. Gdy moduł naprawdę wymaga niezależnego skalowania, Mavrynt pozwala na bezpieczne wydzielenie."
+      },
+      "3": {
+        "q": "Jakiego stacka używa?",
+        "a": ".NET 10 w backendzie, React 19 + Vite we frontendzie, Postgres domyślnie, OpenTelemetry dla obserwowalności. Adaptery pozwalają wymienić każdy z tych elementów."
+      },
+      "4": {
+        "q": "Czy mogę hostować u siebie?",
+        "a": "Tak — wszystkie plany wspierają self-hosting. Enterprise dodaje instalacje offline i podpisane artefakty."
+      },
+      "5": {
+        "q": "Jak wyglądają aktualizacje?",
+        "a": "Semantyczne wersjonowanie SDK, jawne przewodniki migracji na każdy minor, automatyczne codemods dla typowych przypadków."
+      },
+      "6": {
+        "q": "Czy obsługuje aplikacje multi-tenant?",
+        "a": "Tak. Tenancy jest obywatelem pierwszej klasy — izolacja na poziomie wiersza, konfiguracja per-tenant i tagowanie metryk wbudowane."
+      }
+    }
   },
   "contact": {
     "title": "Porozmawiajmy",
-    "subtitle": "W Fazie 3 podłączymy formularz kontaktowy przez adapter LeadService."
+    "subtitle": "Opowiedz nam o swoim zespole i o tym, co budujesz. Odpowiadamy w ciągu jednego dnia roboczego.",
+    "form": {
+      "name": { "label": "Imię i nazwisko", "placeholder": "Twoje pełne imię" },
+      "email": { "label": "Email służbowy", "placeholder": "ty@firma.com" },
+      "company": { "label": "Firma", "placeholder": "Twoja firma (opcjonalnie)" },
+      "message": { "label": "Wiadomość", "placeholder": "Co próbujesz dostarczyć?" },
+      "submit": "Wyślij wiadomość",
+      "submitting": "Wysyłanie…",
+      "success": {
+        "title": "Dzięki — wiadomość otrzymana.",
+        "message": "Odezwiemy się w ciągu jednego dnia roboczego."
+      },
+      "error": {
+        "title": "Coś poszło nie tak.",
+        "message": "Spróbuj ponownie lub napisz bezpośrednio na {{email}}."
+      },
+      "validation": {
+        "required": "To pole jest wymagane.",
+        "email": "Wpisz poprawny adres email.",
+        "minLength": "Napisz trochę więcej — przynajmniej {{min}} znaków."
+      }
+    }
   },
   "legal": {
     "privacy": {
       "title": "Polityka prywatności",
-      "subtitle": "Placeholder — właściwa treść w Fazie 3."
+      "subtitle": "Placeholder — właściwa treść wkrótce."
     },
     "terms": {
       "title": "Regulamin",
-      "subtitle": "Placeholder — właściwa treść w Fazie 3."
+      "subtitle": "Placeholder — właściwa treść wkrótce."
     }
   },
   "notFound": {
@@ -62,5 +243,10 @@
     "pl": "Polski",
     "en": "English"
   },
-  "skip": "Przejdź do treści"
+  "skip": "Przejdź do treści",
+  "a11y": {
+    "nav": "Nawigacja główna",
+    "footer": "Stopka witryny",
+    "externalLink": "otwiera się w nowej karcie"
+  }
 }
