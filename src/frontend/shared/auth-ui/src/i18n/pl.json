@@ -1,0 +1,83 @@
+{
+  "common": {
+    "passwordVisibility": {
+      "show": "Pokaż hasło",
+      "hide": "Ukryj hasło"
+    },
+    "required": "*"
+  },
+  "login": {
+    "title": "Zaloguj się",
+    "subtitle": "Witaj ponownie. Zaloguj się, aby kontynuować w Mavrynt.",
+    "form": {
+      "email": { "label": "Email", "placeholder": "ty@firma.com" },
+      "password": { "label": "Hasło", "placeholder": "Twoje hasło" },
+      "submit": "Zaloguj się",
+      "submitting": "Logowanie…",
+      "validation": {
+        "required": "To pole jest wymagane.",
+        "email": "Wpisz poprawny adres email.",
+        "passwordMin": "Hasło musi mieć co najmniej {{min}} znaków."
+      },
+      "error": {
+        "title": "Nie udało się zalogować.",
+        "invalid_credentials": "Nieprawidłowy email lub hasło.",
+        "rate_limited": "Zbyt wiele prób. Odczekaj chwilę i spróbuj ponownie.",
+        "validation": "Sprawdź wprowadzone dane i spróbuj ponownie.",
+        "network": "Problem z siecią. Sprawdź połączenie.",
+        "server": "Błąd serwera. Spróbuj ponownie za chwilę.",
+        "email_taken": "Ten adres email jest już zarejestrowany."
+      }
+    },
+    "links": {
+      "register": "Nie masz konta? Załóż je",
+      "forgot": "Nie pamiętasz hasła?",
+      "backToSite": "Wróć na mavrynt.com"
+    }
+  },
+  "register": {
+    "title": "Załóż konto",
+    "subtitle": "Zacznij korzystać z Mavrynt w mniej niż minutę.",
+    "form": {
+      "name": { "label": "Imię i nazwisko", "placeholder": "Twoje pełne imię" },
+      "email": { "label": "Email", "placeholder": "ty@firma.com" },
+      "password": {
+        "label": "Hasło",
+        "placeholder": "Co najmniej {{min}} znaków"
+      },
+      "confirmPassword": {
+        "label": "Powtórz hasło",
+        "placeholder": "Powtórz swoje hasło"
+      },
+      "submit": "Załóż konto",
+      "submitting": "Tworzenie konta…",
+      "validation": {
+        "required": "To pole jest wymagane.",
+        "email": "Wpisz poprawny adres email.",
+        "passwordMin": "Hasło musi mieć co najmniej {{min}} znaków.",
+        "passwordsDontMatch": "Hasła nie są takie same."
+      },
+      "error": {
+        "title": "Nie udało się utworzyć konta.",
+        "email_taken": "Konto z tym adresem email już istnieje.",
+        "validation": "Sprawdź wprowadzone dane i spróbuj ponownie.",
+        "rate_limited": "Zbyt wiele prób. Odczekaj chwilę i spróbuj ponownie.",
+        "network": "Problem z siecią. Sprawdź połączenie.",
+        "server": "Błąd serwera. Spróbuj ponownie za chwilę.",
+        "invalid_credentials": "Nieprawidłowe dane logowania."
+      },
+      "success": {
+        "title": "Konto utworzone.",
+        "message": "Jesteś zalogowany jako {{email}}."
+      }
+    },
+    "links": {
+      "login": "Masz już konto? Zaloguj się",
+      "backToSite": "Wróć na mavrynt.com"
+    },
+    "disabled": {
+      "title": "Rejestracja jest wyłączona.",
+      "message": "Konta administratorów są tworzone tylko z zaproszenia. Skontaktuj się z administratorem, jeśli potrzebujesz dostępu."
+    }
+  }
+}

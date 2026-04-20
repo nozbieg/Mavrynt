@@ -12,6 +12,7 @@ This folder hosts the shared frontend layer consumed by all three SPAs in `src/f
 | --- | --- |
 | [`@mavrynt/design-tokens`](./design-tokens) | Design tokens (colors, spacing, typography, radii, breakpoints). Exposes both TypeScript exports and a CSS file with Tailwind v4 `@theme` and semantic theme variables (light / dark). |
 | [`@mavrynt/ui`](./ui) | Shared headless / styled UI primitives: `Container`, `Section`, `Stack`, `Button`, `Link`, `Logo`, plus layout (`Navbar`, `Footer`) and `ThemeProvider`. |
+| [`@mavrynt/auth-ui`](./auth-ui) | Shared authentication UI: `LoginForm`, `RegisterForm`, `AuthCard`, `AuthService` port (console + http adapters), bilingual i18n resources. Used by `mavrynt-web` and `mavrynt-admin`; deliberately kept separate from `@mavrynt/ui` because it owns domain semantics (sessions, credentials). |
 | [`@mavrynt/config`](./config) | Cross-app runtime concerns: typed env loader, feature-flag client interface, i18n bootstrap factory. |
 | [`@mavrynt/eslint-config`](./eslint-config) | Shared ESLint flat config for all SPAs. |
 | [`@mavrynt/tsconfig-base`](./tsconfig-base) | Base `tsconfig` files (`base.json`, `react.json`) extended by every SPA. |

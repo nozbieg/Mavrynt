@@ -1,0 +1,83 @@
+{
+  "common": {
+    "passwordVisibility": {
+      "show": "Show password",
+      "hide": "Hide password"
+    },
+    "required": "*"
+  },
+  "login": {
+    "title": "Sign in",
+    "subtitle": "Welcome back. Sign in to continue to Mavrynt.",
+    "form": {
+      "email": { "label": "Email", "placeholder": "you@company.com" },
+      "password": { "label": "Password", "placeholder": "Your password" },
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "validation": {
+        "required": "This field is required.",
+        "email": "Please enter a valid email address.",
+        "passwordMin": "Password must be at least {{min}} characters."
+      },
+      "error": {
+        "title": "Could not sign you in.",
+        "invalid_credentials": "The email or password is incorrect.",
+        "rate_limited": "Too many attempts. Please wait a moment and try again.",
+        "validation": "Please check your inputs and try again.",
+        "network": "Network problem. Please check your connection.",
+        "server": "Server error. Please try again shortly.",
+        "email_taken": "This email is already registered."
+      }
+    },
+    "links": {
+      "register": "Don't have an account? Create one",
+      "forgot": "Forgot password?",
+      "backToSite": "Back to mavrynt.com"
+    }
+  },
+  "register": {
+    "title": "Create your account",
+    "subtitle": "Get started with Mavrynt in less than a minute.",
+    "form": {
+      "name": { "label": "Full name", "placeholder": "Your full name" },
+      "email": { "label": "Email", "placeholder": "you@company.com" },
+      "password": {
+        "label": "Password",
+        "placeholder": "At least {{min}} characters"
+      },
+      "confirmPassword": {
+        "label": "Confirm password",
+        "placeholder": "Repeat your password"
+      },
+      "submit": "Create account",
+      "submitting": "Creating account…",
+      "validation": {
+        "required": "This field is required.",
+        "email": "Please enter a valid email address.",
+        "passwordMin": "Password must be at least {{min}} characters.",
+        "passwordsDontMatch": "Passwords do not match."
+      },
+      "error": {
+        "title": "Could not create your account.",
+        "email_taken": "An account with this email already exists.",
+        "validation": "Please check your inputs and try again.",
+        "rate_limited": "Too many attempts. Please wait a moment and try again.",
+        "network": "Network problem. Please check your connection.",
+        "server": "Server error. Please try again shortly.",
+        "invalid_credentials": "Invalid credentials."
+      },
+      "success": {
+        "title": "Account created.",
+        "message": "You're signed in as {{email}}."
+      }
+    },
+    "links": {
+      "login": "Already have an account? Sign in",
+      "backToSite": "Back to mavrynt.com"
+    },
+    "disabled": {
+      "title": "Registration is disabled.",
+      "message": "Admin accounts are invite-only. Contact your administrator if you need access."
+    }
+  }
+}
