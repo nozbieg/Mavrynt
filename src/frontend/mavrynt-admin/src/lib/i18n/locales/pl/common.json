@@ -1,0 +1,44 @@
+{
+  "app": {
+    "name": "Mavrynt Admin",
+    "tagline": "Wewnętrzna konsola operatora."
+  },
+  "nav": {
+    "home": "Start",
+    "login": "Zaloguj się",
+    "register": "Załóż konto",
+    "backToSite": "Powrót do mavrynt.com",
+    "backToWeb": "Otwórz aplikację mavrynt.com"
+  },
+  "footer": {
+    "tagline": "Mavrynt Admin — wewnętrzna konsola operatora.",
+    "copyright": "© {{year}} Mavrynt. Wyłącznie do użytku wewnętrznego."
+  },
+  "home": {
+    "title": "Mavrynt Admin",
+    "subtitle": "Zaloguj się kontem administratora, aby uzyskać dostęp do narzędzi operatora.",
+    "primary": "Zaloguj się"
+  },
+  "notFound": {
+    "title": "Nie znaleziono strony",
+    "subtitle": "Strona, której szukasz, nie istnieje.",
+    "cta": "Wróć na stronę główną"
+  },
+  "theme": {
+    "toggle": "Przełącz motyw",
+    "light": "Jasny",
+    "dark": "Ciemny",
+    "system": "Systemowy"
+  },
+  "language": {
+    "label": "Język",
+    "pl": "Polski",
+    "en": "English"
+  },
+  "skip": "Przejdź do głównej treści",
+  "a11y": {
+    "nav": "Główna nawigacja",
+    "footer": "Stopka serwisu",
+    "externalLink": "otwiera się w nowej karcie"
+  }
+}

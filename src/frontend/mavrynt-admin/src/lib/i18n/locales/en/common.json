@@ -1,0 +1,44 @@
+{
+  "app": {
+    "name": "Mavrynt Admin",
+    "tagline": "Internal operator console."
+  },
+  "nav": {
+    "home": "Home",
+    "login": "Sign in",
+    "register": "Create account",
+    "backToSite": "Back to mavrynt.com",
+    "backToWeb": "Open mavrynt.com app"
+  },
+  "footer": {
+    "tagline": "Mavrynt Admin — internal operator console.",
+    "copyright": "© {{year}} Mavrynt. Internal use only."
+  },
+  "home": {
+    "title": "Mavrynt Admin",
+    "subtitle": "Sign in with your administrator account to access operator tooling.",
+    "primary": "Sign in"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "subtitle": "The page you were looking for does not exist.",
+    "cta": "Back to home"
+  },
+  "theme": {
+    "toggle": "Toggle theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "language": {
+    "label": "Language",
+    "pl": "Polski",
+    "en": "English"
+  },
+  "skip": "Skip to main content",
+  "a11y": {
+    "nav": "Primary navigation",
+    "footer": "Site footer",
+    "externalLink": "opens in a new tab"
+  }
+}

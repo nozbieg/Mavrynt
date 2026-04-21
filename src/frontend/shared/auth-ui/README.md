@@ -2,7 +2,7 @@
 
 Shared authentication UI for all Mavrynt SPAs (`mavrynt-web`, `mavrynt-admin`). Built on top of `@mavrynt/ui` + `@mavrynt/design-tokens`.
 
-Kept **separate** from `@mavrynt/ui` because it owns domain semantics (sessions, credentials, error codes, i18n keys), while `@mavrynt/ui` stays purely presentational (Container, Button, Stack…). See ADR-012.
+Kept **separate** from `@mavrynt/ui` because it owns domain semantics (sessions, credentials, error codes, i18n keys), while `@mavrynt/ui` stays purely presentational (Container, Button, Stack…). See `ADR-017`. For usage docs see `docs/auth-ui.{en,pl}.md`.
 
 ## Public surface
 

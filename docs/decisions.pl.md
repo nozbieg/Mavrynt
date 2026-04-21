@@ -367,6 +367,59 @@ Jednocześnie wyjmowanie landingu z monorepo obniżyłoby spójność wizualną 
 
 ---
 
+## ADR-016 — Rozwiązywanie URL-i między aplikacjami przez `@mavrynt/config/app-urls`
+
+**Status:** Zaakceptowana  
+**Data:** 2026-04-20
+
+### Decyzja
+Cała nawigacja między SPA (np. `mavrynt-landing` → `/login` w `mavrynt-web`, `mavrynt-admin` → SPA użytkownika, dowolne linki awaryjne w stopce) rozwiązuje adresy absolutne przez jeden pomocnik: `resolveAppUrls()` eksportowany z `@mavrynt/config/app-urls`. Pomocnik:
+- przyjmuje opcjonalne źródło env (domyślnie `import.meta.env`), dzięki czemu można go testować w Node bez Vite,
+- czyta kanoniczne klucze `VITE_APP_URL_LANDING`, `VITE_APP_URL_WEB`, `VITE_APP_URL_ADMIN` dla każdego środowiska,
+- akceptuje legacy aliasy `VITE_MARKETING_URL`, `VITE_WEB_URL`, `VITE_ADMIN_URL` dla wstecznej zgodności z okablowaniem env z Fazy 2 / 3,
+- stosuje fallback do developerskich portów Vite (`:5173`, `:5174`, `:5175`), gdy nic nie jest ustawione,
+- normalizuje końcowe slashe i zamraża wynik, by wywołujący mogli bezpiecznie doklejać ścieżki.
+
+### Uzasadnienie
+Wkomponowane w JSX literały `VITE_*_URL` rozchodzą się w czasie (zmiana nazwy dla aplikacji, override dla środowiska, inny TLD dla wdrożenia). Skoncentrowanie rozwiązywania URL-i w jednym module:
+- daje jedno miejsce do zmiany topologii wdrożenia,
+- sprawia, że cross-cutting zmiana (np. dodanie czwartej SPA) jest mechaniczna, a nie grep-everywhere,
+- izoluje dostęp do zmiennych środowiskowych, dzięki czemu reszta kodu pozostaje czysta i testowalna jednostkowo,
+- odzwierciedla podejście porty-adaptery przyjęte dla analityki, zbierania leadów i autoryzacji (`ADR-015`).
+
+### Konsekwencje
+- żaden komponent frontendowy nie czyta zmiennych `VITE_*_URL` bezpośrednio — nawigacja zawsze przechodzi przez `resolveAppUrls()` / `resolveAppUrl(app)`,
+- nowe wdrożenia ustawiają `VITE_APP_URL_*` w swoim pliku env Vite; legacy klucze są tolerowane przez jeden cykl wydania, a następnie wycofywane,
+- testy wstrzykują zwykły `Record<string, string | undefined>` jako źródło env — bez stanu globalnego, bez gimnastyki `vi.stubEnv`,
+- pomocnik mieszka w `@mavrynt/config` (nie w `@mavrynt/ui`), bo to konfiguracja runtime, a nie prezentacja.
+
+---
+
+## ADR-017 — `@mavrynt/auth-ui` jako osobny pakiet współdzielony
+
+**Status:** Zaakceptowana  
+**Data:** 2026-04-20
+
+### Decyzja
+UI autoryzacji (formularze logowania i rejestracji, port `AuthService`, domyślny adapter konsolowy, fabryka adaptera HTTP oraz dwujęzyczne zasoby i18n dla auth) żyje w osobnym pakiecie workspace `@mavrynt/auth-ui`, a nie wewnątrz `@mavrynt/ui`.
+
+### Uzasadnienie
+`@mavrynt/ui` jest biblioteką prezentacyjną: przyciski, sekcje, navbar, stopka — bez semantyki domenowej. Autoryzacja natomiast operuje na sesjach, poświadczeniach, typowanych kodach błędów (`invalid_credentials`, `email_taken`, `rate_limited`, …) oraz na abstrakcji nad endpointem backendu. Wtłoczenie tej domeny do `@mavrynt/ui` wymusiłoby:
+- płacenie kosztu zależności auth przez każdego konsumenta prymitywów UI,
+- zatarcie granicy między prezentacją a domeną — każda przyszła decyzja („czy to powinno iść do `ui`, czy gdzie indziej?") robiłaby się niejasna,
+- kolizję z zakresem review opartym o WCAG: ścieżki auth mają wyższą poprzeczkę review niż wizualizacje marketingowe.
+
+Utrzymanie dwóch pakietów osobno pozwala im ewoluować w swoim tempie. `@mavrynt/ui` pozostaje mały, tani w zależnościach i łatwy do ogarnięcia. `@mavrynt/auth-ui` posiada swój port, swoje adaptery i swoje zasoby i18n — podmiana backendu to zmiana providera `AuthServiceContext`, a nie edycja komponentów UI.
+
+### Konsekwencje
+- `@mavrynt/auth-ui` zależy od `@mavrynt/ui` (nie odwrotnie) i udostępnia formularze, port serwisu, port analityki oraz zasoby i18n,
+- konsumujące aplikacje (`mavrynt-web`, `mavrynt-admin`) rejestrują paczkę i18n pod namespace'em `"auth"` w swoim bootstrapie i18n,
+- aplikacje wstrzykują własny `AuthService` (`createConsoleAuthService` w dev, `createHttpAuthService` w prod przeciwko `Mavrynt.Api` / `Mavrynt.AdminApp`) przez `AuthServiceContext.Provider`,
+- flagi funkcyjne na poziomie tras (`admin.register.enabled`) bramkują rejestrację admina bez modyfikacji `@mavrynt/auth-ui`,
+- testy formularzy, hooków i adapterów żyją w zestawie Vitest konsumującej SPA (głównie `mavrynt-web`) — sam pakiet jest wysyłany w źródłach i nie ma własnego runnera.
+
+---
+
 ## Zasady dopisywania kolejnych decyzji
 
 Każda nowa decyzja powinna zawierać:

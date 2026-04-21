@@ -1,3 +1,4 @@
-/* App.css — intentionally empty.
- * Styling is provided by the shared design tokens imported from `index.css`.
+/* DEPRECATED — Phase 2 moved all styling to `index.css` + shared design
+ * tokens. This file is intentionally empty; it will be removed via
+ * `git rm` during Phase 5 cleanup (sandbox can't delete it in-place).
  */

@@ -367,6 +367,59 @@ At the same time, forking the landing away from the monorepo would dilute design
 
 ---
 
+## ADR-016 — Cross-app URL resolution via `@mavrynt/config/app-urls`
+
+**Status:** Accepted  
+**Date:** 2026-04-20
+
+### Decision
+All cross-SPA navigation (e.g., `mavrynt-landing` → `/login` on `mavrynt-web`, `mavrynt-admin` → the user-facing SPA, any footer escape-hatches) resolves absolute URLs through a single helper: `resolveAppUrls()` exported from `@mavrynt/config/app-urls`. The helper:
+- takes an optional env-source argument (defaults to `import.meta.env`) so it is testable in Node without Vite,
+- reads canonical keys `VITE_APP_URL_LANDING`, `VITE_APP_URL_WEB`, `VITE_APP_URL_ADMIN` per deployment,
+- accepts legacy aliases `VITE_MARKETING_URL`, `VITE_WEB_URL`, `VITE_ADMIN_URL` for backwards compatibility with Phase 2 / Phase 3 env wiring,
+- falls back to per-app Vite dev ports (`:5173`, `:5174`, `:5175`) when nothing is set,
+- normalises trailing slashes and freezes the result so callers can safely append paths.
+
+### Rationale
+Inline `VITE_*_URL` literals scattered across nav and footer components drift over time (per-app rename, per-env override, per-tier domain). Concentrating URL resolution in one module:
+- gives one place to change deployment topology,
+- makes a cross-cutting change (e.g., adding a fourth SPA) mechanical rather than a grep-everywhere exercise,
+- isolates env-variable access so the rest of the code stays pure and unit-testable,
+- mirrors the ports-and-adapters stance taken for analytics, lead capture, and auth (`ADR-015`).
+
+### Consequences
+- no frontend component may read `VITE_*_URL` env vars directly — navigation always goes through `resolveAppUrls()` / `resolveAppUrl(app)`,
+- new deployments set `VITE_APP_URL_*` in their Vite env file; the legacy keys are tolerated for one release cycle, then retired,
+- tests inject a plain `Record<string, string | undefined>` as the env source — no global state, no `vi.stubEnv` gymnastics,
+- the helper lives in `@mavrynt/config` (not `@mavrynt/ui`) because it is runtime configuration, not presentation.
+
+---
+
+## ADR-017 — `@mavrynt/auth-ui` as a separate shared package
+
+**Status:** Accepted  
+**Date:** 2026-04-20
+
+### Decision
+Authentication UI (login + register forms, the `AuthService` port, the default console adapter, the HTTP adapter factory, and the bilingual auth i18n bundle) lives in its own workspace package, `@mavrynt/auth-ui`, rather than inside `@mavrynt/ui`.
+
+### Rationale
+`@mavrynt/ui` is a presentational library: buttons, sections, navbar, footer, no domain semantics. Auth, by contrast, deals with sessions, credentials, typed error codes (`invalid_credentials`, `email_taken`, `rate_limited`, …), and the abstraction over the backend auth endpoint. Putting that domain into `@mavrynt/ui` would:
+- force every consumer of primitive buttons to pay the auth dependency cost,
+- blur the boundary between presentation and domain — every future decision ("should this go into `ui` or somewhere else?") would get murky,
+- conflict with WCAG-driven review scope: auth flows have a stricter review bar than marketing visuals.
+
+Keeping the two packages separate lets each evolve on its own cadence. `@mavrynt/ui` stays small, cheap to depend on, and easy to reason about. `@mavrynt/auth-ui` owns its port, its adapters, and its i18n resources — swap in a different backend adapter by changing the `AuthServiceContext` provider, not by editing UI code.
+
+### Consequences
+- `@mavrynt/auth-ui` depends on `@mavrynt/ui` (not the reverse) and exposes forms, the service port, the analytics port, and the i18n resources,
+- consuming apps (`mavrynt-web`, `mavrynt-admin`) register the auth i18n bundle under namespace `"auth"` in their i18n bootstrap,
+- apps inject their own `AuthService` (`createConsoleAuthService` in dev, `createHttpAuthService` against `Mavrynt.Api` / `Mavrynt.AdminApp` in prod) via `AuthServiceContext.Provider`,
+- route-level feature flags (`admin.register.enabled`) gate the admin registration surface without touching `@mavrynt/auth-ui`,
+- tests for the forms, hooks, and adapters live inside the consuming SPA's Vitest suite (primarily `mavrynt-web`) — the package itself is source-shipped and has no independent runner.
+
+---
+
 ## Rules for adding future decisions
 
 Each new decision should include:

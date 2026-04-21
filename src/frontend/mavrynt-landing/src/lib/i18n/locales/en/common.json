@@ -2,7 +2,9 @@
   "nav": {
     "features": "Features",
     "pricing": "Pricing",
-    "contact": "Contact"
+    "contact": "Contact",
+    "login": "Sign in",
+    "register": "Create account"
   },
   "cta": {
     "getStarted": "Request access",

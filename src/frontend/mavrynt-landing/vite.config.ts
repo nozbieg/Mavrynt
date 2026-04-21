@@ -12,6 +12,10 @@ import compression from "vite-plugin-compression";
  * the Mavrynt API directly during development, add a proxy block here —
  * but prefer keeping the LeadService adapter abstraction.
  *
+ * **Important:** When running through YARP proxy in development/production,
+ * `/landing` is the main entry point (catch-all route). The landing page
+ * serves as the home page redirect destination for the entire application.
+ *
  * ## Performance strategy (Phase 4d)
  *
  *   1. Route-level code-splitting via React.lazy — each page lands in its
@@ -26,6 +30,7 @@ import compression from "vite-plugin-compression";
  *      used classes and the v4 runtime tree-shakes unused tokens.
  */
 export default defineConfig({
+  base: process.env.VITE_LANDING_BASE ?? "/",
   plugins: [
     react(),
     tailwindcss(),

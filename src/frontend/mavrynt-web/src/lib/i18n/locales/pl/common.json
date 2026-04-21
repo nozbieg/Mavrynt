@@ -1,0 +1,44 @@
+{
+  "app": {
+    "name": "Mavrynt",
+    "tagline": "Analityczny workspace dla traderów i analityków."
+  },
+  "nav": {
+    "home": "Start",
+    "login": "Zaloguj się",
+    "register": "Załóż konto",
+    "backToSite": "Wróć na mavrynt.com"
+  },
+  "footer": {
+    "tagline": "Mavrynt — analityczny workspace.",
+    "copyright": "© {{year}} Mavrynt. Wszelkie prawa zastrzeżone."
+  },
+  "home": {
+    "title": "Witaj w Mavrynt.",
+    "subtitle": "Zaloguj się do swojego workspace lub załóż konto, aby zacząć.",
+    "primary": "Zaloguj się",
+    "secondary": "Załóż konto"
+  },
+  "notFound": {
+    "title": "Nie znaleziono strony",
+    "subtitle": "Strona, której szukasz, nie istnieje.",
+    "cta": "Wróć na start"
+  },
+  "theme": {
+    "toggle": "Przełącz motyw",
+    "light": "Jasny",
+    "dark": "Ciemny",
+    "system": "Systemowy"
+  },
+  "language": {
+    "label": "Język",
+    "pl": "Polski",
+    "en": "English"
+  },
+  "skip": "Przejdź do treści",
+  "a11y": {
+    "nav": "Nawigacja główna",
+    "footer": "Stopka witryny",
+    "externalLink": "otwiera się w nowej karcie"
+  }
+}

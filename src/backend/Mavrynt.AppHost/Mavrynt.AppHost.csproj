@@ -13,5 +13,6 @@
     <ItemGroup>
       <ProjectReference Include="..\Mavrynt.AdminApp\Mavrynt.AdminApp.csproj" />
       <ProjectReference Include="..\Mavrynt.Api\Mavrynt.Api.csproj" />
+      <ProjectReference Include="..\Mavrynt.YarpProxy\Mavrynt.YarpProxy.csproj" />
     </ItemGroup>
 </Project>

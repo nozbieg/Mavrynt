@@ -2,7 +2,9 @@
   "nav": {
     "features": "Funkcje",
     "pricing": "Cennik",
-    "contact": "Kontakt"
+    "contact": "Kontakt",
+    "login": "Zaloguj się",
+    "register": "Załóż konto"
   },
   "cta": {
     "getStarted": "Poproś o dostęp",

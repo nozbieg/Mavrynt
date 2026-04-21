@@ -1,73 +1,56 @@
-# React + TypeScript + Vite
+# mavrynt-admin
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Internal operator console for Mavrynt. Paired with `Mavrynt.AdminApp` on the backend. Self-registration is disabled on this surface by default — operators are invited in through the Users module (see `ADR-007` / the `admin.register.enabled` feature flag).
 
-Currently, two official plugins are available:
+Runs on Vite dev port **5175**.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Scripts
 
-## React Compiler
+```bash
+npm run dev            # Vite dev server on http://localhost:5175
+npm run build          # tsc -b && vite build
+npm run lint           # ESLint
+npm run typecheck      # tsc -b --noEmit
+npm run preview        # serve the production bundle
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+npm run test           # Vitest unit / integration (jsdom)
+npm run test:watch     # Vitest watch mode
+npm run test:cov       # Vitest with V8 coverage
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+No Playwright suite yet — added when admin routes carry real state worth smoke-testing.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Architecture snapshot
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+src/
+├── app/            Providers composition root + router
+├── pages/          Route-level components
+├── layouts/        Console shell (AdminNav, AdminFooter, AdminLayout)
+├── lib/            Per-app concerns (analytics, auth, feature-flags, i18n, router, seo)
+├── test/           Vitest setup
+└── main.tsx        Bootstrap
+```
+
+Cross-cutting ports are the same as `mavrynt-web`; the admin adapter for `AuthService` is configured with `roles: ["admin"]` so route guards behave realistically against the console mock.
+
+## Auth
+
+`LoginPage` composes `@mavrynt/auth-ui` identically to the web SPA, with `source="admin:login"`. The `/register` route exists but is feature-flagged off by default:
+
+- `featureFlags.isEnabled("admin.register.enabled")` returns `false` in the shipped static adapter.
+- `AdminNav` hides the Register link entirely when the flag is off so operators aren't led to a dead-end.
+- The route still mounts (defensive) but renders the `register.disabled` copy from `@mavrynt/auth-ui`.
+
+Toggle the flag from the feature-flag client once the Users module provides a real backend.
+
+## Env
+
+| Variable | Purpose | Default |
+| --- | --- | --- |
+| `VITE_APP_URL_LANDING` | Absolute URL of the marketing site | `http://localhost:5173` |
+| `VITE_APP_URL_WEB` | Absolute URL of the user SPA | `http://localhost:5174` |
+| `VITE_APP_URL_ADMIN` | Absolute URL of this SPA | `http://localhost:5175` |
+| `VITE_ADMIN_API_PROXY_TARGET` | Upstream for `/api/*` (Mavrynt.AdminApp) | `http://localhost:5001` |
+
+Legacy aliases (`VITE_MARKETING_URL`, `VITE_WEB_URL`, `VITE_ADMIN_URL`) are still honoured — see `ADR-016`.

@@ -3,6 +3,7 @@ const string adminApiName = "adminApi";
 const string webAppName = "web";
 const string adminWebAppName = "adminWeb";
 const string landingAppName = "landing";
+const string yarpProxyName = "yarp-proxy";
 
 var builder = DistributedApplication.CreateBuilder(args);
 
@@ -32,5 +33,19 @@ var adminWeb = builder.AddViteApp(adminWebAppName, "../../frontend/mavrynt-admin
 var landing = builder.AddViteApp(landingAppName, "../../frontend/mavrynt-landing")
     .WithNpmPackageInstallation()
     .WithExternalHttpEndpoints();
+
+// Add YARP Reverse Proxy to route all app URLs through a unified entry point
+var yarpProxy = builder.AddProject<Projects.Mavrynt_YarpProxy>(yarpProxyName)
+    .WithExternalHttpEndpoints()
+    .WithReference(api)
+    .WithReference(adminApi)
+    .WithReference(web)
+    .WithReference(adminWeb)
+    .WithReference(landing)
+    .WaitFor(api)
+    .WaitFor(adminApi)
+    .WaitFor(web)
+    .WaitFor(adminWeb)
+    .WaitFor(landing);
 
 builder.Build().Run();

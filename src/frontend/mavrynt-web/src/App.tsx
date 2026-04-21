@@ -1,53 +1,18 @@
-import { useState } from "react";
-import { Button, Container, Section, Stack, ThemeProvider } from "@mavrynt/ui";
-
 /**
- * Phase 1 placeholder for `mavrynt-web`.
+ * DEPRECATED — Phase 2 superseded this file. Retained as an empty marker
+ * only because the Cowork sandbox cannot delete files in-place.
  *
- * Wires the user-facing SPA into the shared design system. Keeps the
- * existing `/api/ping` smoke test so backend orchestration via
- * `Mavrynt.AppHost` continues to verify end-to-end connectivity.
+ * The real composition root lives under `src/app/` (App.tsx +
+ * Providers.tsx + routes.tsx) and is loaded from `src/main.tsx`.
+ *
+ * To finish the cleanup from a developer shell, run from the repo root:
+ *
+ *   git rm src/frontend/mavrynt-web/src/App.tsx \
+ *          src/frontend/mavrynt-web/src/App.css \
+ *          src/frontend/mavrynt-admin/src/App.tsx \
+ *          src/frontend/mavrynt-admin/src/App.css
+ *
+ * Nothing imports this file; `tsc --noEmit` and ESLint both treat it as
+ * an empty module.
  */
-const App = () => {
-  const [result, setResult] = useState<string>("not called");
-
-  const callApi = async (): Promise<void> => {
-    try {
-      const response = await fetch("/api/ping");
-      const data = (await response.json()) as { message?: string };
-      setResult(data.message ?? "no message");
-    } catch (error) {
-      console.error("API call failed", error);
-      setResult("failed");
-    }
-  };
-
-  return (
-    <ThemeProvider defaultMode="system">
-      <Section spacing="md">
-        <Container size="md">
-          <Stack gap={6} align="start">
-            <h1 className="font-display text-4xl font-semibold tracking-tight text-fg">
-              Mavrynt Web
-            </h1>
-            <p className="text-fg-muted">
-              User-facing SPA. Shared design system + API smoke test.
-            </p>
-            <Stack direction="row" gap={3} align="center" wrap>
-              <Button
-                onClick={() => {
-                  void callApi();
-                }}
-              >
-                Call API
-              </Button>
-              <span className="text-sm text-fg-muted">Result: {result}</span>
-            </Stack>
-          </Stack>
-        </Container>
-      </Section>
-    </ThemeProvider>
-  );
-};
-
-export default App;
+export {};

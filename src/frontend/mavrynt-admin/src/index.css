@@ -1,9 +1,14 @@
 /*
  * Entry stylesheet for `mavrynt-admin` — same shared pipeline as web
  * and landing so the layout system stays consistent across all three SPAs.
+ *
+ * The second `@source` directive points Tailwind at the auth-ui package
+ * (source-shipped .ts/.tsx, no build step) so class names used inside
+ * `LoginForm` / `RegisterForm` / `AuthCard` are present in the final CSS.
  */
 @import "tailwindcss";
 @import "@mavrynt/design-tokens/styles/tokens.css";
 @import "@mavrynt/design-tokens/styles/reset.css";
 
 @source "../../shared/ui/src/**/*.{ts,tsx}";
+@source "../../shared/auth-ui/src/**/*.{ts,tsx}";
