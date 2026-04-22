@@ -32,8 +32,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mavrynt.Modules.Users.Appli
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mavrynt.Modules.Users.Infrastructure", "src\backend\Mavrynt.Modules.Users.Infrastructure\Mavrynt.Modules.Users.Infrastructure.csproj", "{7F9E52B7-CD29-4468-A230-0A1649697993}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mavrynt.YarpProxy", "src\backend\Mavrynt.YarpProxy\Mavrynt.YarpProxy.csproj", "{4207E0C2-B668-43F1-9438-E5059653E5AA}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -84,9 +82,5 @@ Global
 		{7F9E52B7-CD29-4468-A230-0A1649697993}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7F9E52B7-CD29-4468-A230-0A1649697993}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7F9E52B7-CD29-4468-A230-0A1649697993}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4207E0C2-B668-43F1-9438-E5059653E5AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4207E0C2-B668-43F1-9438-E5059653E5AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4207E0C2-B668-43F1-9438-E5059653E5AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4207E0C2-B668-43F1-9438-E5059653E5AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
