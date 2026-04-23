@@ -5,21 +5,22 @@ const string adminWebAppName = "adminWeb";
 const string landingAppName = "landing";
 
 
+
 var builder = DistributedApplication.CreateBuilder(args);
+builder.Configuration["DcpPublisher:RandomizePorts"] = "false";
 
 var api = builder.AddProject<Projects.Mavrynt_Api>(apiName)
     .WithExternalHttpEndpoints();
+
 var adminApi = builder.AddProject<Projects.Mavrynt_AdminApp>(adminApiName)
     .WithExternalHttpEndpoints();
 
-var web = builder.AddViteApp(webAppName, "../../frontend/mavrynt-web")
-    .WithNpmPackageInstallation()
+_ = builder.AddProject<Projects.Mavrynt_Web_App>(webAppName)
     .WithReference(api)
     .WaitFor(api)
     .WithExternalHttpEndpoints();
 
-var adminWeb = builder.AddViteApp(adminWebAppName, "../../frontend/mavrynt-admin")
-    .WithNpmPackageInstallation()
+_ = builder.AddProject<Projects.Mavrynt_Web_Admin>(adminWebAppName)
     .WithReference(adminApi)
     .WaitFor(adminApi)
     .WithExternalHttpEndpoints();
@@ -30,11 +31,7 @@ var adminWeb = builder.AddViteApp(adminWebAppName, "../../frontend/mavrynt-admin
 // backend. Any future integration (e.g. contact-form submission) goes
 // through the in-app LeadService port + HTTP adapter, not a runtime
 // AppHost reference.
-var landing = builder.AddViteApp(landingAppName, "../../frontend/mavrynt-landing")
-    .WithNpmPackageInstallation()
+_ = builder.AddProject<Projects.Mavrynt_Web_Landing>(landingAppName)
     .WithExternalHttpEndpoints();
-
-// Add YARP Reverse Proxy to route all app URLs through a unified entry point
-
 
 builder.Build().Run();

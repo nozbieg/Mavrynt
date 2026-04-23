@@ -32,6 +32,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mavrynt.Modules.Users.Appli
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mavrynt.Modules.Users.Infrastructure", "src\backend\Mavrynt.Modules.Users.Infrastructure\Mavrynt.Modules.Users.Infrastructure.csproj", "{7F9E52B7-CD29-4468-A230-0A1649697993}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mavrynt.Web.Admin", "src\frontend\Mavrynt.Web.Admin\Mavrynt.Web.Admin.csproj", "{9BA0DE1B-EE77-418C-8D82-5770B3CFB08B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mavrynt.Web.App", "src\frontend\Mavrynt.Web.App\Mavrynt.Web.App.csproj", "{A0006715-62CD-4BFE-82D9-965F0A8AD4BC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mavrynt.Web.Landing", "src\frontend\Mavrynt.Web.Landing\Mavrynt.Web.Landing.csproj", "{38923B85-E2F4-4AFF-9F0C-A47012A6C552}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -82,5 +88,17 @@ Global
 		{7F9E52B7-CD29-4468-A230-0A1649697993}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7F9E52B7-CD29-4468-A230-0A1649697993}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7F9E52B7-CD29-4468-A230-0A1649697993}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BA0DE1B-EE77-418C-8D82-5770B3CFB08B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BA0DE1B-EE77-418C-8D82-5770B3CFB08B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BA0DE1B-EE77-418C-8D82-5770B3CFB08B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BA0DE1B-EE77-418C-8D82-5770B3CFB08B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0006715-62CD-4BFE-82D9-965F0A8AD4BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0006715-62CD-4BFE-82D9-965F0A8AD4BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0006715-62CD-4BFE-82D9-965F0A8AD4BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0006715-62CD-4BFE-82D9-965F0A8AD4BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38923B85-E2F4-4AFF-9F0C-A47012A6C552}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38923B85-E2F4-4AFF-9F0C-A47012A6C552}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38923B85-E2F4-4AFF-9F0C-A47012A6C552}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38923B85-E2F4-4AFF-9F0C-A47012A6C552}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
