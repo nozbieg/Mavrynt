@@ -8,9 +8,6 @@
         <UserSecretsId>f2ed584d-4bb3-4b96-bfbc-9563647f34e2</UserSecretsId>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="CommunityToolkit.Aspire.Hosting.NodeJS.Extensions"/>
-    </ItemGroup>
-    <ItemGroup>
       <ProjectReference Include="..\..\frontend\Mavrynt.Web.Admin\Mavrynt.Web.Admin.csproj" />
       <ProjectReference Include="..\..\frontend\Mavrynt.Web.App\Mavrynt.Web.App.csproj" />
       <ProjectReference Include="..\..\frontend\Mavrynt.Web.Landing\Mavrynt.Web.Landing.csproj" />

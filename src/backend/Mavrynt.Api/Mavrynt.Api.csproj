@@ -12,6 +12,7 @@
       <ProjectReference Include="..\Mavrynt.BuildingBlocksContracts\Mavrynt.BuildingBlocksContracts.csproj" />
       <ProjectReference Include="..\Mavrynt.Modules.Users.Application\Mavrynt.Modules.Users.Application.csproj" />
       <ProjectReference Include="..\Mavrynt.Modules.Users.Infrastructure\Mavrynt.Modules.Users.Infrastructure.csproj" />
+      <ProjectReference Include="..\Mavrynt.ServiceDefaults\Mavrynt.ServiceDefaults.csproj" />
     </ItemGroup>
 
 </Project>

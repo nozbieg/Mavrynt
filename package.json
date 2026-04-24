@@ -4,9 +4,9 @@
   "private": true,
   "description": "Mavrynt frontend workspace — three React/Vite SPAs (web, admin, landing) sharing a design system.",
   "workspaces": [
-    "src/frontend/mavrynt-web",
-    "src/frontend/mavrynt-admin",
-    "src/frontend/mavrynt-landing",
+    "src/frontend/Mavrynt.Web.App/mavrynt-web",
+    "src/frontend/Mavrynt.Web.Admin/mavrynt-admin",
+    "src/frontend/Mavrynt.Web.Landing/mavrynt-landing",
     "src/frontend/shared/*"
   ],
   "scripts": {

@@ -12,7 +12,7 @@
 @import "@mavrynt/design-tokens/styles/tokens.css";
 @import "@mavrynt/design-tokens/styles/reset.css";
 
-@source "../../shared/ui/src/**/*.{ts,tsx}";
+@source "../../../shared/ui/src/**/*.{ts,tsx}";
 
 /*
  * A11y — prefers-reduced-motion.

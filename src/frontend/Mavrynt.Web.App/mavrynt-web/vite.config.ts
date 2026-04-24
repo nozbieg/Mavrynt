@@ -11,14 +11,17 @@ import tailwindcss from "@tailwindcss/vite";
  *   `/api/auth/register`, `/api/auth/logout`). The auth endpoints are
  *   consumed by `@mavrynt/auth-ui`'s HTTP adapter when `VITE_AUTH=http`.
  *
- * When running through YARP proxy:
- *   API calls are routed through `/api/*` which YARP proxies to Mavrynt.Api.
- *   This app is served at `/app/*` through the YARP reverse proxy.
+ * Served via `Mavrynt.Web.App` (.NET SpaProxy wrapper).
+ *   In development the .NET host proxies to this Vite dev server (port 5174).
+ *   In production the .NET host serves the pre-built `dist/` output.
+ *   This app is mounted at base path `/app/`.
  *
  * Port 5174 matches the default in `@mavrynt/config`'s `DEFAULT_APP_URLS.web`.
+ * Fallback API target port 5046 matches `Mavrynt.Api` launchSettings (HTTP).
+ * Override with env vars: API_HTTPS / API_HTTP (injected by Aspire in dev).
  */
 const apiTarget =
-  process.env.API_HTTPS ?? process.env.API_HTTP ?? "http://localhost:5000";
+  process.env.API_HTTPS ?? process.env.API_HTTP ?? "http://localhost:5046";
 
 const apiProxy = {
   "/api": {

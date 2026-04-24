@@ -10,8 +10,14 @@ import { routes } from "./routes.tsx";
  * The router is created once at module load (not per render) so route
  * definitions aren't recreated on every re-render. Mirrors the
  * identical pattern in `mavrynt-web` and `mavrynt-landing`.
+ *
+ * `basename` is derived from Vite's `BASE_URL` (set to `base` in
+ * vite.config.ts, e.g. "/admin/"). React Router requires no trailing
+ * slash, so we normalise it. This allows the router to match routes
+ * like "login" when the browser URL is "/admin/login".
  */
-const router = createBrowserRouter([...routes]);
+const basename = (import.meta.env.BASE_URL ?? "/").replace(/\/$/u, "") || "/";
+const router = createBrowserRouter([...routes], { basename });
 
 export interface AppProps {
   readonly i18n: I18nInstance;

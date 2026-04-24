@@ -2,19 +2,23 @@
  * Cross-app URL resolver.
  *
  * Single source of truth for "where do the three Mavrynt SPAs live?".
- * Każdy frontend importuje ten helper i renderuje absolutne linki do pozostałych SPA,
- * bez hardcodowania hostów/portów w kodzie nawigacji czy stopki.
+ * Every frontend imports this helper to render absolute links to sibling
+ * SPAs without duplicating host/port config anywhere in the codebase.
  *
- * Domyślne porty dev:
- *   - landing  → http://localhost:5173
- *   - web      → http://localhost:5174
- *   - admin    → http://localhost:5175
+ * Resolution order (first match wins):
+ *   1. VITE_APP_URL_<APP>  — injected by Aspire AppHost (.WithEnvironment)
+ *                            in dev, or set by deployment pipeline in prod.
+ *   2. Same-origin fallback — window.location.origin + the SPA's canonical
+ *                            base path. Works when all three SPAs are served
+ *                            from one origin behind a reverse proxy (prod).
  *
- * Produkcyjne nadpisania pochodzą z `VITE_APP_URL_*` (ustawiane przez AppHost).
+ * No ports or hostnames are hardcoded. All URLs are either injected via env
+ * or derived at runtime from the browser's current origin.
  *
  * SOLID:
- * - Single Responsibility: tylko rozwiązywanie URL.
- * - Dependency Inversion: źródło env jest wstrzykiwane (domyślnie import.meta.env), więc testowalne bez Vite.
+ * - Single Responsibility : URL resolution only.
+ * - Dependency Inversion  : env source is injected (default import.meta.env)
+ *                           so the module is testable without Vite.
  */
 
 export type AppId = "landing" | "web" | "admin";
@@ -25,10 +29,23 @@ export interface AppUrls {
   readonly admin: string;
 }
 
-export const DEFAULT_APP_URLS: AppUrls = Object.freeze({
-  landing: "http://localhost:5173",
-  web: "http://localhost:5174",
-  admin: "http://localhost:5175",
+/**
+ * Canonical base paths for each SPA.
+ *
+ * Must match the `base` option in each project's vite.config.ts:
+ *   - mavrynt-landing : VITE_LANDING_BASE ?? "/"
+ *   - mavrynt-web     : VITE_APP_BASE     ?? "/app/"
+ *   - mavrynt-admin   : VITE_ADMIN_BASE   ?? "/admin/"
+ *
+ * These paths are used as the same-origin fallback when no
+ * VITE_APP_URL_* env var is present. They are the only values that
+ * legitimately belong in shared config — they are routing contracts,
+ * not deployment details.
+ */
+export const SPA_BASE_PATHS: Readonly<Record<AppId, string>> = Object.freeze({
+  landing: "/",
+  web: "/app",
+  admin: "/admin",
 });
 
 const PRIMARY_ENV_KEYS: Readonly<Record<AppId, string>> = Object.freeze({
@@ -50,12 +67,31 @@ const readEnvSource = (): Record<string, string | undefined> => {
   }
 };
 
+/**
+ * Returns the current browser origin (e.g. "https://mavrynt.com").
+ * Falls back to an empty string in SSR / test environments where
+ * `window` is not defined.
+ */
+const currentOrigin = (): string => {
+  try {
+    return window.location.origin;
+  } catch {
+    return "";
+  }
+};
+
 export const resolveAppUrls = (
   source: Readonly<Record<string, string | undefined>> = readEnvSource(),
 ): AppUrls => {
+  const origin = currentOrigin();
+
   const pick = (app: AppId): string => {
-    const primary = source[PRIMARY_ENV_KEYS[app]];
-    return normalise(primary ?? DEFAULT_APP_URLS[app]);
+    const injected = source[PRIMARY_ENV_KEYS[app]];
+    if (injected) return normalise(injected);
+    // Same-origin fallback: correct for production reverse-proxy deployments.
+    // In Aspire dev all VITE_APP_URL_* vars are always injected by AppHost,
+    // so this branch is never reached during local development.
+    return normalise(`${origin}${SPA_BASE_PATHS[app]}`);
   };
 
   return Object.freeze({
