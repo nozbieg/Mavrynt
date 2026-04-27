@@ -6,10 +6,5 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
-    <ItemGroup>
-      <Folder Include="Events\" />
-      <Folder Include="Requests\" />
-      <Folder Include="Responses\" />
-    </ItemGroup>
 
 </Project>

@@ -438,6 +438,34 @@ Recommended statuses:
 
 ---
 
+## ADR-018 — BuildingBlocks baseline without mediator lock-in
+
+**Status:** Accepted  
+**Date:** 2026-04-27
+
+### Decision
+The four BuildingBlocks projects have been given their foundational implementation:
+- `Mavrynt.BuildingBlocks.Domain` — domain primitives: `IEntity<TId>`, `IAggregateRoot`, `IDomainEvent`, `Entity<TId>`, `AggregateRoot<TId>`, `ValueObject`, `Error`, `Result`, `Result<T>`.
+- `Mavrynt.BuildingBlocks.Application` — application abstractions: command/query marker interfaces, handler interfaces returning `Result`/`Result<T>`, behavior marker interfaces (validation, logging, transaction), `IDateTimeProvider`, `ICurrentUserContext`, and a skeleton DI extension point.
+- `Mavrynt.BuildingBlocksContracts` — integration contracts: `IIntegrationEvent`, `IntegrationEvent`, `IRequestContract`, `IResponseContract`, `PagedResponse<T>`.
+- `Mavrynt.BuildingBlocks.Infrastructure` — infrastructure abstractions: `IUnitOfWork`, `IRepository<TEntity, TId>`, `PostgreSqlOptions`, `ConfigurationExtensions`.
+
+The implementation intentionally does not introduce MediatR, FluentValidation, EF Core, Npgsql, or any concrete persistence implementation.
+
+### Rationale
+The Users module (and any future module) requires stable base types to build on without those types being entangled with a specific mediator, validator, or ORM choice. Locking into MediatR or FluentValidation at this stage would force those dependencies on every module before there is enough context to make a well-informed choice. The command/query/handler interfaces defined here are library-neutral and can be adapted to any pipeline implementation later. Keeping the domain layer free of all infrastructure and framework dependencies ensures it remains portable and easily testable.
+
+### Consequences
+- all domain entities must extend `Entity<TId>` or `AggregateRoot<TId>` from BuildingBlocks.Domain,
+- all application use-cases must implement `ICommandHandler` or `IQueryHandler` from BuildingBlocks.Application,
+- integration events between modules must extend `IntegrationEvent` from BuildingBlocks.Contracts,
+- concrete mediator selection (MediatR, Wolverine, or a custom dispatcher) remains an open decision,
+- concrete validation library (FluentValidation or DataAnnotations) remains an open decision,
+- concrete EF Core DbContext and migration strategy remain open decisions,
+- `BuildingBlocks.Infrastructure` must not be used as a general utility dump — only genuinely cross-module infrastructure abstractions belong there.
+
+---
+
 ## Open areas for future decisions
 
 The following areas require future decisions:

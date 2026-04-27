@@ -6,10 +6,5 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
-    <ItemGroup>
-      <Folder Include="Abstractions\" />
-      <Folder Include="Behaviors\" />
-      <Folder Include="DependencyInjection\" />
-    </ItemGroup>
 
 </Project>

@@ -438,6 +438,34 @@ Zalecany status:
 
 ---
 
+## ADR-018 — Fundament BuildingBlocks bez blokady na konkretnego mediatora
+
+**Status:** zaakceptowana  
+**Data:** 2026-04-27
+
+### Decyzja
+Cztery projekty BuildingBlocks otrzymały podstawową implementację:
+- `Mavrynt.BuildingBlocks.Domain` — prymitywy domenowe: `IEntity<TId>`, `IAggregateRoot`, `IDomainEvent`, `Entity<TId>`, `AggregateRoot<TId>`, `ValueObject`, `Error`, `Result`, `Result<T>`.
+- `Mavrynt.BuildingBlocks.Application` — abstrakcje warstwy aplikacji: interfejsy znacznikowe komend i zapytań, interfejsy handlerów zwracające `Result`/`Result<T>`, interfejsy znacznikowe zachowań pipeline'u (walidacja, logowanie, transakcja), `IDateTimeProvider`, `ICurrentUserContext` oraz szkieletowy punkt rozszerzenia DI.
+- `Mavrynt.BuildingBlocksContracts` — kontrakty integracyjne: `IIntegrationEvent`, `IntegrationEvent`, `IRequestContract`, `IResponseContract`, `PagedResponse<T>`.
+- `Mavrynt.BuildingBlocks.Infrastructure` — abstrakcje infrastrukturalne: `IUnitOfWork`, `IRepository<TEntity, TId>`, `PostgreSqlOptions`, `ConfigurationExtensions`.
+
+Implementacja celowo nie wprowadza MediatR, FluentValidation, EF Core, Npgsql ani żadnej konkretnej implementacji persystencji.
+
+### Uzasadnienie
+Moduł Users (i każdy kolejny moduł) wymaga stabilnych typów bazowych, które nie są powiązane z konkretnym mediatorem, biblioteką walidacji ani ORM. Blokada na MediatR lub FluentValidation na tym etapie wymusiłaby te zależności na wszystkich modułach, zanim będzie wystarczający kontekst do podjęcia świadomej decyzji. Zdefiniowane interfejsy komend, zapytań i handlerów są neutralne bibliotecznie i mogą być zaadaptowane do dowolnej implementacji pipeline'u. Utrzymanie warstwy domenowej wolnej od zależności infrastrukturalnych i frameworkowych zapewnia jej przenośność i łatwość testowania.
+
+### Konsekwencje
+- wszystkie encje domenowe muszą dziedziczyć po `Entity<TId>` lub `AggregateRoot<TId>` z BuildingBlocks.Domain,
+- wszystkie przypadki użycia aplikacji muszą implementować `ICommandHandler` lub `IQueryHandler` z BuildingBlocks.Application,
+- zdarzenia integracyjne między modułami muszą dziedziczyć po `IntegrationEvent` z BuildingBlocks.Contracts,
+- wybór konkretnego mediatora (MediatR, Wolverine lub własny dispatcher) pozostaje otwartą decyzją,
+- wybór biblioteki walidacji (FluentValidation lub DataAnnotations) pozostaje otwartą decyzją,
+- konkretny DbContext EF Core i strategia migracji pozostają otwartymi decyzjami,
+- `BuildingBlocks.Infrastructure` nie może stać się ogólnym zrzutniem narzędzi — należą tam tylko naprawdę współdzielone abstrakcje infrastrukturalne.
+
+---
+
 ## Otwarte obszary do przyszłych decyzji
 
 Poniższe obszary wymagają późniejszych decyzji:
