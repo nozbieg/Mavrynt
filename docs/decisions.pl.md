@@ -484,4 +484,63 @@ Poniższe obszary wymagają późniejszych decyzji:
 
 ## Podsumowanie
 
-Dokument stanowi rejestr decyzji architektonicznych dla Mavrynt. Ma pomagać utrzymać spójność rozwiązania podczas jego ręcznego budowania i dalszego rozwijania. Każda istotna decyzja zmieniająca kierunek architektury powinna zostać tutaj dopisana.
+Dokument stanowi rejestr decyzji architektonicznych dla Mavrynt. Ma pomagać utrzymać spójność rozwiązania podczas jego ręcznego budowania i dalszego rozwijania. Każda istotna decyzja zmieniająca kierunek architektury powinna zostać tutaj dopisana.- `Mavrynt.BuildingBlocksContracts` — kontrakty zdarzeń integracyjnych: `IIntegrationEvent`, `IntegrationEvent`, `IRequestContract`, `IResponseContract`, `PagedResponse`.
+- `Mavrynt.BuildingBlocks.Infrastructure` — abstrakcje infrastruktury: `IRepository<TEntity, TId>`, `IUnitOfWork`, `PostgreSqlOptions` oraz helpery konfiguracyjne.
+
+Interfejsy handlerów komend i zapytań są neutralne bibliotecznie — nie wprowadzono MediatR ani żadnej innej biblioteki mediatora. Moduły podłączają własne handlery bezpośrednio przez `ICommandHandler<TCommand, TResponse>` i `IQueryHandler<TQuery, TResponse>`.
+
+### Uzasadnienie
+Definiowanie interfejsów w BuildingBlocks bez wiązania się z konkretnym mediatorem pozostawia każdemu modułowi swobodę bezpośredniego wywoływania komend i zapytań, lub późniejszego przyjęcia mediatora bez zmiany kontraktów handlerów. Abstrakcje są testowalne bez kontenera IoC. Miejsca na zachowania pipeline'u (logowanie, walidacja, transakcja) zarezerwowano jako interfejsy znacznikowe, aby przyszły pipeline można było podpiąć bez modyfikacji sygnatur handlerów.
+
+### Konsekwencje
+- Wszystkie projekty Domain modułów referują wyłącznie `Mavrynt.BuildingBlocks.Domain`.
+- Wszystkie projekty Application modułów referują `Mavrynt.BuildingBlocks.Application` i `Mavrynt.BuildingBlocks.Domain`.
+- Implementacje Infrastructure referują `Mavrynt.BuildingBlocks.Infrastructure`.
+- Na tym etapie nie wprowadzono zależności od MediatR, FluentValidation ani AutoMapper.
+- Dispatch handlerów i zachowania pipeline'u są odroczone do czasu, gdy konkretny moduł udowodni taką potrzebę.
+
+---
+
+## ADR-019 — Fundament Domain i Application modułu Users
+
+**Status:** zaakceptowana  
+**Data:** 2026-04-27
+
+### Decyzja
+`Mavrynt.Modules.Users` jest pierwszym konkretnym modułem zbudowanym na bazie BuildingBlocks.
+
+Na tym etapie dostarczono wyłącznie dwie warstwy:
+
+**Domain (`Mavrynt.Modules.Users.Domain`)**
+- Value objects: `UserId`, `Email`, `PasswordHash`, `UserDisplayName` — wszystkie niemutowalne, tworzenie przez `Result<T>`, brak wyjątków przy błędach walidacji.
+- Agregat: `User` (`AggregateRoot<UserId>`) — statyczna fabryka `Register`, metody behawioralne (`ChangeEmail`, `ChangePasswordHash`, `ChangeDisplayName`, `Activate`, `Deactivate`), prywatny konstruktor bezparametrowy zgodny z ORM.
+- Enum: `UserStatus` (`Active`, `Inactive`, `Locked`).
+- Zdarzenia domenowe: `UserRegisteredDomainEvent`, `UserEmailChangedDomainEvent`, `UserPasswordChangedDomainEvent` — niemutowalne rekordy implementujące `IDomainEvent`.
+- Abstrakcja repozytorium: `IUserRepository` — cztery metody, brak implementacji.
+- Błędy: `UserErrors` — silnie nazwane stałe `Error`, bez rozproszonych literałów łańcuchowych w handlerach.
+
+**Application (`Mavrynt.Modules.Users.Application`)**
+- DTO: `UserDto`, `AuthResultDto` — czyste rekordy eksponujące wyłącznie prymitywy, bez typów domenowych w publicznym kontrakcie.
+- Komendy: `RegisterUserCommand`, `LoginUserCommand`, `ChangeUserEmailCommand`, `ChangeUserPasswordCommand` — niemutowalne rekordy.
+- Handlery komend: jedna klasa na komendę, zależą wyłącznie od abstrakcji `IUserRepository` i `IDateTimeProvider`.
+- Zapytania: `GetUserByIdQuery`, `GetUserByEmailQuery` — niemutowalne rekordy.
+- Handlery zapytań: pobierają dane z `IUserRepository`, mapują do `UserDto`, nigdy nie eksponują encji domenowych.
+- Mapowanie: `UserMappings` — `internal static`, metoda rozszerzająca `ToDto()`, bez AutoMapper ani Mapster.
+- DI: `AddUsersApplication(IServiceCollection)` — rejestruje handlery przez interfejs; nie rejestruje usług infrastrukturalnych.
+
+### Uzasadnienie
+Zdefiniowanie modelu domenowego i kontraktów przypadków użycia przed infrastrukturą pozwala niezależnie dodać warstwy persystencji i API w przyszłym etapie. Utrzymanie domeny jako niezależnej od persystencji oraz aplikacji wolnej od referencji do Infrastructure egzekwuje regułę zależności i sprawia, że obie warstwy są testowalnie izolowane przy użyciu stubów repozytorium.
+
+Silnie nazwane błędy (`UserErrors`) eliminują magiczne łańcuchy z handlerów i stanowią jedno źródło prawdy dla kodów błędów konsumowanych przez przyszłe warstwy API i frontendu.
+
+`LoginUserCommand` jest celowo minimalna: porównuje wyłącznie wartości wcześniej zahashowanych haseł i zwraca `AuthResultDto` z `TokenType: "not_implemented"`. Strategia tokenów/sesji/ciasteczek jest oddzielną decyzją architektoniczną odroczoną do etapu Infrastructure + API.
+
+### Konsekwencje
+- `Mavrynt.Modules.Users.Domain` nie referuje Application, Infrastructure, ASP.NET ani EF Core.
+- `Mavrynt.Modules.Users.Application` nie referuje Infrastructure ani hostów.
+- Brak konkretnej persystencji.
+- Brak wystawionych endpointów API.
+- Brak sesji uwierzytelniania, JWT, ciasteczek ani tokenów odświeżania.
+- Nie wprowadzono biblioteki mediatora.
+- Nie wprowadzono biblioteki walidacji.
+- Infrastructure (konfiguracja encji EF Core, DbContext, migracje, podłączenie PostgreSQL), endpointy API, biblioteka hashowania haseł, strategia JWT/ciasteczek, model ról oraz zarządzanie administratorami są odroczone do przyszłych etapów.

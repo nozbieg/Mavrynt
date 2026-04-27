@@ -484,4 +484,63 @@ The following areas require future decisions:
 
 ## Summary
 
-This document is the architectural decision register for Mavrynt. It is intended to preserve consistency while the solution is being built manually and extended over time. Every significant decision that changes architectural direction should be added here.
+This document is the architectural decision register for Mavrynt. It is intended to preserve consistency while the solution is being built manually and extended over time. Every significant decision that changes architectural direction should be added here.- `Mavrynt.BuildingBlocksContracts` — integration event contracts: `IIntegrationEvent`, `IntegrationEvent`, `IRequestContract`, `IResponseContract`, `PagedResponse`.
+- `Mavrynt.BuildingBlocks.Infrastructure` — infrastructure abstractions: `IRepository<TEntity, TId>`, `IUnitOfWork`, `PostgreSqlOptions`, and configuration helpers.
+
+Command and query handler interfaces are library-neutral — no MediatR or other mediator library is introduced. Modules wire their own handlers through `ICommandHandler<TCommand, TResponse>` and `IQueryHandler<TQuery, TResponse>` directly.
+
+### Rationale
+Defining the interfaces in BuildingBlocks without committing to a mediator keeps each module free to dispatch commands and queries directly, or to adopt a mediator later without changing handler contracts. The abstractions are testable without an IoC container. Behavior pipeline slots (logging, validation, transaction) are reserved as marker interfaces so a future pipeline can be bolted in without modifying handler signatures.
+
+### Consequences
+- All module Domain projects reference only `Mavrynt.BuildingBlocks.Domain`.
+- All module Application projects reference `Mavrynt.BuildingBlocks.Application` and `Mavrynt.BuildingBlocks.Domain`.
+- Infrastructure implementations reference `Mavrynt.BuildingBlocks.Infrastructure`.
+- No MediatR, FluentValidation, or AutoMapper dependency is introduced at this stage.
+- Handler dispatch and pipeline behaviors are deferred until a concrete module proves the need.
+
+---
+
+## ADR-019 — Users module Domain and Application baseline
+
+**Status:** Accepted  
+**Date:** 2026-04-27
+
+### Decision
+`Mavrynt.Modules.Users` is the first concrete module built on top of the BuildingBlocks baseline.
+
+This stage delivers two layers only:
+
+**Domain (`Mavrynt.Modules.Users.Domain`)**
+- Value objects: `UserId`, `Email`, `PasswordHash`, `UserDisplayName` — all immutable, all use `Result<T>` for creation, no exceptions on validation failure.
+- Aggregate: `User` (`AggregateRoot<UserId>`) — static `Register` factory, behavior methods (`ChangeEmail`, `ChangePasswordHash`, `ChangeDisplayName`, `Activate`, `Deactivate`), ORM-compatible private parameterless constructor.
+- Enum: `UserStatus` (`Active`, `Inactive`, `Locked`).
+- Domain events: `UserRegisteredDomainEvent`, `UserEmailChangedDomainEvent`, `UserPasswordChangedDomainEvent` — immutable records implementing `IDomainEvent`.
+- Repository abstraction: `IUserRepository` — four methods, no implementation.
+- Errors: `UserErrors` — strongly named `Error` constants, no string literals scattered in handlers.
+
+**Application (`Mavrynt.Modules.Users.Application`)**
+- DTOs: `UserDto`, `AuthResultDto` — plain records exposing primitives only, no domain types in the public contract.
+- Commands: `RegisterUserCommand`, `LoginUserCommand`, `ChangeUserEmailCommand`, `ChangeUserPasswordCommand` — immutable records.
+- Command handlers: one class per command, depend only on `IUserRepository` and `IDateTimeProvider` abstractions.
+- Queries: `GetUserByIdQuery`, `GetUserByEmailQuery` — immutable records.
+- Query handlers: fetch from `IUserRepository`, map to `UserDto`, never expose domain entities.
+- Mapping: `UserMappings` — `internal static`, extension method `ToDto()`, no AutoMapper or Mapster.
+- DI: `AddUsersApplication(IServiceCollection)` — registers handlers by interface; does not register infrastructure services.
+
+### Rationale
+Defining the domain model and use-case contracts before Infrastructure allows the persistence and API layers to be added independently in a future stage. Keeping the domain persistence-ignorant and the application free of Infrastructure references enforces the dependency rule and makes both layers unit-testable in isolation with a repository stub.
+
+Strongly named errors (`UserErrors`) eliminate magic strings from handlers and provide a single source of truth for error codes consumed by future API and frontend layers.
+
+`LoginUserCommand` is intentionally minimal: it compares pre-hashed values only and returns `AuthResultDto` with `TokenType: "not_implemented"`. The token/session/cookie strategy is a separate architectural decision deferred to the Infrastructure + API stage.
+
+### Consequences
+- `Mavrynt.Modules.Users.Domain` does not reference Application, Infrastructure, ASP.NET, or EF Core.
+- `Mavrynt.Modules.Users.Application` does not reference Infrastructure or hosts.
+- No concrete persistence is implemented.
+- No API endpoint is exposed.
+- No authentication session, JWT, cookie, or refresh token is implemented.
+- No mediator library is introduced.
+- No validation library is introduced.
+- Infrastructure (EF Core entity configuration, DbContext, migrations, PostgreSQL wiring), API endpoints, password hashing library, JWT/cookie strategy, role model, and admin management are all deferred to future stages.
