@@ -2,6 +2,7 @@ using Mavrynt.BuildingBlocks.Application.Abstractions;
 using Mavrynt.BuildingBlocks.Infrastructure.Persistence;
 using Mavrynt.Modules.Users.Application.Abstractions;
 using Mavrynt.Modules.Users.Domain.Repositories;
+using Mavrynt.Modules.Users.Infrastructure.Audit;
 using Mavrynt.Modules.Users.Infrastructure.Persistence;
 using Mavrynt.Modules.Users.Infrastructure.Repositories;
 using Mavrynt.Modules.Users.Infrastructure.Security;
@@ -40,6 +41,7 @@ public static class UsersInfrastructureServiceCollectionExtensions
         });
 
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IAuditService, EfAuditService>();
 
         // Expose the scoped DbContext as IUnitOfWork for callers that need
         // explicit commit control over multi-aggregate operations.

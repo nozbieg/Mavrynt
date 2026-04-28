@@ -15,15 +15,18 @@ public sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserCom
     private readonly IUserRepository _userRepository;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly IAuditService _auditService;
 
     public RegisterUserCommandHandler(
         IUserRepository userRepository,
         IDateTimeProvider dateTimeProvider,
-        IPasswordHasher passwordHasher)
+        IPasswordHasher passwordHasher,
+        IAuditService auditService)
     {
         _userRepository = userRepository;
         _dateTimeProvider = dateTimeProvider;
         _passwordHasher = passwordHasher;
+        _auditService = auditService;
     }
 
     public async Task<Result<UserDto>> HandleAsync(
@@ -58,14 +61,23 @@ public sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserCom
         if (userIdResult.IsFailure)
             return userIdResult.Error;
 
+        var now = _dateTimeProvider.UtcNow;
+
         var user = User.Register(
             userIdResult.Value,
             emailResult.Value,
             passwordHashResult.Value,
             displayName,
-            _dateTimeProvider.UtcNow);
+            now);
 
         await _userRepository.AddAsync(user, cancellationToken);
+
+        await _auditService.RecordAsync(new AuditEntry(
+            EventType: "user_registered",
+            OccurredAt: now,
+            UserId: user.Id.Value,
+            Email: user.Email.Value),
+            cancellationToken);
 
         return user.ToDto();
     }

@@ -52,7 +52,7 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
             str => UserDisplayName.Create(str).Value);
 
         builder.Property(u => u.DisplayName)
-            .HasConversion(displayNameConverter)
+            .HasConversion(displayNameConverter!)
             .HasMaxLength(UserDisplayName.MaxLength)
             .HasColumnName("display_name")
             .IsRequired(false);

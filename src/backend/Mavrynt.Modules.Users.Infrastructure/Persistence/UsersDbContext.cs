@@ -1,5 +1,6 @@
 using Mavrynt.BuildingBlocks.Infrastructure.Persistence;
 using Mavrynt.Modules.Users.Domain.Entities;
+using Mavrynt.Modules.Users.Infrastructure.Audit;
 using Microsoft.EntityFrameworkCore;
 
 namespace Mavrynt.Modules.Users.Infrastructure.Persistence;
@@ -17,6 +18,7 @@ public sealed class UsersDbContext : DbContext, IUnitOfWork
     }
 
     public DbSet<User> Users => Set<User>();
+    public DbSet<AuditEvent> AuditEvents => Set<AuditEvent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
