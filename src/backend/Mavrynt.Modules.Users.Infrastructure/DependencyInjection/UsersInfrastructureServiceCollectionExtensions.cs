@@ -10,6 +10,7 @@ using Mavrynt.Modules.Users.Infrastructure.Time;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Mavrynt.Modules.Users.Infrastructure.DependencyInjection;
 
@@ -46,6 +47,11 @@ public static class UsersInfrastructureServiceCollectionExtensions
         // Expose the scoped DbContext as IUnitOfWork for callers that need
         // explicit commit control over multi-aggregate operations.
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<UsersDbContext>());
+
+        // Applies any pending EF Core migrations on startup before the host
+        // begins accepting requests. Safe to run in both Api and AdminApp —
+        // MigrateAsync is idempotent and uses an advisory lock in PostgreSQL.
+        services.AddHostedService<DatabaseMigrationService>();
 
         // ── JWT ───────────────────────────────────────────────────────────────
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));

@@ -13,11 +13,9 @@ builder.Configuration["DcpPublisher:RandomizePorts"] = "false";
 // in both Mavrynt.Api and Mavrynt.AdminApp appsettings files. Aspire injects
 // the resolved connection string as ConnectionStrings__MavryntDb at runtime.
 //
-// TODO: Once a migration strategy is agreed, run EF migrations on startup via
-//       IDbInitializer or Aspire's ExecuteAsync lifecycle hook rather than
-//       applying them manually with: dotnet ef database update
-//       --project Mavrynt.Modules.Users.Infrastructure
-//       --startup-project Mavrynt.Api
+// Migrations are applied automatically on startup by DatabaseMigrationService
+// (registered in AddUsersInfrastructure). MigrateAsync holds a PostgreSQL
+// advisory lock, so running both Api and AdminApp simultaneously is safe.
 
 var postgres = builder.AddPostgres("postgres")
     .AddDatabase("MavryntDb");

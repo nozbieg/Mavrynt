@@ -15,11 +15,6 @@ builder.Services.AddUsersInfrastructure(builder.Configuration);
 // ── Authentication + authorisation ───────────────────────────────────────────
 builder.Services.AddApiAuthentication(builder.Configuration);
 
-// TODO: Run pending EF Core migrations on startup once a migration strategy is
-//       agreed. For now, apply manually: dotnet ef database update
-//       --project Mavrynt.Modules.Users.Infrastructure
-//       --startup-project Mavrynt.Api
-
 // ─────────────────────────────────────────────────────────────────────────────
 var app = builder.Build();
 
