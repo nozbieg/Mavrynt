@@ -19,6 +19,7 @@ public sealed class User : AggregateRoot<UserId>
         PasswordHash passwordHash,
         UserDisplayName? displayName,
         UserStatus status,
+        UserRole role,
         DateTimeOffset createdAt)
         : base(id)
     {
@@ -26,6 +27,7 @@ public sealed class User : AggregateRoot<UserId>
         PasswordHash = passwordHash;
         DisplayName = displayName;
         Status = status;
+        Role = role;
         CreatedAt = createdAt;
     }
 
@@ -33,11 +35,12 @@ public sealed class User : AggregateRoot<UserId>
     public PasswordHash PasswordHash { get; private set; } = null!;
     public UserDisplayName? DisplayName { get; private set; }
     public UserStatus Status { get; private set; }
+    public UserRole Role { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset? UpdatedAt { get; private set; }
 
     /// <summary>
-    /// Creates and registers a new user.
+    /// Creates and registers a new user with the default <see cref="UserRole.User"/> role.
     /// Raises <see cref="UserRegisteredDomainEvent"/>.
     /// </summary>
     public static User Register(
@@ -47,7 +50,7 @@ public sealed class User : AggregateRoot<UserId>
         UserDisplayName? displayName,
         DateTimeOffset createdAt)
     {
-        var user = new User(id, email, passwordHash, displayName, UserStatus.Active, createdAt);
+        var user = new User(id, email, passwordHash, displayName, UserStatus.Active, UserRole.User, createdAt);
 
         user.RaiseDomainEvent(new UserRegisteredDomainEvent(
             Guid.NewGuid(),
@@ -123,6 +126,17 @@ public sealed class User : AggregateRoot<UserId>
     public Result Deactivate(DateTimeOffset changedAt)
     {
         Status = UserStatus.Inactive;
+        UpdatedAt = changedAt;
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Assigns a new role to the user.
+    /// Extension point for future role-management flows.
+    /// </summary>
+    public Result AssignRole(UserRole newRole, DateTimeOffset changedAt)
+    {
+        Role = newRole;
         UpdatedAt = changedAt;
         return Result.Success();
     }

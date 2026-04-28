@@ -14,13 +14,16 @@ public sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserCom
 {
     private readonly IUserRepository _userRepository;
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IPasswordHasher _passwordHasher;
 
     public RegisterUserCommandHandler(
         IUserRepository userRepository,
-        IDateTimeProvider dateTimeProvider)
+        IDateTimeProvider dateTimeProvider,
+        IPasswordHasher passwordHasher)
     {
         _userRepository = userRepository;
         _dateTimeProvider = dateTimeProvider;
+        _passwordHasher = passwordHasher;
     }
 
     public async Task<Result<UserDto>> HandleAsync(
@@ -31,9 +34,9 @@ public sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserCom
         if (emailResult.IsFailure)
             return emailResult.Error;
 
-        var passwordHashResult = PasswordHash.Create(command.PasswordHash);
-        if (passwordHashResult.IsFailure)
-            return passwordHashResult.Error;
+        var emailExists = await _userRepository.ExistsByEmailAsync(emailResult.Value, cancellationToken);
+        if (emailExists)
+            return UserErrors.EmailAlreadyTaken;
 
         UserDisplayName? displayName = null;
         if (command.DisplayName is not null)
@@ -45,9 +48,11 @@ public sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserCom
             displayName = displayNameResult.Value;
         }
 
-        var emailExists = await _userRepository.ExistsByEmailAsync(emailResult.Value, cancellationToken);
-        if (emailExists)
-            return UserErrors.EmailAlreadyTaken;
+        // Hash the raw password — the hash is what gets stored, never the plain text.
+        var hashedPassword = _passwordHasher.HashPassword(command.Password);
+        var passwordHashResult = PasswordHash.Create(hashedPassword);
+        if (passwordHashResult.IsFailure)
+            return passwordHashResult.Error;
 
         var userIdResult = UserId.New();
         if (userIdResult.IsFailure)

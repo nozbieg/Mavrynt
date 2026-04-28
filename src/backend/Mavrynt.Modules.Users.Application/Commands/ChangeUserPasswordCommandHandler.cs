@@ -11,13 +11,16 @@ public sealed class ChangeUserPasswordCommandHandler : ICommandHandler<ChangeUse
 {
     private readonly IUserRepository _userRepository;
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IPasswordHasher _passwordHasher;
 
     public ChangeUserPasswordCommandHandler(
         IUserRepository userRepository,
-        IDateTimeProvider dateTimeProvider)
+        IDateTimeProvider dateTimeProvider,
+        IPasswordHasher passwordHasher)
     {
         _userRepository = userRepository;
         _dateTimeProvider = dateTimeProvider;
+        _passwordHasher = passwordHasher;
     }
 
     public async Task<Result> HandleAsync(
@@ -28,13 +31,15 @@ public sealed class ChangeUserPasswordCommandHandler : ICommandHandler<ChangeUse
         if (userIdResult.IsFailure)
             return userIdResult.Error;
 
-        var passwordHashResult = PasswordHash.Create(command.NewPasswordHash);
-        if (passwordHashResult.IsFailure)
-            return passwordHashResult.Error;
-
         var user = await _userRepository.GetByIdAsync(userIdResult.Value, cancellationToken);
         if (user is null)
             return UserErrors.UserNotFound;
+
+        // Hash the new raw password before creating the domain value object.
+        var hashedPassword = _passwordHasher.HashPassword(command.NewPassword);
+        var passwordHashResult = PasswordHash.Create(hashedPassword);
+        if (passwordHashResult.IsFailure)
+            return passwordHashResult.Error;
 
         user.ChangePasswordHash(passwordHashResult.Value, _dateTimeProvider.UtcNow);
 

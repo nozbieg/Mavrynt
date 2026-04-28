@@ -5,6 +5,7 @@ public sealed record UserDto(
     string Email,
     string? DisplayName,
     string Status,
+    string Role,
     DateTimeOffset CreatedAt,
     DateTimeOffset? UpdatedAt
 );

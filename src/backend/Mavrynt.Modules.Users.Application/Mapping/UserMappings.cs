@@ -11,6 +11,7 @@ internal static class UserMappings
             user.Email.Value,
             user.DisplayName?.Value,
             user.Status.ToString(),
+            user.Role.ToString(),
             user.CreatedAt,
             user.UpdatedAt
         );
