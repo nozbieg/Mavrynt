@@ -40,6 +40,7 @@
   </ItemGroup>
   <!-- Aspire / SPA -->
   <ItemGroup>
+    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="9.4.0" />
     <PackageVersion Include="CommunityToolkit.Aspire.Hosting.NodeJS.Extensions" Version="9.6.0" />
     <PackageVersion Include="Microsoft.AspNetCore.SpaProxy" Version="10.0.0" />
   </ItemGroup>

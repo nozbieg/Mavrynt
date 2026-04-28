@@ -7,12 +7,31 @@ const string landingAppName = "landing";
 var builder = DistributedApplication.CreateBuilder(args);
 builder.Configuration["DcpPublisher:RandomizePorts"] = "false";
 
+// ── PostgreSQL ────────────────────────────────────────────────────────────────
+//
+// The database resource name "MavryntDb" matches the ConnectionStrings key used
+// in both Mavrynt.Api and Mavrynt.AdminApp appsettings files. Aspire injects
+// the resolved connection string as ConnectionStrings__MavryntDb at runtime.
+//
+// TODO: Once a migration strategy is agreed, run EF migrations on startup via
+//       IDbInitializer or Aspire's ExecuteAsync lifecycle hook rather than
+//       applying them manually with: dotnet ef database update
+//       --project Mavrynt.Modules.Users.Infrastructure
+//       --startup-project Mavrynt.Api
+
+var postgres = builder.AddPostgres("postgres")
+    .AddDatabase("MavryntDb");
+
 // ── Backend services ──────────────────────────────────────────────────────────
 
 var api = builder.AddProject<Projects.Mavrynt_Api>(apiName)
+    .WithReference(postgres)
+    .WaitFor(postgres)
     .WithExternalHttpEndpoints();
 
 var adminApi = builder.AddProject<Projects.Mavrynt_AdminApp>(adminApiName)
+    .WithReference(postgres)
+    .WaitFor(postgres)
     .WithExternalHttpEndpoints();
 
 // ── Frontend SPAs — all three start in parallel ───────────────────────────────
