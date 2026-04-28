@@ -1,21 +1,33 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <IsPackable>false</IsPackable>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="coverlet.collector"/>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" />
-        <PackageReference Include="xunit"/>
-        <PackageReference Include="xunit.runner.visualstudio"/>
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NetArchTest.Rules" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <Using Include="Xunit"/>
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\backend\Mavrynt.BuildingBlocks.Application\Mavrynt.BuildingBlocks.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\backend\Mavrynt.BuildingBlocks.Domain\Mavrynt.BuildingBlocks.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\backend\Mavrynt.BuildingBlocks.Infrastructure\Mavrynt.BuildingBlocks.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\backend\Mavrynt.BuildingBlocksContracts\Mavrynt.BuildingBlocksContracts.csproj" />
+    <ProjectReference Include="..\..\..\src\backend\Mavrynt.Modules.Users.Application\Mavrynt.Modules.Users.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\backend\Mavrynt.Modules.Users.Domain\Mavrynt.Modules.Users.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\backend\Mavrynt.Modules.Users.Infrastructure\Mavrynt.Modules.Users.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\backend\Mavrynt.Api\Mavrynt.Api.csproj" />
+    <ProjectReference Include="..\..\..\src\backend\Mavrynt.AdminApp\Mavrynt.AdminApp.csproj" />
+    <ProjectReference Include="..\..\..\src\frontend\Mavrynt.Web.Admin\Mavrynt.Web.Admin.csproj" />
+    <ProjectReference Include="..\..\..\src\frontend\Mavrynt.Web.App\Mavrynt.Web.App.csproj" />
+    <ProjectReference Include="..\..\..\src\frontend\Mavrynt.Web.Landing\Mavrynt.Web.Landing.csproj" />
+  </ItemGroup>
 
 </Project>

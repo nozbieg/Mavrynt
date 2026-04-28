@@ -386,3 +386,14 @@ W kolejnych etapach architektura będzie rozszerzana o:
 Mavrynt jest budowany jako modularny monolit w jednym repozytorium, z wyraźnym podziałem na hosty, building blocks, moduły domenowe, frontendy i warstwę infrastrukturalną. Głównym celem architektury jest zachowanie porządku, skalowalności organizacyjnej i technicznej oraz gotowości do dalszego rozwoju bez nadmiernego kosztu początkowego.
 
 Dokument ten stanowi bazę referencyjną dla dalszych decyzji implementacyjnych i powinien być aktualizowany wraz z rozwojem rozwiązania.
+---
+
+## 12. Strategia testów (fundament backendu)
+
+Strategia testów backendowych opiera się na trzech warstwach:
+
+1. **Testy architektoniczne** (NetArchTest + kontrola referencji projektów) chronią granice modułów i kierunek zależności.
+2. **Testy jednostkowe** pokrywają prymitywy domenowe i handlery komend/zapytań Users z użyciem fake/in-memory.
+3. **Testy integracyjne** działają na realnym PostgreSQL przez Testcontainers dla repozytoriów infrastruktury oraz smoke testów hostów API/Admin.
+
+Całość uruchamia się przez `dotnet test` i nie wymaga Aspire AppHost ani Docker Compose.
