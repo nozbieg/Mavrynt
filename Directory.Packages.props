@@ -4,47 +4,55 @@
   </PropertyGroup>
   <!-- Core Microsoft Extensions -->
   <ItemGroup>
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.7" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="9.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="9.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.7"/>
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0"/>
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.0"/>
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0"/>
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.0"/>
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="9.0.0"/>
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="9.0.0"/>
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.0"/>
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.0"/>
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.0"/>
   </ItemGroup>
   <!-- EF Core + PostgreSQL -->
   <ItemGroup>
-    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.4" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4" />
-    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="9.0.4"/>
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.4"/>
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4"/>
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4"/>
   </ItemGroup>
   <!-- Identity — password hashing -->
   <ItemGroup>
-    <PackageVersion Include="Microsoft.Extensions.Identity.Core" Version="9.0.4" />
+    <PackageVersion Include="Microsoft.Extensions.Identity.Core" Version="9.0.4"/>
   </ItemGroup>
   <!-- JWT Bearer authentication -->
   <ItemGroup>
-    <PackageVersion Include="Microsoft.IdentityModel.Tokens" Version="8.4.0" />
-    <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.4.0" />
+    <PackageVersion Include="Microsoft.IdentityModel.Tokens" Version="8.4.0"/>
+    <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.4.0"/>
   </ItemGroup>
   <!-- OpenTelemetry -->
   <ItemGroup>
-    <PackageVersion Include="OpenTelemetry" Version="1.11.2" />
-    <PackageVersion Include="OpenTelemetry.Api" Version="1.11.2" />
-    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.11.2" />
-    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.11.2" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.11.2" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.11.2" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.11.2" />
+    <PackageVersion Include="OpenTelemetry" Version="1.11.2"/>
+    <PackageVersion Include="OpenTelemetry.Api" Version="1.11.2"/>
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.11.2"/>
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.11.2"/>
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.11.2"/>
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.11.2"/>
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.11.2"/>
   </ItemGroup>
   <!-- Aspire / SPA -->
   <ItemGroup>
-    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="9.4.0" />
-    <PackageVersion Include="CommunityToolkit.Aspire.Hosting.NodeJS.Extensions" Version="9.6.0" />
-    <PackageVersion Include="Microsoft.AspNetCore.SpaProxy" Version="10.0.0" />
+    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="9.4.0"/>
+    <PackageVersion Include="CommunityToolkit.Aspire.Hosting.NodeJS.Extensions" Version="9.6.0"/>
+    <PackageVersion Include="Microsoft.AspNetCore.SpaProxy" Version="10.0.0"/>
+  </ItemGroup>
+
+  <!-- Testing -->
+  <ItemGroup>
+    <PackageVersion Include="coverlet.collector" Version="6.0.4"/>
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1"/>
+    <PackageVersion Include="xunit" Version="2.9.3"/>
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4"/>
   </ItemGroup>
 </Project>
