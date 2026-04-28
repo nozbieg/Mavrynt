@@ -20,20 +20,9 @@ internal sealed class DatabaseMigrationService(
         await using var scope = serviceProvider.CreateAsyncScope();
         var context = scope.ServiceProvider.GetRequiredService<UsersDbContext>();
 
-        var pending = await context.Database.GetPendingMigrationsAsync(cancellationToken);
-        var pendingList = pending.ToList();
-
-        if (pendingList.Count == 0)
-        {
-            logger.LogInformation("Users module database is up to date — no pending migrations.");
-            return;
-        }
-
-        logger.LogInformation(
-            "Applying {Count} pending migration(s): {Migrations}",
-            pendingList.Count,
-            string.Join(", ", pendingList));
-
+        // MigrateAsync is idempotent: creates the schema/history table on first run,
+        // applies any pending migrations, and no-ops when the schema is current.
+        // PostgreSQL advisory locking inside MigrateAsync makes concurrent startup safe.
         await context.Database.MigrateAsync(cancellationToken);
 
         logger.LogInformation("Users module database migrations applied successfully.");
