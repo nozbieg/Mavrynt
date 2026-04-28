@@ -15,4 +15,8 @@
       <ProjectReference Include="..\Mavrynt.ServiceDefaults\Mavrynt.ServiceDefaults.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    </ItemGroup>
+
 </Project>

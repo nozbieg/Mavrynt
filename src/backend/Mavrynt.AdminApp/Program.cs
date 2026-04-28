@@ -1,11 +1,30 @@
+using Mavrynt.AdminApp.DependencyInjection;
+using Mavrynt.AdminApp.Endpoints;
+using Mavrynt.Modules.Users.Application.DependencyInjection;
+using Mavrynt.Modules.Users.Infrastructure.DependencyInjection;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// ── Aspire service defaults (OTel, health checks, service discovery) ─────────
 builder.AddServiceDefaults();
 
+// ── Users module ──────────────────────────────────────────────────────────────
+builder.Services.AddUsersApplication();
+builder.Services.AddUsersInfrastructure(builder.Configuration);
+
+// ── Authentication + authorisation ───────────────────────────────────────────
+builder.Services.AddApiAuthentication(builder.Configuration);
+
+// ─────────────────────────────────────────────────────────────────────────────
 var app = builder.Build();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
+// Aspire health / alive endpoints (development only — see ServiceDefaults).
 app.MapDefaultEndpoints();
 
-app.MapGet("/", () => "Mavrynt.AdminApp");
-app.MapGet("/api/ping", () => Results.Ok(new { message = "pong from admin api" }));
+// Module endpoints
+app.MapAdminEndpoints();
 
 app.Run();

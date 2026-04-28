@@ -7,10 +7,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Mavrynt.BuildingBlocks.Application\Mavrynt.BuildingBlocks.Application.csproj" />
-      <ProjectReference Include="..\Mavrynt.BuildingBlocks.Infrastructure\Mavrynt.BuildingBlocks.Infrastructure.csproj" />
-      <ProjectReference Include="..\Mavrynt.BuildingBlocksContracts\Mavrynt.BuildingBlocksContracts.csproj" />
-      <ProjectReference Include="..\Mavrynt.ServiceDefaults\Mavrynt.ServiceDefaults.csproj" />
+        <ProjectReference Include="..\Mavrynt.BuildingBlocks.Application\Mavrynt.BuildingBlocks.Application.csproj" />
+        <ProjectReference Include="..\Mavrynt.BuildingBlocks.Infrastructure\Mavrynt.BuildingBlocks.Infrastructure.csproj" />
+        <ProjectReference Include="..\Mavrynt.BuildingBlocksContracts\Mavrynt.BuildingBlocksContracts.csproj" />
+        <ProjectReference Include="..\Mavrynt.Modules.Users.Application\Mavrynt.Modules.Users.Application.csproj" />
+        <ProjectReference Include="..\Mavrynt.Modules.Users.Infrastructure\Mavrynt.Modules.Users.Infrastructure.csproj" />
+        <ProjectReference Include="..\Mavrynt.ServiceDefaults\Mavrynt.ServiceDefaults.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     </ItemGroup>
 
 </Project>
