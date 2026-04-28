@@ -23,7 +23,7 @@ public static class AdminEndpoints
 
     private static async Task<IResult> MeAsync(
         HttpContext httpContext,
-        IQueryHandler<GetUserByIdQuery, UserDto> handler,
+        IMediator mediator,
         CancellationToken ct)
     {
         var userIdStr = httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub);
@@ -31,7 +31,7 @@ public static class AdminEndpoints
         if (userIdStr is null || !Guid.TryParse(userIdStr, out var userId))
             return Results.Unauthorized();
 
-        var result = await handler.HandleAsync(new GetUserByIdQuery(userId), ct);
+        var result = await mediator.SendAsync(new GetUserByIdQuery(userId), ct);
 
         return result.IsFailure
             ? Results.Problem(detail: result.Error.Message, statusCode: StatusCodes.Status404NotFound)

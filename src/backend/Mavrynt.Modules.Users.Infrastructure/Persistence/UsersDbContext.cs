@@ -25,8 +25,4 @@ public sealed class UsersDbContext : DbContext, IUnitOfWork
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(UsersDbContext).Assembly);
         base.OnModelCreating(modelBuilder);
     }
-
-    // IUnitOfWork — explicit implementation to avoid shadowing EF Core's own SaveChangesAsync.
-    Task<int> IUnitOfWork.SaveChangesAsync(CancellationToken cancellationToken)
-        => base.SaveChangesAsync(cancellationToken);
 }

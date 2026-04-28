@@ -544,3 +544,78 @@ Strongly named errors (`UserErrors`) eliminate magic strings from handlers and p
 - No mediator library is introduced.
 - No validation library is introduced.
 - Infrastructure (EF Core entity configuration, DbContext, migrations, PostgreSQL wiring), API endpoints, password hashing library, JWT/cookie strategy, role model, and admin management are all deferred to future stages.
+
+---
+
+## ADR-020 — Internal mediator and application pipeline behaviors
+
+**Status:** Accepted
+**Date:** 2026-04-28
+
+### Decision
+
+Mavrynt uses a lightweight internal mediator (`MavryntMediator`) instead of MediatR or any external mediator library.
+
+Commands and queries are dispatched through `IMediator`:
+
+```csharp
+Task<Result> SendAsync(ICommand command, CancellationToken ct = default);
+Task<Result<TResponse>> SendAsync<TResponse>(ICommand<TResponse> command, CancellationToken ct = default);
+Task<Result<TResponse>> SendAsync<TResponse>(IQuery<TResponse> query, CancellationToken ct = default);
+```
+
+A generic pipeline behavior interface is introduced as the single extension point for cross-cutting concerns:
+
+```csharp
+public interface IMavryntBehavior<TRequest, TResponse>
+{
+    Task<TResponse> HandleAsync(
+        TRequest request,
+        Func<CancellationToken, Task<TResponse>> next,
+        CancellationToken cancellationToken);
+}
+```
+
+Five built-in behaviors are registered in this order:
+
+1. **LoggingBehavior** — logs request type, category, elapsed time, success/failure, error code, and trace ID. Never serializes the full request.
+2. **ValidationBehavior** — resolves all `IValidator<TRequest>` from DI and stops on first failure.
+3. **ResilienceBehavior** — pass-through hook for retry/timeout; respects `IResilientRequest` marker. No Polly dependency at this stage.
+4. **AuditBehavior** — writes an `AuditEntry` via `IAuditService` for requests implementing `IAuditableRequest`.
+5. **TransactionBehavior** — calls `IUnitOfWork.SaveChangesAsync()` after handler success for requests implementing `ITransactionalRequest`.
+
+Request markers control optional behavior activation:
+- `IAuditableRequest` — enables audit entry emission
+- `IResilientRequest` — declares retry-safe requests
+- `ITransactionalRequest` — enables unit-of-work commit on success
+
+The existing `ICommand`, `ICommand<TResponse>`, `IQuery<TResponse>`, and their handler interfaces are preserved unchanged. Handlers continue to return `Result` or `Result<TResponse>`.
+
+`Result` and `Error` remain the standard return model throughout the application layer — behaviors are aware of this contract.
+
+Handler discovery and DI registration are provided by a single extension method:
+
+```csharp
+services.AddMavryntMediator(params Assembly[] assemblies);
+```
+
+Endpoints inject `IMediator`, not concrete handler interfaces.
+
+### Rationale
+
+- **Full control over Result/Error handling.** No adapter layer between `Result<T>` and an external mediator's response model.
+- **No external mediator dependency.** Reduces supply-chain risk and version coupling.
+- **Easy AI-agent readability.** All behavior logic lives in Mavrynt's own namespace with explicit XML documentation.
+- **Clean extension point.** Adding a new cross-cutting concern is one class implementing `IMavryntBehavior<TRequest, TResponse>` and one line in DI registration.
+- **Future replacement is safe.** All call sites depend on the internal `IMediator` abstraction, not on any external type. Swapping the implementation requires no changes in handlers or endpoints.
+- **Explicit pipeline order.** Order is determined by DI registration in `AddMavryntMediator`, visible in one file, not scattered across attributes or configuration.
+
+### Consequences
+
+- `IMediator` is the only entry point for command and query dispatch in endpoints and application services.
+- MediatR is not added to the solution. Any future decision to adopt it requires an explicit ADR.
+- FluentValidation is not introduced. The internal `IValidator<TRequest>` abstraction is used. A future ADR may replace it.
+- Polly is not introduced for the resilience behavior. A future ADR may add it when retry policies are needed.
+- The three legacy behavior marker interfaces (`ILoggingBehavior`, `IValidationBehavior`, `ITransactionBehavior`) are marked `[Obsolete]`. They will be removed in a future cleanup.
+- `IUnitOfWork` is defined in both `Mavrynt.BuildingBlocks.Application.Persistence` (canonical abstraction) and `Mavrynt.BuildingBlocks.Infrastructure.Persistence` (Infrastructure marker extending the Application interface). Concrete EF Core implementations must register against the Application interface.
+- Unhandled exceptions in the pipeline are caught by the mediator, logged, and returned as `Result.Failure` with a trace ID. They do not propagate as exceptions to the API boundary.

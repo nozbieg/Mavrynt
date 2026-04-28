@@ -109,6 +109,114 @@ Nowe decyzje architektoniczne: dodaj do `docs/decisions.pl.md` w formacie ADR (A
 - Observability: logowanie, metryki, ślady — wspólny setup w `Mavrynt.ServiceDefaults`
 - Nie odkładaj observability na koniec
 
+## Mediator — zasady używania (ADR-020)
+
+Mavrynt używa **wewnętrznego mediatora** (`MavryntMediator`). Nie dodawaj MediatR ani żadnej zewnętrznej biblioteki mediatora.
+
+### Nowe komendy i zapytania
+
+```csharp
+// Komenda bez odpowiedzi
+public sealed record MyCommand(...) : ICommand;
+
+// Komenda z odpowiedzią
+public sealed record MyCommand(...) : ICommand<MyDto>;
+
+// Zapytanie
+public sealed record MyQuery(...) : IQuery<MyDto>;
+```
+
+### Handlery
+
+```csharp
+// Handler komendy bez odpowiedzi
+public sealed class MyCommandHandler : ICommandHandler<MyCommand>
+{
+    public Task<Result> HandleAsync(MyCommand command, CancellationToken ct) { ... }
+}
+
+// Handler komendy z odpowiedzią
+public sealed class MyCommandHandler : ICommandHandler<MyCommand, MyDto>
+{
+    public Task<Result<MyDto>> HandleAsync(MyCommand command, CancellationToken ct) { ... }
+}
+
+// Handler zapytania
+public sealed class MyQueryHandler : IQueryHandler<MyQuery, MyDto>
+{
+    public Task<Result<MyDto>> HandleAsync(MyQuery query, CancellationToken ct) { ... }
+}
+```
+
+### Wywoływanie z endpointów
+
+```csharp
+// DOBRZE — wstrzyknij IMediator
+private static async Task<IResult> HandleAsync(MyRequest req, IMediator mediator, CancellationToken ct)
+{
+    var result = await mediator.SendAsync(new MyCommand(req.Field), ct);
+    return result.IsFailure ? MapToHttpError(result.Error) : Results.Ok(result.Value);
+}
+
+// ŹLE — nie wstrzykuj konkretnych handlerów w endpointach
+private static async Task<IResult> HandleAsync(ICommandHandler<MyCommand, MyDto> handler, ...) { }
+```
+
+### Walidacja
+
+Walidacja wejściowa (format, null-checks, długości) należy do `IValidator<TRequest>`, **nie** do handlerów:
+
+```csharp
+public sealed class MyCommandValidator : IValidator<MyCommand>
+{
+    public Task<Result> ValidateAsync(MyCommand request, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(request.Field))
+            return Task.FromResult(Result.Failure(new Error("Validation.FieldRequired", "Field is required.")));
+        return Task.FromResult(Result.Success());
+    }
+}
+```
+
+Walidatory są odkrywane automatycznie przez `AddMavryntMediator`. Logika biznesowa (invarianty domenowe) pozostaje w Domain.
+
+### Markery opcjonalnych zachowań pipeline'u
+
+| Interfejs | Efekt |
+|---|---|
+| `IAuditableRequest` | Zapisuje `AuditEntry` przez `IAuditService` po wykonaniu |
+| `ITransactionalRequest` | Wywołuje `IUnitOfWork.SaveChangesAsync()` po sukcesie |
+| `IResilientRequest` | Hook dla retry/timeout (nie stosuj na nieindepotentnych komendach) |
+
+```csharp
+// Przykład: komenda audytowalna i transakcyjna
+public sealed record RegisterUserCommand(...) : ICommand<UserDto>, IAuditableRequest, ITransactionalRequest
+{
+    public string AuditEventType => "Users.UserRegistered";
+}
+```
+
+### Rejestracja nowego modułu
+
+W DI extensions modułu użyj:
+
+```csharp
+services.AddMavryntMediator(typeof(IMyModuleMarker).Assembly);
+```
+
+Rejestruje to mediator, wszystkie handlery, walidatory i zachowania pipeline'u dla podanego assembly.
+
+### Czego NIE robić
+
+- **Nie dodawaj MediatR** — Mavrynt ma własny mediator
+- **Nie obchodź mediatora** z hostów — endpointy wywołują `IMediator.SendAsync`
+- **Nie duplikuj logowania** w handlerach — `LoggingBehavior` już to robi
+- **Nie duplikuj audytu** w handlerach — użyj `IAuditableRequest`
+- **Nie otwieraj transakcji** w handlerach — użyj `ITransactionalRequest`
+- **Nie serializes całego żądania** do logów (hasła, tokeny)
+
+---
+
 ## Klucze do efektywności
 
 1. **Czytaj dokumentację** — architektura ma konkretne powody

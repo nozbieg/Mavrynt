@@ -544,3 +544,78 @@ Silnie nazwane błędy (`UserErrors`) eliminują magiczne łańcuchy z handleró
 - Nie wprowadzono biblioteki mediatora.
 - Nie wprowadzono biblioteki walidacji.
 - Infrastructure (konfiguracja encji EF Core, DbContext, migracje, podłączenie PostgreSQL), endpointy API, biblioteka hashowania haseł, strategia JWT/ciasteczek, model ról oraz zarządzanie administratorami są odroczone do przyszłych etapów.
+
+---
+
+## ADR-020 — Wewnętrzny mediator i zachowania pipeline'u aplikacji
+
+**Status:** Zaakceptowano
+**Data:** 2026-04-28
+
+### Decyzja
+
+Mavrynt używa lekkiego wewnętrznego mediatora (`MavryntMediator`) zamiast MediatR lub jakiejkolwiek zewnętrznej biblioteki mediatora.
+
+Komendy i zapytania są przekazywane przez `IMediator`:
+
+```csharp
+Task<Result> SendAsync(ICommand command, CancellationToken ct = default);
+Task<Result<TResponse>> SendAsync<TResponse>(ICommand<TResponse> command, CancellationToken ct = default);
+Task<Result<TResponse>> SendAsync<TResponse>(IQuery<TResponse> query, CancellationToken ct = default);
+```
+
+Wprowadzony jest generyczny interfejs zachowania pipeline'u jako jedyny punkt rozszerzenia dla przekrojowych zagadnień:
+
+```csharp
+public interface IMavryntBehavior<TRequest, TResponse>
+{
+    Task<TResponse> HandleAsync(
+        TRequest request,
+        Func<CancellationToken, Task<TResponse>> next,
+        CancellationToken cancellationToken);
+}
+```
+
+Pięć wbudowanych zachowań rejestrowanych w tej kolejności:
+
+1. **LoggingBehavior** — loguje typ żądania, kategorię, czas wykonania, sukces/porażkę, kod błędu i trace ID. Nigdy nie serializuje całego żądania.
+2. **ValidationBehavior** — rozwiązuje wszystkie `IValidator<TRequest>` z DI i zatrzymuje się na pierwszym błędzie.
+3. **ResilienceBehavior** — punkt wejścia dla retry/timeout; respektuje marker `IResilientRequest`. Brak zależności od Polly na tym etapie.
+4. **AuditBehavior** — zapisuje `AuditEntry` przez `IAuditService` dla żądań implementujących `IAuditableRequest`.
+5. **TransactionBehavior** — wywołuje `IUnitOfWork.SaveChangesAsync()` po sukcesie handlera dla żądań implementujących `ITransactionalRequest`.
+
+Markery żądań kontrolują opcjonalną aktywację zachowań:
+- `IAuditableRequest` — włącza zapis audytu
+- `IResilientRequest` — oznacza żądania bezpieczne do powtórzenia
+- `ITransactionalRequest` — włącza commit jednostki pracy po sukcesie
+
+Istniejące `ICommand`, `ICommand<TResponse>`, `IQuery<TResponse>` i interfejsy handlerów pozostają bez zmian. Handlery nadal zwracają `Result` lub `Result<TResponse>`.
+
+`Result` i `Error` pozostają standardowym modelem zwrotnym w całej warstwie aplikacji.
+
+Rejestracja DI i odkrywanie handlerów przez jeden method extension:
+
+```csharp
+services.AddMavryntMediator(params Assembly[] assemblies);
+```
+
+Endpointy wstrzykują `IMediator`, nie konkretne interfejsy handlerów.
+
+### Uzasadnienie
+
+- **Pełna kontrola nad obsługą Result/Error.** Brak warstwy adaptera między `Result<T>` a modelem odpowiedzi zewnętrznego mediatora.
+- **Brak zewnętrznej zależności od mediatora.** Zmniejsza ryzyko łańcucha dostaw i sprzężenia wersji.
+- **Czytelność dla agentów AI.** Cała logika zachowań żyje we własnej przestrzeni nazw Mavrynt z jawną dokumentacją XML.
+- **Czysty punkt rozszerzenia.** Dodanie nowego przekrojowego zagadnienia to jedna klasa implementująca `IMavryntBehavior<TRequest, TResponse>` i jedna linia w rejestracji DI.
+- **Przyszła wymiana jest bezpieczna.** Wszystkie miejsca wywołań zależą od wewnętrznej abstrakcji `IMediator`. Wymiana implementacji nie wymaga zmian w handlerach ani endpointach.
+- **Jawna kolejność pipeline'u.** Kolejność jest określona przez rejestrację DI w `AddMavryntMediator`, widoczna w jednym pliku.
+
+### Konsekwencje
+
+- `IMediator` jest jedynym punktem wejścia dla dyspozycji komend i zapytań w endpointach i serwisach aplikacji.
+- MediatR nie jest dodawany do rozwiązania. Każda przyszła decyzja o jego adopcji wymaga jawnego ADR.
+- FluentValidation nie jest wprowadzana. Używana jest wewnętrzna abstrakcja `IValidator<TRequest>`. Przyszły ADR może ją zastąpić.
+- Polly nie jest wprowadzane dla zachowania resilience. Przyszły ADR może je dodać.
+- Trzy starsze marker interfejsy (`ILoggingBehavior`, `IValidationBehavior`, `ITransactionBehavior`) są oznaczone `[Obsolete]` i zostaną usunięte w przyszłym sprzątaniu.
+- `IUnitOfWork` jest zdefiniowane zarówno w `Mavrynt.BuildingBlocks.Application.Persistence` (kanonична abstrakcja), jak i w `Mavrynt.BuildingBlocks.Infrastructure.Persistence` (marker Infrastructure rozszerzający interfejs Application). Konkretne implementacje EF Core muszą być rejestrowane względem interfejsu Application.
+- Nieobsłużone wyjątki w pipeline'ie są przechwytywane przez mediator, logowane i zwracane jako `Result.Failure` z trace ID. Nie propagują się jako wyjątki do granicy API.

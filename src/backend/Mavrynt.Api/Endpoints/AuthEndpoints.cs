@@ -38,64 +38,35 @@ public static class AuthEndpoints
 
     private static async Task<IResult> RegisterAsync(
         RegisterRequest request,
-        ICommandHandler<RegisterUserCommand, UserDto> handler,
-        ILoggerFactory loggerFactory,
+        IMediator mediator,
         CancellationToken ct)
     {
-        var logger = loggerFactory.CreateLogger("Mavrynt.Api.Auth");
-
-        var result = await handler.HandleAsync(
+        var result = await mediator.SendAsync(
             new RegisterUserCommand(request.Email, request.Password, request.DisplayName),
             ct);
 
-        if (result.IsFailure)
-        {
-            logger.LogWarning(
-                "Registration failed. ErrorCode: {ErrorCode}, Email: {Email}",
-                result.Error.Code, request.Email);
-
-            return MapToHttpError(result.Error);
-        }
-
-        logger.LogInformation(
-            "User registered. UserId: {UserId}",
-            result.Value.Id);
-
-        return Results.Created($"/api/users/{result.Value.Id}", result.Value);
+        return result.IsFailure
+            ? MapToHttpError(result.Error)
+            : Results.Created($"/api/users/{result.Value.Id}", result.Value);
     }
 
     private static async Task<IResult> LoginAsync(
         LoginRequest request,
-        ICommandHandler<LoginUserCommand, AuthResultDto> handler,
-        ILoggerFactory loggerFactory,
+        IMediator mediator,
         CancellationToken ct)
     {
-        var logger = loggerFactory.CreateLogger("Mavrynt.Api.Auth");
-
-        var result = await handler.HandleAsync(
+        var result = await mediator.SendAsync(
             new LoginUserCommand(request.Email, request.Password),
             ct);
 
-        if (result.IsFailure)
-        {
-            logger.LogWarning(
-                "Login failed. ErrorCode: {ErrorCode}, Email: {Email}",
-                result.Error.Code, request.Email);
-
-            return MapToHttpError(result.Error);
-        }
-
-        // Never log the token value — only metadata.
-        logger.LogInformation(
-            "Login successful. UserId: {UserId}, TokenExpiry: {Expiry}",
-            result.Value.User.Id, result.Value.ExpiresAt);
-
-        return Results.Ok(result.Value);
+        return result.IsFailure
+            ? MapToHttpError(result.Error)
+            : Results.Ok(result.Value);
     }
 
     private static async Task<IResult> MeAsync(
         HttpContext httpContext,
-        IQueryHandler<GetUserByIdQuery, UserDto> handler,
+        IMediator mediator,
         CancellationToken ct)
     {
         var userIdStr = httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub);
@@ -103,7 +74,7 @@ public static class AuthEndpoints
         if (userIdStr is null || !Guid.TryParse(userIdStr, out var userId))
             return Results.Unauthorized();
 
-        var result = await handler.HandleAsync(new GetUserByIdQuery(userId), ct);
+        var result = await mediator.SendAsync(new GetUserByIdQuery(userId), ct);
 
         return result.IsFailure
             ? MapToHttpError(result.Error)
