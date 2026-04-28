@@ -291,3 +291,19 @@ Detailed landing docs: [`src/frontend/mavrynt-landing/README.md`](src/frontend/m
 ### Status
 
 Architectural foundation complete. The first frontend (landing) is fully functional and deploy-ready. Next steps: domain-module build-out and CI/CD.
+### Backend tests (architecture, unit, integration)
+
+Backend test foundation is split into three layers:
+- **Architecture tests** protect project and dependency boundaries in the modular monolith.
+- **Unit tests** verify domain primitives and Users command/query handlers with in-memory fakes.
+- **Integration tests** use **real PostgreSQL containers** via Testcontainers for infrastructure and host-level smoke tests.
+
+Run backend checks from repository root:
+
+```bash
+dotnet restore Mavrynt.sln
+dotnet build Mavrynt.sln --no-restore
+dotnet test Mavrynt.sln --no-build
+```
+
+> Docker is required for Testcontainers-based integration tests (`Mavrynt.Modules.Users.Infrastructure.Tests`, `Mavrynt.Api.IntegrationTests`, `Mavrynt.AdminApp.IntegrationTests`).

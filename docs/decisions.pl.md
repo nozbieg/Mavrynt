@@ -619,3 +619,27 @@ Endpointy wstrzykują `IMediator`, nie konkretne interfejsy handlerów.
 - Trzy starsze marker interfejsy (`ILoggingBehavior`, `IValidationBehavior`, `ITransactionBehavior`) są oznaczone `[Obsolete]` i zostaną usunięte w przyszłym sprzątaniu.
 - `IUnitOfWork` jest zdefiniowane zarówno w `Mavrynt.BuildingBlocks.Application.Persistence` (kanonична abstrakcja), jak i w `Mavrynt.BuildingBlocks.Infrastructure.Persistence` (marker Infrastructure rozszerzający interfejs Application). Konkretne implementacje EF Core muszą być rejestrowane względem interfejsu Application.
 - Nieobsłużone wyjątki w pipeline'ie są przechwytywane przez mediator, logowane i zwracane jako `Result.Failure` z trace ID. Nie propagują się jako wyjątki do granicy API.
+
+---
+
+## ADR-021 — Backend test strategy: architecture, unit and Testcontainers integration tests
+
+**Status:** zaakceptowana  
+**Data:** 2026-04-28
+
+### Decyzja
+Fundament testów backendu zostaje ustandaryzowany do trzech warstw:
+- testy architektoniczne dla granic modułów,
+- testy jednostkowe handlerów command/query z fake,
+- testy integracyjne na realnym PostgreSQL przez Testcontainers.
+
+### Uzasadnienie
+Takie podejście ogranicza dryf architektury, pozwala testować logikę aplikacyjną deterministycznie oraz weryfikuje integrację persystencji i hostów bez współdzielonych środowisk.
+
+### Konsekwencje
+- testy architektoniczne stają się bramką dla kierunku zależności,
+- handlery command/query są testowane izolowanie przez fake in-memory,
+- testy infrastruktury i hostów API/Admin używają kontenerów PostgreSQL,
+- testy nie zależą od Aspire AppHost ani Docker Compose,
+- wersje pakietów pozostają centralnie zarządzane w `Directory.Packages.props`,
+- testy backendowe są elementem fundamentu Continuous Delivery.

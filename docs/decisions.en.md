@@ -619,3 +619,27 @@ Endpoints inject `IMediator`, not concrete handler interfaces.
 - The three legacy behavior marker interfaces (`ILoggingBehavior`, `IValidationBehavior`, `ITransactionBehavior`) are marked `[Obsolete]`. They will be removed in a future cleanup.
 - `IUnitOfWork` is defined in both `Mavrynt.BuildingBlocks.Application.Persistence` (canonical abstraction) and `Mavrynt.BuildingBlocks.Infrastructure.Persistence` (Infrastructure marker extending the Application interface). Concrete EF Core implementations must register against the Application interface.
 - Unhandled exceptions in the pipeline are caught by the mediator, logged, and returned as `Result.Failure` with a trace ID. They do not propagate as exceptions to the API boundary.
+
+---
+
+## ADR-021 — Backend test strategy: architecture, unit and Testcontainers integration tests
+
+**Status:** Accepted  
+**Date:** 2026-04-28
+
+### Decision
+The backend test foundation is standardized into three layers:
+- architecture tests for modular dependency boundaries,
+- unit tests for command/query handlers using fakes,
+- integration tests using real PostgreSQL through Testcontainers.
+
+### Rationale
+This strategy protects architecture drift early, keeps application logic deterministic in unit scope, and validates persistence/runtime integration without external shared environments.
+
+### Consequences
+- architecture tests become a gate for modular dependency direction,
+- command/query handlers are tested in isolation with in-memory doubles,
+- infrastructure and API/Admin integration tests run against PostgreSQL containers,
+- tests do not depend on Aspire AppHost or Docker Compose,
+- package versions remain centrally managed in `Directory.Packages.props`,
+- backend tests become part of the Continuous Delivery foundation.

@@ -28,3 +28,5 @@ app.MapDefaultEndpoints();
 app.MapAdminEndpoints();
 
 app.Run();
+
+public partial class Program;
