@@ -104,7 +104,7 @@ Część administracyjna jest przewidziana jako osobny obszar produktu. Ma włas
 
 ## 5. Główne komponenty rozwiązania
 
-## 5.1. `Mavrynt.AppHost`
+### 5.1. `Mavrynt.AppHost`
 
 Projekt uruchomieniowy przeznaczony do lokalnej orkiestracji i spójnego spinania zależności środowiskowych. Jego zadaniem jest:
 - uruchamianie elementów backendu podczas developmentu,
@@ -119,7 +119,7 @@ Na późniejszych etapach może integrować:
 - Kafka,
 - inne elementy wspierające development i testy integracyjne.
 
-## 5.2. `Mavrynt.ServiceDefaults`
+### 5.2. `Mavrynt.ServiceDefaults`
 
 Projekt zawierający wspólne ustawienia usług i standardy techniczne. Przykładowe odpowiedzialności:
 - konfiguracja observability,
@@ -128,7 +128,7 @@ Projekt zawierający wspólne ustawienia usług i standardy techniczne. Przykła
 - wspólne ustawienia telemetryczne,
 - elementy wspólne dla uruchamianych usług backendowych.
 
-## 5.3. `Mavrynt.Api`
+### 5.3. `Mavrynt.Api`
 
 Główny host API produktu. Odpowiada za:
 - ekspozycję endpointów aplikacyjnych,
@@ -139,7 +139,7 @@ Główny host API produktu. Odpowiada za:
 
 To główny punkt wejścia dla klienta użytkownika.
 
-## 5.4. `Mavrynt.AdminApp`
+### 5.4. `Mavrynt.AdminApp`
 
 Host backendowy przeznaczony dla obszaru administracyjnego. Odpowiada za:
 - funkcje administracyjne,
@@ -150,38 +150,40 @@ Host backendowy przeznaczony dla obszaru administracyjnego. Odpowiada za:
 
 To osobny host, ponieważ admin jest wydzieloną częścią produktu o odmiennych wymaganiach bezpieczeństwa, uprawnień i odpowiedzialności.
 
-## 5.5. `Mavrynt.BuildingBlocks.*`
+### 5.5. `Mavrynt.BuildingBlocks.*`
 
 Zestaw projektów wspólnych dla całego backendu.
 
-### `Mavrynt.BuildingBlocks.Domain`
+#### `Mavrynt.BuildingBlocks.Domain`
 Kod bazowy dla warstwy domenowej, na przykład:
 - klasy bazowe encji,
 - value object patterns,
 - błędy domenowe,
 - abstrakcje domenowe.
 
-### `Mavrynt.BuildingBlocks.Application`
+#### `Mavrynt.BuildingBlocks.Application`
 Kod bazowy dla warstwy aplikacyjnej, na przykład:
 - abstrakcje command/query,
 - wspólne interfejsy use case,
 - walidacja i pipeline behaviors,
 - wzorce dla rejestracji zależności.
 
-### `Mavrynt.BuildingBlocks.Infrastructure`
+#### `Mavrynt.BuildingBlocks.Infrastructure`
 Kod wspólny infrastrukturalnie, na przykład:
 - mechanizmy persystencji,
 - rozszerzenia konfiguracyjne,
 - elementy integracyjne,
 - wzorce implementacyjne dla dostępu do danych.
 
-### `Mavrynt.BuildingBlocks.Contracts`
+#### `Mavrynt.BuildingBlocksContracts`
 Kontrakty współdzielone, na przykład:
 - zdarzenia integracyjne,
 - request/response contracts,
 - komunikaty między modułami lub warstwami.
 
-## 5.6. `Mavrynt.Modules.*`
+Uwaga: nazwa projektu w repozytorium to `Mavrynt.BuildingBlocksContracts`.
+
+### 5.6. `Mavrynt.Modules.*`
 
 Moduły domenowe systemu. Każdy moduł powinien posiadać własne granice odpowiedzialności.
 
@@ -211,7 +213,7 @@ Ich dokładna lista będzie zależeć od kolejnych etapów rozwoju produktu.
 
 Każdy moduł backendowy powinien dążyć do spójnego modelu warstwowego.
 
-## 6.1. Warstwa domenowa
+### 6.1. Warstwa domenowa
 
 Warstwa domenowa zawiera:
 - encje,
@@ -228,7 +230,7 @@ Ta warstwa nie powinna znać:
 - implementacji infrastrukturalnych,
 - frameworków prezentacyjnych.
 
-## 6.2. Warstwa aplikacyjna
+### 6.2. Warstwa aplikacyjna
 
 Warstwa aplikacyjna zawiera:
 - przypadki użycia,
@@ -240,7 +242,7 @@ Warstwa aplikacyjna zawiera:
 
 Warstwa aplikacyjna korzysta z domeny, ale nie powinna przejmować odpowiedzialności za szczegóły persystencji czy hostingu.
 
-## 6.3. Warstwa infrastruktury
+### 6.3. Warstwa infrastruktury
 
 Warstwa infrastruktury zawiera:
 - implementacje repozytoriów,
@@ -251,7 +253,7 @@ Warstwa infrastruktury zawiera:
 
 To tutaj znajdują się szczegóły technologiczne.
 
-## 6.4. Host
+### 6.4. Host
 
 Host:
 - rejestruje moduły,
@@ -264,7 +266,7 @@ Host:
 
 ## 7. Zasady zależności
 
-## 7.1. Dozwolone zależności
+### 7.1. Dozwolone zależności
 
 Przykładowo dozwolone są:
 - `BuildingBlocks.Application` → `BuildingBlocks.Domain`
@@ -278,7 +280,7 @@ Przykładowo dozwolone są:
 - `Mavrynt.Api` → moduły i building blocks
 - `Mavrynt.AdminApp` → moduły i building blocks
 
-## 7.2. Niedozwolone zależności
+### 7.2. Niedozwolone zależności
 
 Nie wolno dopuszczać sytuacji:
 - `Domain` → `Infrastructure`
@@ -354,6 +356,16 @@ Rozwiązanie ma być projektowane w sposób ułatwiający:
 
 Testy są traktowane jako równorzędna część repozytorium, a nie jako dodatek wtórny.
 
+### 12.1. Strategia testów backendowych
+
+Strategia testów backendowych opiera się na trzech warstwach:
+
+1. **Testy architektoniczne** — chronią granice modułów i kierunek zależności, między innymi przez NetArchTest oraz kontrolę referencji projektów.
+2. **Testy jednostkowe** — pokrywają prymitywy domenowe, reguły domenowe i handlery komend/zapytań modułów, w tym Users.
+3. **Testy integracyjne** — działają na realnym PostgreSQL przez Testcontainers dla repozytoriów infrastruktury oraz smoke testów hostów API/Admin.
+
+Całość powinna uruchamiać się przez `dotnet test` i nie powinna wymagać Aspire AppHost ani Docker Compose. Docker jest wymagany wyłącznie dla testów opartych o Testcontainers.
+
 ---
 
 ## 13. Continuous Delivery
@@ -370,9 +382,8 @@ Architektura repozytorium i projektów ma wspierać pełne Continuous Delivery. 
 ## 14. Kierunki dalszego rozwoju
 
 W kolejnych etapach architektura będzie rozszerzana o:
+- administracyjny vertical slice Fazy 1: role/uprawnienia, FeatureManagement i trwały audyt,
 - kolejne moduły domenowe,
-- testy architektoniczne,
-- wspólną konfigurację pakietów,
 - konteneryzację,
 - pipeline CI/CD,
 - konfigurację danych i migracji,
@@ -386,14 +397,3 @@ W kolejnych etapach architektura będzie rozszerzana o:
 Mavrynt jest budowany jako modularny monolit w jednym repozytorium, z wyraźnym podziałem na hosty, building blocks, moduły domenowe, frontendy i warstwę infrastrukturalną. Głównym celem architektury jest zachowanie porządku, skalowalności organizacyjnej i technicznej oraz gotowości do dalszego rozwoju bez nadmiernego kosztu początkowego.
 
 Dokument ten stanowi bazę referencyjną dla dalszych decyzji implementacyjnych i powinien być aktualizowany wraz z rozwojem rozwiązania.
----
-
-## 12. Strategia testów (fundament backendu)
-
-Strategia testów backendowych opiera się na trzech warstwach:
-
-1. **Testy architektoniczne** (NetArchTest + kontrola referencji projektów) chronią granice modułów i kierunek zależności.
-2. **Testy jednostkowe** pokrywają prymitywy domenowe i handlery komend/zapytań Users z użyciem fake/in-memory.
-3. **Testy integracyjne** działają na realnym PostgreSQL przez Testcontainers dla repozytoriów infrastruktury oraz smoke testów hostów API/Admin.
-
-Całość uruchamia się przez `dotnet test` i nie wymaga Aspire AppHost ani Docker Compose.
