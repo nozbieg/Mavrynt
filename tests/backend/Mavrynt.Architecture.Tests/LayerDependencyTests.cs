@@ -1,4 +1,5 @@
 using NetArchTest.Rules;
+using Xunit;
 
 namespace Mavrynt.Architecture.Tests;
 

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Mavrynt.BuildingBlocks.Application.Messaging;
 using Mavrynt.BuildingBlocks.Domain.Results;
 using Microsoft.Extensions.Logging;
 
@@ -92,12 +93,12 @@ public sealed class LoggingBehavior<TRequest, TResponse> : IMavryntBehavior<TReq
     private static string DetermineCategory(Type requestType)
     {
         if (requestType.GetInterfaces().Any(i =>
-                i == typeof(Messaging.ICommand) ||
-                (i.IsGenericType && i.GetGenericTypeDefinition() == typeof(Messaging.ICommand<>))))
+                i == typeof(ICommand) ||
+                (i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICommand<>))))
             return "Command";
 
         if (requestType.GetInterfaces().Any(i =>
-                i.IsGenericType && i.GetGenericTypeDefinition() == typeof(Messaging.IQuery<>)))
+                i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IQuery<>)))
             return "Query";
 
         return "Request";

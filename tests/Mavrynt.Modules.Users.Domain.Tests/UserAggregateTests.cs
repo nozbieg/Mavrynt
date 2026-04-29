@@ -2,6 +2,7 @@ using Mavrynt.Modules.Users.Domain.Entities;
 using Mavrynt.Modules.Users.Domain.Enums;
 using Mavrynt.Modules.Users.Domain.Events;
 using Mavrynt.Modules.Users.Domain.ValueObjects;
+using Xunit;
 
 namespace Mavrynt.Modules.Users.Domain.Tests;
 

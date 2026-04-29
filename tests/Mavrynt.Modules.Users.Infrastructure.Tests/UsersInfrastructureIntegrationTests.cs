@@ -7,6 +7,7 @@ using Mavrynt.Modules.Users.Infrastructure.Tests.Fixtures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 
 namespace Mavrynt.Modules.Users.Infrastructure.Tests;
 

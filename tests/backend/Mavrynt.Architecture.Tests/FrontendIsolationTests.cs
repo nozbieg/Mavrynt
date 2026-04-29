@@ -1,3 +1,5 @@
+using Xunit;
+
 namespace Mavrynt.Architecture.Tests;
 
 public sealed class FrontendIsolationTests

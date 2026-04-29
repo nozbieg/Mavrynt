@@ -7,6 +7,7 @@ using Mavrynt.BuildingBlocks.Application.Validation;
 using Mavrynt.BuildingBlocks.Domain.Results;
 using Mavrynt.Modules.Users.Application.Tests.Fakes;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 
 namespace Mavrynt.Modules.Users.Application.Tests;
 
@@ -37,7 +38,6 @@ public sealed class MediatorPipelineTests
     public async Task Mediator_Should_Return_Failure_For_Missing_Handler()
     {
         var services = new ServiceCollection();
-        services.AddLogging();
         services.AddMavryntMediator(typeof(MediatorPipelineTests).Assembly);
 
         await using var provider = services.BuildServiceProvider();
@@ -110,7 +110,6 @@ public sealed class MediatorPipelineTests
     private static ServiceCollection BuildServices(bool validationFailure = false)
     {
         var services = new ServiceCollection();
-        services.AddLogging();
         services.AddSingleton<FakeAuditService>();
         services.AddSingleton<IAuditService>(sp => sp.GetRequiredService<FakeAuditService>());
         services.AddSingleton<ICurrentUserContext>(new FakeCurrentUserContext(Guid.NewGuid(), "test@example.com"));

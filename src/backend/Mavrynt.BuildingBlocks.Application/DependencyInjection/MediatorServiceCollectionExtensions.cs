@@ -4,6 +4,9 @@ using Mavrynt.BuildingBlocks.Application.Mediator;
 using Mavrynt.BuildingBlocks.Application.Messaging;
 using Mavrynt.BuildingBlocks.Application.Validation;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Mavrynt.BuildingBlocks.Application.DependencyInjection;
 
@@ -30,6 +33,11 @@ public static class MediatorServiceCollectionExtensions
         this IServiceCollection services,
         params Assembly[] assemblies)
     {
+        // ── Logging fallback (NullLogger when no real logger is registered, e.g. in tests) ──
+        // TryAdd: does NOT override when a host (ASP.NET Core, Aspire) has already added real loggers.
+        services.TryAddSingleton<ILoggerFactory, NullLoggerFactory>();
+        services.TryAddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+
         // ── Mediator ─────────────────────────────────────────────────────────
         services.AddScoped<IMediator, MavryntMediator>();
 
@@ -72,9 +80,16 @@ public static class MediatorServiceCollectionExtensions
 
                 if (definition == CommandHandlerOpenType ||
                     definition == CommandHandlerWithResponseOpenType ||
-                    definition == QueryHandlerOpenType ||
-                    definition == ValidatorOpenType)
+                    definition == QueryHandlerOpenType)
                 {
+                    // Handlers: scan all types including nested (supports inline test handlers).
+                    services.AddTransient(iface, type);
+                }
+                else if (definition == ValidatorOpenType && !type.IsNested)
+                {
+                    // Validators: top-level classes only.
+                    // Nested test validators (e.g. TrackingValidator inside a test class) must be
+                    // registered explicitly to avoid accidental double-registration and ordering issues.
                     services.AddTransient(iface, type);
                 }
             }

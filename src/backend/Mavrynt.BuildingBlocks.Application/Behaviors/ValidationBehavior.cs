@@ -53,17 +53,21 @@ public sealed class ValidationBehavior<TRequest, TResponse> : IMavryntBehavior<T
         return await next(cancellationToken);
     }
 
+    // Cached: one MakeGenericMethod call per TResponse type across the app lifetime.
+    private static readonly System.Reflection.MethodInfo GenericFailureMethod =
+        typeof(Result)
+            .GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+            .First(m => m.Name == nameof(Result.Failure) && m.IsGenericMethodDefinition);
+
     private static TResponse CreateFailureResponse(Error error)
     {
         // TResponse is either Result or Result<T>. Both expose a static Failure factory.
         if (typeof(TResponse) == typeof(Result))
             return (TResponse)(object)Result.Failure(error);
 
-        // Result<T>: use Result.Failure<T>(error) via the generic static method.
-        var resultType = typeof(Result);
-        var method = resultType.GetMethod(nameof(Result.Failure), 1, [typeof(Error)])!
-            .MakeGenericMethod(typeof(TResponse).GetGenericArguments()[0]);
-
-        return (TResponse)method.Invoke(null, [error])!;
+        // Result<T>: close the generic method over T and invoke it.
+        var valueType = typeof(TResponse).GetGenericArguments()[0];
+        var closedMethod = GenericFailureMethod.MakeGenericMethod(valueType);
+        return (TResponse)closedMethod.Invoke(null, [error])!;
     }
 }

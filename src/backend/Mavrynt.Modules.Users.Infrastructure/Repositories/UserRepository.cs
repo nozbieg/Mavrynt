@@ -16,27 +16,13 @@ internal sealed class UserRepository : IUserRepository
     }
 
     public Task<User?> GetByIdAsync(UserId id, CancellationToken cancellationToken = default)
-    {
-        // Capture the primitive value. EF Core translates member-access through
-        // the value converter (UserId → Guid) when the lambda accesses .Value.
-        var idValue = id.Value;
-        return _context.Users
-            .FirstOrDefaultAsync(u => u.Id.Value == idValue, cancellationToken);
-    }
+        => _context.Users.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
 
     public Task<User?> GetByEmailAsync(Email email, CancellationToken cancellationToken = default)
-    {
-        var emailValue = email.Value;
-        return _context.Users
-            .FirstOrDefaultAsync(u => u.Email.Value == emailValue, cancellationToken);
-    }
+        => _context.Users.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
 
     public Task<bool> ExistsByEmailAsync(Email email, CancellationToken cancellationToken = default)
-    {
-        var emailValue = email.Value;
-        return _context.Users
-            .AnyAsync(u => u.Email.Value == emailValue, cancellationToken);
-    }
+        => _context.Users.AnyAsync(u => u.Email == email, cancellationToken);
 
     public async Task AddAsync(User user, CancellationToken cancellationToken = default)
     {

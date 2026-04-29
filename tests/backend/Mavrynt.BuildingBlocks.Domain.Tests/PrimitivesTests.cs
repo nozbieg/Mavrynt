@@ -1,5 +1,6 @@
 using Mavrynt.BuildingBlocks.Domain.Abstractions;
 using Mavrynt.BuildingBlocks.Domain.Primitives;
+using Xunit;
 
 namespace Mavrynt.BuildingBlocks.Domain.Tests;
 

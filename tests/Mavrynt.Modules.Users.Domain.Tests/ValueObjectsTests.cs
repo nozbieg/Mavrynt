@@ -1,5 +1,6 @@
 using Mavrynt.Modules.Users.Domain.Errors;
 using Mavrynt.Modules.Users.Domain.ValueObjects;
+using Xunit;
 
 namespace Mavrynt.Modules.Users.Domain.Tests;
 

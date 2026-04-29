@@ -1,4 +1,5 @@
 using Mavrynt.BuildingBlocks.Domain.Results;
+using Xunit;
 
 namespace Mavrynt.BuildingBlocks.Domain.Tests;
 

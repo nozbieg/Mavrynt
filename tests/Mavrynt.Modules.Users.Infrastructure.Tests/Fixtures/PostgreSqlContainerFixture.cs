@@ -1,6 +1,7 @@
 using Mavrynt.Modules.Users.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
+using Xunit;
 
 namespace Mavrynt.Modules.Users.Infrastructure.Tests.Fixtures;
 

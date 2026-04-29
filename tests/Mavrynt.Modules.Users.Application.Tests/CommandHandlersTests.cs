@@ -3,6 +3,7 @@ using Mavrynt.Modules.Users.Application.Tests.Fakes;
 using Mavrynt.Modules.Users.Domain.Entities;
 using Mavrynt.Modules.Users.Domain.Errors;
 using Mavrynt.Modules.Users.Domain.ValueObjects;
+using Xunit;
 
 namespace Mavrynt.Modules.Users.Application.Tests;
 
