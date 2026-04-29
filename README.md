@@ -97,17 +97,18 @@ Repozytorium jest budowane ręcznie od czystego pliku solution `.sln`, krok po k
 - nazewnictwem,
 - odpowiedzialnością poszczególnych warstw.
 
-Fundament backendowy (hosty, building blocks, moduł Users) oraz wszystkie trzy aplikacje frontendowe (`mavrynt-web`, `mavrynt-admin`, `mavrynt-landing`) są już na miejscu. Aplikacja landing przeszła pełny cykl fundament → treść → dostępność (WCAG 2.1 AA) → wydajność → testy end-to-end (Vitest + Playwright).
+Fundament backendowy (hosty, building blocks, moduł Users, podstawowa autoryzacja JWT, mediator, pierwsze testy backendowe) oraz wszystkie trzy aplikacje frontendowe (`mavrynt-web`, `mavrynt-admin`, `mavrynt-landing`) są już na miejscu. Aplikacja landing przeszła pełny cykl fundament → treść → dostępność (WCAG 2.1 AA) → wydajność → testy end-to-end (Vitest + Playwright).
 
-### Cele najbliższych etapów
+### Najbliższy krok Fazy 1
 
-Najbliższe etapy rozwoju obejmują:
-- implementację właściwej logiki modułu Users (autoryzacja, role, uprawnienia),
-- dopięcie kolejnych modułów domenowych,
-- rozbudowę piramidy testów na backendzie (unit, integracyjne, architektoniczne),
-- produkcyjne adaptery portów frontendowych (HTTP `LeadService`, real-world `AnalyticsClient`),
-- konfigurację CI/CD oraz kontenerizacji środowiska,
-- pierwsze środowisko wdrożeniowe (staging).
+Najbliższym priorytetem jest domknięcie pierwszego administracyjnego vertical slice'a Fazy 1:
+- role i uprawnienia użytkowników,
+- moduł FeatureManagement zarządzany z poziomu AdminApp,
+- trwały audyt operacji systemowych,
+- endpointy administracyjne zabezpieczone polityką `AdminOnly`,
+- testy architektoniczne, jednostkowe i integracyjne dla nowego zakresu.
+
+Dopiero po tym kroku repozytorium powinno przejść do szerszej konfiguracji CI/CD, stagingu i kolejnych modułów domenowych.
 
 ### Zasady organizacyjne
 
@@ -142,9 +143,26 @@ W projekcie obowiązują następujące zasady:
 
 Szczegółowa instrukcja landingu: [`src/frontend/mavrynt-landing/README.md`](src/frontend/mavrynt-landing/README.md).
 
+### Backend tests (architecture, unit, integration)
+
+Backendowy fundament testów jest podzielony na trzy warstwy:
+- **testy architektoniczne** chronią granice projektów i zależności w modularnym monolicie,
+- **testy jednostkowe** weryfikują prymitywy domenowe i handlery komend/zapytań,
+- **testy integracyjne** używają realnych kontenerów PostgreSQL przez Testcontainers dla infrastruktury i smoke testów hostów.
+
+Uruchomienie sprawdzeń backendowych z katalogu głównego repozytorium:
+
+```bash
+dotnet restore Mavrynt.sln
+dotnet build Mavrynt.sln --no-restore
+dotnet test Mavrynt.sln --no-build
+```
+
+> Docker jest wymagany dla testów integracyjnych opartych o Testcontainers (`Mavrynt.Modules.Users.Infrastructure.Tests`, `Mavrynt.Api.IntegrationTests`, `Mavrynt.AdminApp.IntegrationTests`).
+
 ### Status
 
-Fundament architektoniczny gotowy. Pierwszy z frontendów (landing) jest w pełni funkcjonalny i gotowy do wdrożenia. Następny krok: rozwój modułów domenowych i środowiska CI/CD.
+Fundament architektoniczny jest gotowy, landing jest funkcjonalny i gotowy do wdrożenia, a backend ma już bazowy Users/Auth oraz początek piramidy testów. Następny krok: administracyjny vertical slice Fazy 1 — role/uprawnienia, FeatureManagement i trwały audyt w AdminApp.
 
 ## EN
 
@@ -243,17 +261,18 @@ The repository is being built manually from a clean `.sln` file, step by step, w
 - naming,
 - responsibility boundaries.
 
-The backend foundation (hosts, building blocks, the Users module) and all three frontend applications (`mavrynt-web`, `mavrynt-admin`, `mavrynt-landing`) are now in place. The landing app has completed a full lifecycle: foundation → content → accessibility (WCAG 2.1 AA) → performance → end-to-end testing (Vitest + Playwright).
+The backend foundation (hosts, building blocks, the Users module, basic JWT authentication, mediator, and the first backend tests) and all three frontend applications (`mavrynt-web`, `mavrynt-admin`, `mavrynt-landing`) are now in place. The landing app has completed a full lifecycle: foundation → content → accessibility (WCAG 2.1 AA) → performance → end-to-end testing (Vitest + Playwright).
 
-### Near-term goals
+### Next Phase 1 step
 
-The next stages of development include:
-- implementing the real Users module logic (authn/authz, roles, permissions),
-- wiring additional domain modules,
-- expanding the backend test pyramid (unit, integration, architectural),
-- production adapters for the frontend ports (HTTP `LeadService`, real-world `AnalyticsClient`),
-- CI/CD configuration and environment containerisation,
-- the first deployment environment (staging).
+The nearest priority is to close the first administrative Phase 1 vertical slice:
+- user roles and permissions,
+- a FeatureManagement module managed from AdminApp,
+- persistent audit of system operations,
+- administrative endpoints protected by the `AdminOnly` policy,
+- architectural, unit, and integration tests for the new scope.
+
+Only after this step should the repository move toward broader CI/CD configuration, staging, and additional domain modules.
 
 ### Organizational rules
 
@@ -288,14 +307,11 @@ The following rules apply in the project:
 
 Detailed landing docs: [`src/frontend/mavrynt-landing/README.md`](src/frontend/mavrynt-landing/README.md).
 
-### Status
-
-Architectural foundation complete. The first frontend (landing) is fully functional and deploy-ready. Next steps: domain-module build-out and CI/CD.
 ### Backend tests (architecture, unit, integration)
 
 Backend test foundation is split into three layers:
 - **Architecture tests** protect project and dependency boundaries in the modular monolith.
-- **Unit tests** verify domain primitives and Users command/query handlers with in-memory fakes.
+- **Unit tests** verify domain primitives and command/query handlers.
 - **Integration tests** use **real PostgreSQL containers** via Testcontainers for infrastructure and host-level smoke tests.
 
 Run backend checks from repository root:
@@ -307,3 +323,7 @@ dotnet test Mavrynt.sln --no-build
 ```
 
 > Docker is required for Testcontainers-based integration tests (`Mavrynt.Modules.Users.Infrastructure.Tests`, `Mavrynt.Api.IntegrationTests`, `Mavrynt.AdminApp.IntegrationTests`).
+
+### Status
+
+Architectural foundation is ready, the landing app is functional and deploy-ready, and the backend already has base Users/Auth plus the beginning of the backend test pyramid. Next step: the administrative Phase 1 vertical slice — roles/permissions, FeatureManagement, and persistent audit in AdminApp.
