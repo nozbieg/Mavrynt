@@ -187,19 +187,27 @@ Uwaga: nazwa projektu w repozytorium to `Mavrynt.BuildingBlocksContracts`.
 
 Moduły domenowe systemu. Każdy moduł powinien posiadać własne granice odpowiedzialności.
 
-Na obecnym etapie pierwszym modułem bazowym jest `Users`.
+Aktualnie zaimplementowane moduły:
 
-Przykładowy układ:
+**Users**
 - `Mavrynt.Modules.Users.Domain`
 - `Mavrynt.Modules.Users.Application`
 - `Mavrynt.Modules.Users.Infrastructure`
 
+**FeatureManagement** — CRUD flag funkcjonalności, zarządzany wyłącznie przez AdminApp.
+- `Mavrynt.Modules.FeatureManagement.Domain`
+- `Mavrynt.Modules.FeatureManagement.Application`
+- `Mavrynt.Modules.FeatureManagement.Infrastructure`
+
+**Audit** — append-only dziennik audytu administracyjnego i systemowego.
+- `Mavrynt.Modules.Audit.Domain`
+- `Mavrynt.Modules.Audit.Application`
+- `Mavrynt.Modules.Audit.Infrastructure`
+
 W przyszłości analogicznie mogą powstać moduły:
 - Identity
 - Authorization
-- FeatureManagement
 - Notifications
-- Audit
 - Billing
 - Signals
 - MarketData
@@ -277,6 +285,16 @@ Przykładowo dozwolone są:
 - `Modules.Users.Application` → `Modules.Users.Domain`
 - `Modules.Users.Infrastructure` → `Modules.Users.Application`
 - `Modules.Users.Infrastructure` → `Modules.Users.Domain`
+- `Modules.FeatureManagement.Domain` → `BuildingBlocks.Domain`
+- `Modules.FeatureManagement.Application` → `BuildingBlocks.Application`
+- `Modules.FeatureManagement.Application` → `Modules.FeatureManagement.Domain`
+- `Modules.FeatureManagement.Application` → `Modules.Audit.Application` (IAuditLogWriter)
+- `Modules.FeatureManagement.Infrastructure` → `Modules.FeatureManagement.Application`
+- `Modules.FeatureManagement.Infrastructure` → `Modules.FeatureManagement.Domain`
+- `Modules.Audit.Domain` → `BuildingBlocks.Domain`
+- `Modules.Audit.Application` → `BuildingBlocks.Application`
+- `Modules.Audit.Infrastructure` → `Modules.Audit.Application`
+- `Modules.Audit.Infrastructure` → `Modules.Audit.Domain`
 - `Mavrynt.Api` → moduły i building blocks
 - `Mavrynt.AdminApp` → moduły i building blocks
 

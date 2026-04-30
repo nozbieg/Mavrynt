@@ -21,4 +21,8 @@
     <ProjectReference Include="..\..\src\backend\Mavrynt.BuildingBlocks.Application\Mavrynt.BuildingBlocks.Application.csproj" />
   </ItemGroup>
 
+    <ItemGroup>
+        <!-- Force transitive resolution to match the version Infrastructure was compiled against. -->
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+    </ItemGroup>
 </Project>

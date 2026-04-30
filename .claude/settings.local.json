@@ -3,7 +3,16 @@
     "allow": [
       "Bash(dotnet test *)",
       "Bash(dotnet list *)",
-      "Bash(dotnet build *)"
+      "Bash(dotnet build *)",
+      "Bash(mkdir -p \"C:/Repo/Mavrynt/src/backend/Mavrynt.Modules.Audit.Domain/Entities\")",
+      "Bash(mkdir -p \"C:/Repo/Mavrynt/src/backend/Mavrynt.Modules.Audit.Application/Abstractions\")",
+      "Bash(mkdir -p \"C:/Repo/Mavrynt/src/backend/Mavrynt.Modules.Audit.Application/DependencyInjection\")",
+      "Bash(mkdir -p \"C:/Repo/Mavrynt/src/backend/Mavrynt.Modules.Audit.Infrastructure/Persistence/Configurations\")",
+      "Bash(mkdir -p \"C:/Repo/Mavrynt/src/backend/Mavrynt.Modules.Audit.Infrastructure/Repositories\")",
+      "Bash(python3 *)",
+      "Bash(dotnet restore *)",
+      "Bash(docker info *)",
+      "Bash(git -C \"C:\\\\Repo\\\\Mavrynt\" status --short)"
     ]
   }
 }

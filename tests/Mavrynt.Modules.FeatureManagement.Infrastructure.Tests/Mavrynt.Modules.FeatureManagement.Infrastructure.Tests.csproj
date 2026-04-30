@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Testcontainers.PostgreSql" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\backend\Mavrynt.Modules.FeatureManagement.Infrastructure\Mavrynt.Modules.FeatureManagement.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\backend\Mavrynt.Modules.FeatureManagement.Domain\Mavrynt.Modules.FeatureManagement.Domain.csproj" />
+    <ProjectReference Include="..\..\src\backend\Mavrynt.BuildingBlocks.Application\Mavrynt.BuildingBlocks.Application.csproj" />
+  </ItemGroup>
+
+    <ItemGroup>
+        <!-- Force transitive resolution to match the version Infrastructure was compiled against. -->
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+    </ItemGroup>
+</Project>

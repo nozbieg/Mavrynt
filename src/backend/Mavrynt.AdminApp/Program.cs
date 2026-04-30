@@ -1,5 +1,9 @@
 using Mavrynt.AdminApp.DependencyInjection;
 using Mavrynt.AdminApp.Endpoints;
+using Mavrynt.Modules.Audit.Application.DependencyInjection;
+using Mavrynt.Modules.Audit.Infrastructure.DependencyInjection;
+using Mavrynt.Modules.FeatureManagement.Application.DependencyInjection;
+using Mavrynt.Modules.FeatureManagement.Infrastructure.DependencyInjection;
 using Mavrynt.Modules.Users.Application.DependencyInjection;
 using Mavrynt.Modules.Users.Infrastructure.DependencyInjection;
 
@@ -11,6 +15,14 @@ builder.AddServiceDefaults();
 // ── Users module ──────────────────────────────────────────────────────────────
 builder.Services.AddUsersApplication();
 builder.Services.AddUsersInfrastructure(builder.Configuration);
+
+// ── Audit module ──────────────────────────────────────────────────────────────
+builder.Services.AddAuditApplication();
+builder.Services.AddAuditInfrastructure(builder.Configuration);
+
+// ── FeatureManagement module ──────────────────────────────────────────────────
+builder.Services.AddFeatureManagementApplication();
+builder.Services.AddFeatureManagementInfrastructure(builder.Configuration);
 
 // ── Authentication + authorisation ───────────────────────────────────────────
 builder.Services.AddApiAuthentication(builder.Configuration);

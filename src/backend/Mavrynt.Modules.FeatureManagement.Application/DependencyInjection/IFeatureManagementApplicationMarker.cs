@@ -1,0 +1,3 @@
+namespace Mavrynt.Modules.FeatureManagement.Application.DependencyInjection;
+
+public interface IFeatureManagementApplicationMarker;

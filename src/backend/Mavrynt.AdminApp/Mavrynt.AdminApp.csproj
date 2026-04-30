@@ -12,6 +12,10 @@
         <ProjectReference Include="..\Mavrynt.BuildingBlocksContracts\Mavrynt.BuildingBlocksContracts.csproj" />
         <ProjectReference Include="..\Mavrynt.Modules.Users.Application\Mavrynt.Modules.Users.Application.csproj" />
         <ProjectReference Include="..\Mavrynt.Modules.Users.Infrastructure\Mavrynt.Modules.Users.Infrastructure.csproj" />
+        <ProjectReference Include="..\Mavrynt.Modules.Audit.Application\Mavrynt.Modules.Audit.Application.csproj" />
+        <ProjectReference Include="..\Mavrynt.Modules.Audit.Infrastructure\Mavrynt.Modules.Audit.Infrastructure.csproj" />
+        <ProjectReference Include="..\Mavrynt.Modules.FeatureManagement.Application\Mavrynt.Modules.FeatureManagement.Application.csproj" />
+        <ProjectReference Include="..\Mavrynt.Modules.FeatureManagement.Infrastructure\Mavrynt.Modules.FeatureManagement.Infrastructure.csproj" />
         <ProjectReference Include="..\Mavrynt.ServiceDefaults\Mavrynt.ServiceDefaults.csproj" />
     </ItemGroup>
 

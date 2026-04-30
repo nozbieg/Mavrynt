@@ -99,16 +99,15 @@ Repozytorium jest budowane ręcznie od czystego pliku solution `.sln`, krok po k
 
 Fundament backendowy (hosty, building blocks, moduł Users, podstawowa autoryzacja JWT, mediator, pierwsze testy backendowe) oraz wszystkie trzy aplikacje frontendowe (`mavrynt-web`, `mavrynt-admin`, `mavrynt-landing`) są już na miejscu. Aplikacja landing przeszła pełny cykl fundament → treść → dostępność (WCAG 2.1 AA) → wydajność → testy end-to-end (Vitest + Playwright).
 
-### Najbliższy krok Fazy 1
+### Stan Fazy 1
 
-Najbliższym priorytetem jest domknięcie pierwszego administracyjnego vertical slice'a Fazy 1:
-- role i uprawnienia użytkowników,
-- moduł FeatureManagement zarządzany z poziomu AdminApp,
-- trwały audyt operacji systemowych,
-- endpointy administracyjne zabezpieczone polityką `AdminOnly`,
-- testy architektoniczne, jednostkowe i integracyjne dla nowego zakresu.
+Administracyjny vertical slice Fazy 1 jest ukończony (2026-04-29):
+- role i uprawnienia użytkowników (`PATCH /api/admin/users/{userId}/role`),
+- moduł FeatureManagement zarządzany z poziomu AdminApp (CRUD feature flag, `AdminOnly`),
+- trwały audyt operacji systemowych (`IAuditLogWriter`, schemat PostgreSQL `audit`),
+- pełna piramida testów: architektoniczne, jednostkowe domeny i aplikacji, integracyjne infrastruktury i AdminApp.
 
-Dopiero po tym kroku repozytorium powinno przejść do szerszej konfiguracji CI/CD, stagingu i kolejnych modułów domenowych.
+Następne priorytety Fazy 1: email/powiadomienia, konfiguracja CI/CD, środowisko stagingowe.
 
 ### Zasady organizacyjne
 
@@ -162,7 +161,7 @@ dotnet test Mavrynt.sln --no-build
 
 ### Status
 
-Fundament architektoniczny jest gotowy, landing jest funkcjonalny i gotowy do wdrożenia, a backend ma już bazowy Users/Auth oraz początek piramidy testów. Następny krok: administracyjny vertical slice Fazy 1 — role/uprawnienia, FeatureManagement i trwały audyt w AdminApp.
+Fundament architektoniczny jest gotowy, landing jest funkcjonalny i gotowy do wdrożenia. Backend ma pełny fundament Users/Auth, moduł FeatureManagement, moduł Audit, administracyjne endpointy pod `AdminOnly` oraz wielowarstwową piramidę testów. Następny krok Fazy 1: email/powiadomienia i konfiguracja CI/CD.
 
 ## EN
 
@@ -263,16 +262,15 @@ The repository is being built manually from a clean `.sln` file, step by step, w
 
 The backend foundation (hosts, building blocks, the Users module, basic JWT authentication, mediator, and the first backend tests) and all three frontend applications (`mavrynt-web`, `mavrynt-admin`, `mavrynt-landing`) are now in place. The landing app has completed a full lifecycle: foundation → content → accessibility (WCAG 2.1 AA) → performance → end-to-end testing (Vitest + Playwright).
 
-### Next Phase 1 step
+### Phase 1 status
 
-The nearest priority is to close the first administrative Phase 1 vertical slice:
-- user roles and permissions,
-- a FeatureManagement module managed from AdminApp,
-- persistent audit of system operations,
-- administrative endpoints protected by the `AdminOnly` policy,
-- architectural, unit, and integration tests for the new scope.
+The administrative Phase 1 vertical slice is complete (2026-04-29):
+- user role assignment (`PATCH /api/admin/users/{userId}/role`),
+- FeatureManagement module managed from AdminApp (feature flag CRUD, `AdminOnly`),
+- persistent system audit (`IAuditLogWriter`, PostgreSQL schema `audit`),
+- full test pyramid: architecture, domain and application unit, infrastructure and AdminApp integration tests.
 
-Only after this step should the repository move toward broader CI/CD configuration, staging, and additional domain modules.
+Next Phase 1 priorities: email/notifications, CI/CD pipeline configuration, staging environment.
 
 ### Organizational rules
 
@@ -326,4 +324,4 @@ dotnet test Mavrynt.sln --no-build
 
 ### Status
 
-Architectural foundation is ready, the landing app is functional and deploy-ready, and the backend already has base Users/Auth plus the beginning of the backend test pyramid. Next step: the administrative Phase 1 vertical slice — roles/permissions, FeatureManagement, and persistent audit in AdminApp.
+Architectural foundation is ready, the landing app is functional and deploy-ready. The backend has the full Users/Auth foundation, FeatureManagement module, Audit module, administrative endpoints under `AdminOnly`, and a multi-layer test pyramid. Next Phase 1 step: email/notifications and CI/CD configuration.

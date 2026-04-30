@@ -22,4 +22,7 @@ internal static class ValidationErrors
 
     public static readonly Error UserIdRequired =
         new("Validation.UserIdRequired", "A valid UserId is required.");
+
+    public static readonly Error RoleRequired =
+        new("Validation.RoleRequired", "Role is required.");
 }

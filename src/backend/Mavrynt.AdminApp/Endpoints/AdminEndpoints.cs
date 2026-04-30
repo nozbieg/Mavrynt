@@ -16,6 +16,9 @@ public static class AdminEndpoints
             .RequireAuthorization("AdminOnly")
             .WithName("GetCurrentAdmin");
 
+        app.MapAdminUserEndpoints();
+        app.MapAdminFeatureFlagEndpoints();
+
         return app;
     }
 

@@ -91,7 +91,7 @@ public sealed class MediatorPipelineTests
         await mediator.SendAsync(new OrderedCommand());
         await mediator.SendAsync(new VoidCommand());
 
-        Assert.Single(audit.Entries.Where(x => x.EventType == "ordered_command"));
+        Assert.Single(audit.Entries, x => x.EventType == "ordered_command");
     }
 
     [Fact]

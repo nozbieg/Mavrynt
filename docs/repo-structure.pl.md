@@ -57,7 +57,13 @@ Mavrynt/
 │   │   ├── Mavrynt.BuildingBlocksContracts/
 │   │   ├── Mavrynt.Modules.Users.Domain/
 │   │   ├── Mavrynt.Modules.Users.Application/
-│   │   └── Mavrynt.Modules.Users.Infrastructure/
+│   │   ├── Mavrynt.Modules.Users.Infrastructure/
+│   │   ├── Mavrynt.Modules.FeatureManagement.Domain/
+│   │   ├── Mavrynt.Modules.FeatureManagement.Application/
+│   │   ├── Mavrynt.Modules.FeatureManagement.Infrastructure/
+│   │   ├── Mavrynt.Modules.Audit.Domain/
+│   │   ├── Mavrynt.Modules.Audit.Application/
+│   │   └── Mavrynt.Modules.Audit.Infrastructure/
 │   └── frontend/
 │       ├── Mavrynt.Web.App/
 │       ├── Mavrynt.Web.Admin/
@@ -73,6 +79,9 @@ Mavrynt/
     ├── Mavrynt.Modules.Users.Domain.Tests/
     ├── Mavrynt.Modules.Users.Application.Tests/
     ├── Mavrynt.Modules.Users.Infrastructure.Tests/
+    ├── Mavrynt.Modules.FeatureManagement.Domain.Tests/
+    ├── Mavrynt.Modules.FeatureManagement.Application.Tests/
+    ├── Mavrynt.Modules.FeatureManagement.Infrastructure.Tests/
     ├── Mavrynt.Api.IntegrationTests/
     └── Mavrynt.AdminApp.IntegrationTests/
 ```
@@ -105,17 +114,24 @@ Building Blocks nie mogą stać się zbiorem przypadkowych helperów. Trafiają 
 
 ### 4.3. Moduły domenowe
 
-Aktualny moduł bazowy:
+Zaimplementowane moduły Fazy 1:
 
+**Users** — rejestracja użytkowników, uwierzytelnianie, przypisywanie ról.
 - `Mavrynt.Modules.Users.Domain`
 - `Mavrynt.Modules.Users.Application`
 - `Mavrynt.Modules.Users.Infrastructure`
 
-Moduł Users jest obecnie wzorcem dla kolejnych modułów. Każdy przyszły moduł powinien utrzymywać analogiczny podział na Domain, Application i Infrastructure.
+**FeatureManagement** — CRUD flag funkcjonalności, zarządzany przez AdminApp.
+- `Mavrynt.Modules.FeatureManagement.Domain`
+- `Mavrynt.Modules.FeatureManagement.Application`
+- `Mavrynt.Modules.FeatureManagement.Infrastructure`
 
-Przewidziane przyszłe moduły Fazy 1:
-- `FeatureManagement`,
-- `Audit`,
+**Audit** — append-only dziennik audytu administracyjnego i systemowego.
+- `Mavrynt.Modules.Audit.Domain`
+- `Mavrynt.Modules.Audit.Application`
+- `Mavrynt.Modules.Audit.Infrastructure`
+
+Każdy moduł zachowuje ten sam podział na Domain / Application / Infrastructure. Przewidziane przyszłe moduły:
 - `Notifications` / `Email`,
 - ewentualnie wydzielone `Authorization`, jeśli role i uprawnienia urosną poza prosty model Users.
 
@@ -152,13 +168,16 @@ Frontend nie może referencjonować projektów backendowych bezpośrednio. Integ
 Testy znajdują się w `tests`.
 
 Aktualny podział:
-- `tests/backend/Mavrynt.Architecture.Tests` — testy architektoniczne pilnujące granic zależności.
+- `tests/backend/Mavrynt.Architecture.Tests` — testy architektoniczne pilnujące granic zależności wszystkich modułów.
 - `tests/backend/Mavrynt.BuildingBlocks.Domain.Tests` — testy prymitywów domenowych.
 - `tests/Mavrynt.Modules.Users.Domain.Tests` — testy domeny Users.
 - `tests/Mavrynt.Modules.Users.Application.Tests` — testy command/query handlerów Users.
 - `tests/Mavrynt.Modules.Users.Infrastructure.Tests` — testy infrastruktury Users z PostgreSQL przez Testcontainers.
+- `tests/Mavrynt.Modules.FeatureManagement.Domain.Tests` — testy domeny FeatureManagement.
+- `tests/Mavrynt.Modules.FeatureManagement.Application.Tests` — testy handlerów command/query FeatureManagement.
+- `tests/Mavrynt.Modules.FeatureManagement.Infrastructure.Tests` — testy infrastruktury FeatureManagement z PostgreSQL przez Testcontainers.
 - `tests/Mavrynt.Api.IntegrationTests` — testy integracyjne głównego API.
-- `tests/Mavrynt.AdminApp.IntegrationTests` — testy integracyjne AdminApp.
+- `tests/Mavrynt.AdminApp.IntegrationTests` — testy integracyjne AdminApp (role użytkowników + endpointy feature flag).
 
 Docelowo testy powinny tworzyć trzy warstwy walidacji backendu:
 1. testy architektoniczne,
@@ -217,10 +236,12 @@ Faza 1 koncentruje się na fundamencie platformy:
 - testowalność,
 - przygotowanie pod CI/CD.
 
-Po obecnym stanie modułu Users i testów backendowych następnym logicznym krokiem jest domknięcie pionowego slice'a administracyjnego: role/uprawnienia + feature flagi + audyt, spięte z AdminApp i zabezpieczone testami.
+Administracyjny vertical slice (role/uprawnienia + FeatureManagement + trwały audyt, spięty z AdminApp, chroniony przez `AdminOnly`, pokryty testami architektonicznymi/jednostkowymi/integracyjnymi) jest **ukończony** od 2026-04-29.
+
+Pozostałe elementy Fazy 1: email/powiadomienia, konfiguracja pipeline CI/CD, konfiguracja środowiska stagingowego.
 
 ---
 
 ## 10. Podsumowanie
 
-Repozytorium Mavrynt ma już fundament modularnego monolitu, hosty backendowe, bazowy moduł Users, aplikacje frontendowe oraz początek piramidy testów. Struktura repozytorium powinna pozostać stabilna, a kolejne prace powinny rozwijać konkretne moduły Fazy 1 bez łamania granic warstw i bez przenoszenia logiki biznesowej do hostów.
+Repozytorium Mavrynt ma fundament modularnego monolitu, hosty backendowe, moduły Users / FeatureManagement / Audit, aplikacje frontendowe oraz wielowarstwową piramidę testów (architektoniczne, jednostkowe i integracyjne Testcontainers). Struktura repozytorium powinna pozostać stabilna, a kolejne prace powinny rozwijać pozostałe elementy Fazy 1 (email, CI/CD) bez łamania granic warstw i bez przenoszenia logiki biznesowej do hostów.

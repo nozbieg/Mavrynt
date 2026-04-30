@@ -20,7 +20,7 @@ public sealed class CommandHandlersTests
 
         Assert.True(result.IsSuccess);
         Assert.Single(repository.Users);
-        Assert.Single(audit.Entries.Where(x => x.EventType == "user_registered"));
+        Assert.Single(audit.Entries, x => x.EventType == "user_registered");
     }
 
     [Fact]

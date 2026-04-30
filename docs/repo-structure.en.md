@@ -57,7 +57,13 @@ Mavrynt/
 │   │   ├── Mavrynt.BuildingBlocksContracts/
 │   │   ├── Mavrynt.Modules.Users.Domain/
 │   │   ├── Mavrynt.Modules.Users.Application/
-│   │   └── Mavrynt.Modules.Users.Infrastructure/
+│   │   ├── Mavrynt.Modules.Users.Infrastructure/
+│   │   ├── Mavrynt.Modules.FeatureManagement.Domain/
+│   │   ├── Mavrynt.Modules.FeatureManagement.Application/
+│   │   ├── Mavrynt.Modules.FeatureManagement.Infrastructure/
+│   │   ├── Mavrynt.Modules.Audit.Domain/
+│   │   ├── Mavrynt.Modules.Audit.Application/
+│   │   └── Mavrynt.Modules.Audit.Infrastructure/
 │   └── frontend/
 │       ├── Mavrynt.Web.App/
 │       ├── Mavrynt.Web.Admin/
@@ -73,6 +79,9 @@ Mavrynt/
     ├── Mavrynt.Modules.Users.Domain.Tests/
     ├── Mavrynt.Modules.Users.Application.Tests/
     ├── Mavrynt.Modules.Users.Infrastructure.Tests/
+    ├── Mavrynt.Modules.FeatureManagement.Domain.Tests/
+    ├── Mavrynt.Modules.FeatureManagement.Application.Tests/
+    ├── Mavrynt.Modules.FeatureManagement.Infrastructure.Tests/
     ├── Mavrynt.Api.IntegrationTests/
     └── Mavrynt.AdminApp.IntegrationTests/
 ```
@@ -105,17 +114,24 @@ Building Blocks must not become a random helper dump. Only genuinely shared elem
 
 ### 4.3. Domain modules
 
-Current foundation module:
+Implemented Phase 1 modules:
 
+**Users** — user registration, authentication, role assignment.
 - `Mavrynt.Modules.Users.Domain`
 - `Mavrynt.Modules.Users.Application`
 - `Mavrynt.Modules.Users.Infrastructure`
 
-The Users module is currently the template for future modules. Every future module should keep the same Domain, Application, and Infrastructure separation.
+**FeatureManagement** — feature flag CRUD, managed through AdminApp.
+- `Mavrynt.Modules.FeatureManagement.Domain`
+- `Mavrynt.Modules.FeatureManagement.Application`
+- `Mavrynt.Modules.FeatureManagement.Infrastructure`
 
-Expected future Phase 1 modules:
-- `FeatureManagement`,
-- `Audit`,
+**Audit** — append-only administrative and system audit log.
+- `Mavrynt.Modules.Audit.Domain`
+- `Mavrynt.Modules.Audit.Application`
+- `Mavrynt.Modules.Audit.Infrastructure`
+
+Every module follows the same Domain / Application / Infrastructure separation. Expected future modules:
 - `Notifications` / `Email`,
 - possibly a separate `Authorization` module if roles and permissions grow beyond a simple Users model.
 
@@ -152,13 +168,16 @@ The frontend must not reference backend projects directly. Integration happens t
 Tests live in `tests`.
 
 Current split:
-- `tests/backend/Mavrynt.Architecture.Tests` — architectural tests protecting dependency boundaries.
+- `tests/backend/Mavrynt.Architecture.Tests` — architectural tests protecting dependency boundaries across all modules.
 - `tests/backend/Mavrynt.BuildingBlocks.Domain.Tests` — tests for domain primitives.
 - `tests/Mavrynt.Modules.Users.Domain.Tests` — Users domain tests.
 - `tests/Mavrynt.Modules.Users.Application.Tests` — Users command/query handler tests.
 - `tests/Mavrynt.Modules.Users.Infrastructure.Tests` — Users infrastructure tests with PostgreSQL through Testcontainers.
+- `tests/Mavrynt.Modules.FeatureManagement.Domain.Tests` — FeatureManagement domain tests.
+- `tests/Mavrynt.Modules.FeatureManagement.Application.Tests` — FeatureManagement command/query handler tests.
+- `tests/Mavrynt.Modules.FeatureManagement.Infrastructure.Tests` — FeatureManagement infrastructure tests with PostgreSQL through Testcontainers.
 - `tests/Mavrynt.Api.IntegrationTests` — main API integration tests.
-- `tests/Mavrynt.AdminApp.IntegrationTests` — AdminApp integration tests.
+- `tests/Mavrynt.AdminApp.IntegrationTests` — AdminApp integration tests (role assignment + feature flag endpoints).
 
 Target backend validation has three layers:
 1. architectural tests,
@@ -217,10 +236,12 @@ Phase 1 focuses on the platform foundation:
 - testability,
 - preparation for CI/CD.
 
-Given the current state of the Users module and backend tests, the next logical step is to close the administrative vertical slice: roles/permissions + feature flags + audit, wired through AdminApp and protected with tests.
+The administrative vertical slice (roles/permissions + FeatureManagement + persistent audit, wired through AdminApp, protected by `AdminOnly`, covered by architecture/unit/integration tests) is **complete** as of 2026-04-29.
+
+Remaining Phase 1 items: email/notifications, CI/CD pipeline configuration, staging environment wiring.
 
 ---
 
 ## 10. Summary
 
-The Mavrynt repository already has the modular monolith foundation, backend hosts, the base Users module, frontend applications, and the beginning of the backend test pyramid. The repository structure should remain stable, and the next work should develop concrete Phase 1 modules without breaking layer boundaries or moving business logic into hosts.
+The Mavrynt repository has the modular monolith foundation, backend hosts, the Users / FeatureManagement / Audit modules, frontend applications, and a multi-layer backend test pyramid (architecture, unit, and Testcontainers integration tests). The repository structure should remain stable, and the next work should develop remaining Phase 1 items (email, CI/CD) without breaking layer boundaries or moving business logic into hosts.

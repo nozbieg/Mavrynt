@@ -23,6 +23,12 @@
     <ProjectReference Include="..\..\..\src\backend\Mavrynt.Modules.Users.Application\Mavrynt.Modules.Users.Application.csproj" />
     <ProjectReference Include="..\..\..\src\backend\Mavrynt.Modules.Users.Domain\Mavrynt.Modules.Users.Domain.csproj" />
     <ProjectReference Include="..\..\..\src\backend\Mavrynt.Modules.Users.Infrastructure\Mavrynt.Modules.Users.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\backend\Mavrynt.Modules.Audit.Domain\Mavrynt.Modules.Audit.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\backend\Mavrynt.Modules.Audit.Application\Mavrynt.Modules.Audit.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\backend\Mavrynt.Modules.Audit.Infrastructure\Mavrynt.Modules.Audit.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\backend\Mavrynt.Modules.FeatureManagement.Domain\Mavrynt.Modules.FeatureManagement.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\backend\Mavrynt.Modules.FeatureManagement.Application\Mavrynt.Modules.FeatureManagement.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\backend\Mavrynt.Modules.FeatureManagement.Infrastructure\Mavrynt.Modules.FeatureManagement.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\src\backend\Mavrynt.Api\Mavrynt.Api.csproj" />
     <ProjectReference Include="..\..\..\src\backend\Mavrynt.AdminApp\Mavrynt.AdminApp.csproj" />
     <ProjectReference Include="..\..\..\src\frontend\Mavrynt.Web.Admin\Mavrynt.Web.Admin.csproj" />

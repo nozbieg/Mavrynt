@@ -185,19 +185,27 @@ Shared contracts, for example:
 
 Domain modules of the system. Each module should have its own responsibility boundary.
 
-At the current stage, the first foundational module is `Users`.
+Current implemented modules:
 
-Example structure:
+**Users**
 - `Mavrynt.Modules.Users.Domain`
 - `Mavrynt.Modules.Users.Application`
 - `Mavrynt.Modules.Users.Infrastructure`
 
+**FeatureManagement** — feature flag CRUD, managed exclusively through AdminApp.
+- `Mavrynt.Modules.FeatureManagement.Domain`
+- `Mavrynt.Modules.FeatureManagement.Application`
+- `Mavrynt.Modules.FeatureManagement.Infrastructure`
+
+**Audit** — append-only administrative and system audit log.
+- `Mavrynt.Modules.Audit.Domain`
+- `Mavrynt.Modules.Audit.Application`
+- `Mavrynt.Modules.Audit.Infrastructure`
+
 In the future, modules such as the following may be added:
 - Identity
 - Authorization
-- FeatureManagement
 - Notifications
-- Audit
 - Billing
 - Signals
 - MarketData
@@ -275,6 +283,16 @@ Examples of allowed dependencies:
 - `Modules.Users.Application` → `Modules.Users.Domain`
 - `Modules.Users.Infrastructure` → `Modules.Users.Application`
 - `Modules.Users.Infrastructure` → `Modules.Users.Domain`
+- `Modules.FeatureManagement.Domain` → `BuildingBlocks.Domain`
+- `Modules.FeatureManagement.Application` → `BuildingBlocks.Application`
+- `Modules.FeatureManagement.Application` → `Modules.FeatureManagement.Domain`
+- `Modules.FeatureManagement.Application` → `Modules.Audit.Application` (IAuditLogWriter)
+- `Modules.FeatureManagement.Infrastructure` → `Modules.FeatureManagement.Application`
+- `Modules.FeatureManagement.Infrastructure` → `Modules.FeatureManagement.Domain`
+- `Modules.Audit.Domain` → `BuildingBlocks.Domain`
+- `Modules.Audit.Application` → `BuildingBlocks.Application`
+- `Modules.Audit.Infrastructure` → `Modules.Audit.Application`
+- `Modules.Audit.Infrastructure` → `Modules.Audit.Domain`
 - `Mavrynt.Api` → modules and building blocks
 - `Mavrynt.AdminApp` → modules and building blocks
 

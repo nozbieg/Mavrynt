@@ -44,9 +44,10 @@ public static class AuthServiceCollectionExtensions
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.FromSeconds(30),
 
-                    // "sub" claim maps to Identity.Name; ClaimTypes.Role maps to role checks.
+                    // "sub" claim maps to Identity.Name; "role" is the JWT short name for roles
+                    // (MapInboundClaims = false keeps claim names as-is from the JWT).
                     NameClaimType = "sub",
-                    RoleClaimType = ClaimTypes.Role,
+                    RoleClaimType = "role",
                 };
             });
 

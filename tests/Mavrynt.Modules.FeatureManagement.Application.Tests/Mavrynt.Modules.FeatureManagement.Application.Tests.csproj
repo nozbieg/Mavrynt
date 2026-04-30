@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\backend\Mavrynt.Modules.FeatureManagement.Application\Mavrynt.Modules.FeatureManagement.Application.csproj" />
+    <ProjectReference Include="..\..\src\backend\Mavrynt.Modules.FeatureManagement.Domain\Mavrynt.Modules.FeatureManagement.Domain.csproj" />
+    <ProjectReference Include="..\..\src\backend\Mavrynt.BuildingBlocks.Application\Mavrynt.BuildingBlocks.Application.csproj" />
+    <ProjectReference Include="..\..\src\backend\Mavrynt.Modules.Audit.Application\Mavrynt.Modules.Audit.Application.csproj" />
+  </ItemGroup>
+
+</Project>

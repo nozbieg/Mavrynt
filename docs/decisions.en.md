@@ -643,3 +643,61 @@ This strategy protects architecture drift early, keeps application logic determi
 - tests do not depend on Aspire AppHost or Docker Compose,
 - package versions remain centrally managed in `Directory.Packages.props`,
 - backend tests become part of the Continuous Delivery foundation.
+
+---
+
+## ADR-022 — Phase 1 Admin Foundation Slice: role management, FeatureManagement, and persistent audit
+
+**Status:** Accepted  
+**Date:** 2026-04-29
+
+### Decision
+
+The first administrative vertical slice of Phase 1 is implemented and wired into `Mavrynt.AdminApp`. The slice delivers three capabilities:
+
+**1. User role assignment**
+- `PATCH /api/admin/users/{userId}/role` — assigns `Admin` or `User` role to an existing user.
+- Protected by the `AdminOnly` authorization policy (JWT Bearer + `Admin` role claim).
+- Implemented as `AssignUserRoleCommand` in `Mavrynt.Modules.Users.Application`.
+- Audit trail written via the existing `IAuditService` (BuildingBlocks) with event type `user_role_assigned`.
+
+**2. FeatureManagement module**
+- New module: `Mavrynt.Modules.FeatureManagement.Domain`, `…Application`, `…Infrastructure`.
+- `FeatureFlag` aggregate: key (`^[a-z0-9][a-z0-9._-]*$`, max 256 chars), name, description, enabled/disabled state, created/updated timestamps.
+- CRUD commands: `CreateFeatureFlagCommand`, `UpdateFeatureFlagCommand`, `ToggleFeatureFlagCommand`.
+- Queries: `ListFeatureFlagsQuery`, `GetFeatureFlagByKeyQuery`.
+- Endpoints in AdminApp: `GET/POST /api/admin/feature-flags`, `GET/PATCH /api/admin/feature-flags/{key}`, `PATCH /api/admin/feature-flags/{key}/toggle`.
+- All endpoints are `AdminOnly` protected.
+- Feature flags are managed exclusively through AdminApp — no user-facing read endpoints are exposed at this stage.
+- Persistence: PostgreSQL schema `feature_management`, table `feature_flags`, EF Core migrations, unique index on `key`.
+
+**3. Audit module**
+- New module: `Mavrynt.Modules.Audit.Domain`, `…Application`, `…Infrastructure`.
+- `AuditLogEntry` entity — append-only record: actor user id, action, resource type, resource id, occurred at, metadata JSON.
+- `IAuditLogWriter` (Audit.Application) — new abstraction for admin/system audit writes, separate from `IAuditService` (BuildingBlocks) which handles auth-level events.
+- `FeatureManagement.Application` depends on `Audit.Application` for `IAuditLogWriter`.
+- Persistence: PostgreSQL schema `audit`, table `audit_log_entries`, EF Core migrations.
+
+**Test coverage added**
+- Architecture tests: 6 new tests for FM and Audit layer dependency rules.
+- Domain unit tests: 24 new tests for `FeatureFlag` aggregate and value objects.
+- Application unit tests: 12 new tests for FM command/query handlers (fakes, no I/O).
+- Application unit tests: 5 new tests for `AssignUserRoleCommandHandler`.
+- Infrastructure integration tests: 6 new tests for `FeatureFlagRepository` against a real PostgreSQL container.
+- AdminApp integration tests: 5 new tests for user role endpoint; 11 new tests for feature flag endpoints.
+
+### Rationale
+
+The administrative slice closes the gap between the backend foundation (Users, JWT, mediator, tests) and a working admin backend. Delivering role assignment, feature flag management, and audit in the same slice ensures that every administrative mutation is observable from day one, without accumulating audit debt.
+
+Separating `IAuditLogWriter` from the existing `IAuditService` keeps BuildingBlocks free of module-specific audit semantics. `IAuditLogWriter` belongs to `Audit.Application` — the one module that owns the audit concern.
+
+FeatureManagement is placed under AdminApp only at this stage. Exposing flags to user-facing APIs or using them as runtime gate checks are separate future decisions.
+
+### Consequences
+
+- `AdminOnly` policy is the only authorization model for admin endpoints; full RBAC (fine-grained permissions per resource type) is not implemented.
+- Actor `userId` is not yet propagated to `IAuditLogWriter.WriteAsync()` — all admin audit entries are written with `actorUserId: null`. Propagation via `ICurrentUserContext` is deferred to a future slice.
+- `FeatureManagement.Application` has a deliberate cross-module dependency on `Audit.Application`. This is the only permitted cross-module application-layer dependency and must not be extended without a new ADR.
+- `IDateTimeProvider` is registered with `TryAddSingleton` in FeatureManagement.Infrastructure so the first registration (Users.Infrastructure) wins when both modules are active in the same host.
+- CI/CD pipeline configuration, staging environments, and deployment automation remain deferred to a later stage.
