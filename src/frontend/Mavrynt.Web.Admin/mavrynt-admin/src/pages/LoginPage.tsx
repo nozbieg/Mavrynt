@@ -4,6 +4,7 @@ import { Section } from "@mavrynt/ui";
 import { AuthCard, LoginForm, AUTH_I18N_NAMESPACE } from "@mavrynt/auth-ui";
 import { RouterLink } from "../lib/router/RouterLink.tsx";
 import { Seo } from "../lib/seo/Seo.tsx";
+import { useAdminAuth } from "../lib/auth/useAdminAuth.ts";
 import {
   featureFlags,
   ADMIN_REGISTER_ENABLED_FLAG,
@@ -24,6 +25,7 @@ const LoginPage = () => {
   const { t: tCommon } = useTranslation();
   const navigate = useNavigate();
   const registerEnabled = featureFlags.isEnabled(ADMIN_REGISTER_ENABLED_FLAG);
+  const { setSession } = useAdminAuth();
 
   return (
     <>
@@ -55,6 +57,7 @@ const LoginPage = () => {
           <LoginForm
             source="admin:login"
             onSuccess={(session) => {
+              setSession(session);
               if (session.requiresPasswordChange) {
                 void navigate("/change-password", { replace: true });
               } else {
