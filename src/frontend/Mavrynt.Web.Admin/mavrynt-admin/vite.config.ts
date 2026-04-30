@@ -31,9 +31,7 @@ const apiProxy = {
     target: adminApiTarget,
     changeOrigin: true,
     secure: false,
-    pathRewrite: {
-      "^/admin-api": "/api",
-    },
+    rewrite: (path: string) => path.replace(/^\/admin-api/u, "/api"),
   },
 } as const;
 
