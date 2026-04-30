@@ -18,6 +18,7 @@ type AdminProfile = {
 };
 
 type LoadState = "loading" | "ready" | "error";
+const LOGIN_REDIRECT_REASON_KEY = "admin_login_redirect_reason";
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -44,13 +45,32 @@ const DashboardPage = () => {
         });
 
         if (response.status === 401 || response.status === 403) {
+          sessionStorage.setItem(LOGIN_REDIRECT_REASON_KEY, "Session expired or access denied.");
           clearAdminSession();
           void navigate("/login", { replace: true });
           return;
         }
 
+        if (response.status === 404) {
+          setError("Admin profile was not found for the current token.");
+          setState("error");
+          return;
+        }
+
         if (!response.ok) {
-          setError("Unable to load your admin profile.");
+          let serverMessage = "";
+          try {
+            const payload = (await response.json()) as { detail?: string; title?: string; message?: string };
+            serverMessage = payload.detail ?? payload.title ?? payload.message ?? "";
+          } catch {
+            // Ignore JSON parse issues and fall back to generic message.
+          }
+
+          setError(
+            serverMessage
+              ? `Unable to load your admin profile (HTTP ${response.status}): ${serverMessage}`
+              : `Unable to load your admin profile (HTTP ${response.status}).`,
+          );
           setState("error");
           return;
         }
