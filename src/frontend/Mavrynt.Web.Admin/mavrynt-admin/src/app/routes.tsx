@@ -1,35 +1,21 @@
 import { lazy, Suspense, type ReactNode } from "react";
 import { type RouteObject } from "react-router";
-import { AdminLayout } from "../layouts/AdminLayout.tsx";
-import { RequireAdminAuth } from "../lib/auth/RequireAdminAuth.tsx";
+import { AdminLayout } from "../layouts/AdminLayout";
+import { AdminShellLayout } from "../layouts/AdminShellLayout";
+import { RequireAdminAuth } from "../lib/auth/RequireAdminAuth";
 
-/**
- * Route tree for `mavrynt-admin`.
- *
- * Mirrors `mavrynt-web`'s route shape so the two auth-facing SPAs stay
- * aligned. `/register` is always mounted for route parity — the page
- * itself renders a friendly "registration disabled" banner when the
- * `admin.register.enabled` feature flag is off.
- */
-const HomePage = lazy(() => import("../pages/HomePage.tsx"));
-const LoginPage = lazy(() => import("../pages/LoginPage.tsx"));
-const RegisterPage = lazy(() => import("../pages/RegisterPage.tsx"));
-const ChangePasswordPage = lazy(() => import("../pages/ChangePasswordPage.tsx"));
-const DashboardPage = lazy(() => import("../pages/DashboardPage.tsx"));
-const NotFoundPage = lazy(() => import("../pages/NotFoundPage.tsx"));
-
-const RouteFallback = (): ReactNode => (
-  <div
-    className="p-8 text-sm text-fg-muted"
-    aria-busy="true"
-    aria-live="polite"
-  >
-    …
-  </div>
-);
+const HomePage = lazy(() => import("../pages/HomePage"));
+const LoginPage = lazy(() => import("../pages/LoginPage"));
+const RegisterPage = lazy(() => import("../pages/RegisterPage"));
+const ChangePasswordPage = lazy(() => import("../pages/ChangePasswordPage"));
+const DashboardPage = lazy(() => import("../pages/DashboardPage"));
+const FeatureFlagsPage = lazy(() => import("../pages/FeatureFlagsPage"));
+const SmtpSettingsPage = lazy(() => import("../pages/SmtpSettingsPage"));
+const UsersPage = lazy(() => import("../pages/UsersPage"));
+const NotFoundPage = lazy(() => import("../pages/NotFoundPage"));
 
 const withSuspense = (element: ReactNode): ReactNode => (
-  <Suspense fallback={<RouteFallback />}>{element}</Suspense>
+  <Suspense fallback={<div className="p-8">…</div>}>{element}</Suspense>
 );
 
 export const routes: ReadonlyArray<RouteObject> = [
@@ -41,7 +27,19 @@ export const routes: ReadonlyArray<RouteObject> = [
       { path: "login", element: withSuspense(<LoginPage />) },
       { path: "register", element: withSuspense(<RegisterPage />) },
       { path: "change-password", element: withSuspense(<ChangePasswordPage />) },
-      { path: "dashboard", element: withSuspense(<RequireAdminAuth><DashboardPage /></RequireAdminAuth>) },
+      {
+        element: (
+          <RequireAdminAuth>
+            <AdminShellLayout />
+          </RequireAdminAuth>
+        ),
+        children: [
+          { path: "dashboard", element: withSuspense(<DashboardPage />) },
+          { path: "feature-flags", element: withSuspense(<FeatureFlagsPage />) },
+          { path: "smtp-settings", element: withSuspense(<SmtpSettingsPage />) },
+          { path: "users", element: withSuspense(<UsersPage />) },
+        ],
+      },
       { path: "*", element: withSuspense(<NotFoundPage />) },
     ],
   },

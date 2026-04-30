@@ -1,15 +1,12 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import { AuthCard } from "@mavrynt/auth-ui";
-import { Section, Stack, buttonStyles, cn } from "@mavrynt/ui";
-import { Seo } from "../lib/seo/Seo.tsx";
+import { RouterLink } from "../lib/router/RouterLink";
+import { useAdminAuth } from "../lib/auth/useAdminAuth";
 import {
-  clearAdminSession,
-  getAdminAccessToken,
-  getAdminSession,
-} from "../lib/auth/adminSession.ts";
+  AdminApiAuthError,
+  adminApiRequest,
+} from "../lib/admin-api/adminApiClient";
 
-type AdminProfile = {
+type Profile = {
   email: string;
   displayName?: string;
   role?: string;
@@ -17,102 +14,54 @@ type AdminProfile = {
   requiresPasswordChange?: boolean;
 };
 
-type LoadState = "loading" | "ready" | "error";
-const LOGIN_REDIRECT_REASON_KEY = "admin_login_redirect_reason";
-
-const DashboardPage = () => {
-  const navigate = useNavigate();
-  const [state, setState] = useState<LoadState>("loading");
-  const [profile, setProfile] = useState<AdminProfile | null>(null);
+export default function DashboardPage() {
+  const { accessToken, logout, session } = useAdminAuth();
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = getAdminAccessToken();
-    if (!token) {
-      void navigate("/login", { replace: true });
-      return;
-    }
+    if (!accessToken) return;
 
-    void (async () => {
-      try {
-        const response = await fetch("/admin-api/admin/me", {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          credentials: "include",
-        });
-
-        if (response.status === 401 || response.status === 403) {
-          sessionStorage.setItem(LOGIN_REDIRECT_REASON_KEY, "Session expired or access denied.");
-          clearAdminSession();
-          void navigate("/login", { replace: true });
+    void adminApiRequest<Profile>("/admin/me", accessToken)
+      .then(setProfile)
+      .catch(async (err) => {
+        if (err instanceof AdminApiAuthError) {
+          await logout();
           return;
         }
+        setError(err instanceof Error ? err.message : "Error");
+      });
+  }, [accessToken, logout]);
 
-        if (response.status === 404) {
-          setError("Admin profile was not found for the current token.");
-          setState("error");
-          return;
-        }
-
-        if (!response.ok) {
-          let serverMessage = "";
-          try {
-            const payload = (await response.json()) as { detail?: string; title?: string; message?: string };
-            serverMessage = payload.detail ?? payload.title ?? payload.message ?? "";
-          } catch {
-            // Ignore JSON parse issues and fall back to generic message.
-          }
-
-          setError(
-            serverMessage
-              ? `Unable to load your admin profile (HTTP ${response.status}): ${serverMessage}`
-              : `Unable to load your admin profile (HTTP ${response.status}).`,
-          );
-          setState("error");
-          return;
-        }
-
-        const data = (await response.json()) as AdminProfile;
-        setProfile(data);
-        setState("ready");
-      } catch {
-        setError("Network error while loading dashboard data.");
-        setState("error");
-      }
-    })();
-  }, [navigate]);
-
-  const handleLogout = () => {
-    clearAdminSession();
-    void navigate("/login", { replace: true });
-  };
-
-  const fallbackSession = getAdminSession();
+  if (!accessToken) return <p>Unauthorized.</p>;
+  if (error) return <p role="alert">{error}</p>;
+  if (!profile) return <p>Loading profile…</p>;
 
   return (
-    <>
-      <Seo title="Admin Dashboard" description="Mavrynt admin dashboard" />
-      <Section spacing="lg" container="md">
-        <AuthCard eyebrow="Mavrynt Admin" title="Admin Dashboard" subtitle="Your account overview.">
-          {state === "loading" && <p>Loading your profile…</p>}
-          {state === "error" && <p role="alert">{error}</p>}
-          {state === "ready" && profile && (
-            <Stack gap="sm">
-              <p><strong>Email:</strong> {profile.email}</p>
-              <p><strong>Display name:</strong> {profile.displayName ?? fallbackSession?.user.name ?? "—"}</p>
-              <p><strong>Role:</strong> {profile.role ?? fallbackSession?.user.roles?.[0] ?? "—"}</p>
-              <p><strong>Status:</strong> {profile.status ?? "—"}</p>
-              <p><strong>Requires password change:</strong> {String(profile.requiresPasswordChange ?? false)}</p>
-              <button type="button" onClick={handleLogout} className={cn(buttonStyles({ variant: "secondary", size: "md" }))}>Logout</button>
-            </Stack>
-          )}
-        </AuthCard>
-      </Section>
-    </>
-  );
-};
+    <div className="space-y-4">
+      <h1 className="text-2xl font-semibold">Admin Dashboard</h1>
 
-export default DashboardPage;
+      <div className="space-y-2 rounded-lg border p-4">
+        <p>Email: {profile.email}</p>
+        <p>Display name: {profile.displayName ?? session?.user.name ?? "—"}</p>
+        <p>Role: {profile.role ?? session?.user.roles?.[0] ?? "—"}</p>
+        <p>Status: {profile.status ?? "—"}</p>
+        <p>
+          Requires password change: {String(profile.requiresPasswordChange ?? false)}
+        </p>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-3">
+        <RouterLink to="/feature-flags" variant="inline" className="rounded border p-3">
+          Feature Flags
+        </RouterLink>
+        <RouterLink to="/smtp-settings" variant="inline" className="rounded border p-3">
+          SMTP Settings
+        </RouterLink>
+        <RouterLink to="/users" variant="inline" className="rounded border p-3">
+          Users
+        </RouterLink>
+      </div>
+    </div>
+  );
+}

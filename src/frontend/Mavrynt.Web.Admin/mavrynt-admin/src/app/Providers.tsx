@@ -16,6 +16,7 @@ import {
   type AnalyticsClient,
 } from "../lib/analytics/index.ts";
 import { authService as defaultAuthService } from "../lib/auth/authService.ts";
+import { AdminAuthProvider } from "../lib/auth/AdminAuthProvider.tsx";
 
 /**
  * Providers — single composition root for cross-cutting concerns in
@@ -54,7 +55,7 @@ export const Providers = ({
         <AnalyticsContext.Provider value={analytics}>
           <AuthAnalyticsContext.Provider value={authAnalytics}>
             <AuthServiceContext.Provider value={authService}>
-              {children}
+              <AdminAuthProvider>{children}</AdminAuthProvider>
             </AuthServiceContext.Provider>
           </AuthAnalyticsContext.Provider>
         </AnalyticsContext.Provider>
