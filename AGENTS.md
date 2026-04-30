@@ -109,6 +109,35 @@ Nowe decyzje architektoniczne: dodaj do `docs/decisions.pl.md` w formacie ADR (A
 - Observability: logowanie, metryki, ślady — wspólny setup w `Mavrynt.ServiceDefaults`
 - Nie odkładaj observability na koniec
 
+## Powiadomienia e-mail (moduł Notifications)
+
+Moduł `Mavrynt.Modules.Notifications.*` obsługuje całą wychodzącą komunikację e-mail.
+
+### Wysyłanie e-maila z innego modułu
+
+Wstrzyknij `IEmailNotificationService` z `Mavrynt.Modules.Notifications.Application.Abstractions`:
+
+```csharp
+var result = await _emailService.SendAsync(
+    EmailTemplateKey.LoginConfirmation,
+    new EmailRecipient(user.Email, user.DisplayName),
+    new LoginConfirmationEmailModel(user.Email, user.DisplayName, loginAt, ipAddress, userAgent),
+    ct);
+```
+
+- Klucze szablonów: `EmailTemplateKey.LoginConfirmation`, `PasswordReset`, `TwoFactorCode`
+- Każdy szablon ma dedykowany model implementujący `IEmailModel`
+- Nieznane placeholdery zwracają błąd — sprawdź `IEmailModel.ToPlaceholders()` pod kątem nazw
+
+### Zasady
+
+- **Nie używaj SmtpClient bezpośrednio** — zawsze przez `IEmailNotificationService`
+- **Nie loguj pełnych treści e-maili** — zawierają dane osobowe
+- **Nie zwracaj haseł SMTP w DTO** — `SmtpSettingsDto` celowo nie ma pola `Password`
+- **PassThroughSecretProtector** to placeholder developerski — zastąp go prawdziwym szyfrowaniem przed produkcją
+- Szablony mogą być aktualizowane przez adminów przez endpointy `/api/admin/notifications/email/templates`
+- Konfiguracja SMTP przez endpointy `/api/admin/notifications/smtp-settings`
+
 ## Mediator — zasady używania (ADR-020)
 
 Mavrynt używa **wewnętrznego mediatora** (`MavryntMediator`). Nie dodawaj MediatR ani żadnej zewnętrznej biblioteki mediatora.

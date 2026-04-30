@@ -202,10 +202,14 @@ Current implemented modules:
 - `Mavrynt.Modules.Audit.Application`
 - `Mavrynt.Modules.Audit.Infrastructure`
 
+**Notifications** — outbound email communication: database-backed SMTP, predefined template engine, `IEmailNotificationService` cross-module abstraction.
+- `Mavrynt.Modules.Notifications.Domain`
+- `Mavrynt.Modules.Notifications.Application`
+- `Mavrynt.Modules.Notifications.Infrastructure`
+
 In the future, modules such as the following may be added:
 - Identity
 - Authorization
-- Notifications
 - Billing
 - Signals
 - MarketData

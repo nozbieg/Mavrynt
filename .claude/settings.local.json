@@ -12,7 +12,14 @@
       "Bash(python3 *)",
       "Bash(dotnet restore *)",
       "Bash(docker info *)",
-      "Bash(git -C \"C:\\\\Repo\\\\Mavrynt\" status --short)"
+      "Bash(git -C \"C:\\\\Repo\\\\Mavrynt\" status --short)",
+      "Bash(tree -L 3 /c/Repo/Mavrynt/src/backend/Mavrynt.Modules.Users*)",
+      "Bash(find /c/Repo/Mavrynt/src/backend/Mavrynt.BuildingBlocks* -type f -name \"*.cs\")",
+      "Bash(find /c/Repo/Mavrynt/src/backend/Mavrynt.Modules.Users* -type f -name \"*.cs\")",
+      "Bash(find /c/Repo/Mavrynt/src/backend/Mavrynt.Modules.Audit* -type f -name \"*.cs\")",
+      "Bash(find /c/Repo/Mavrynt/src/backend/Mavrynt.Modules.FeatureManagement* -type f -name \"*.cs\")",
+      "Bash(cat)",
+      "Read(//tmp/**)"
     ]
   }
 }

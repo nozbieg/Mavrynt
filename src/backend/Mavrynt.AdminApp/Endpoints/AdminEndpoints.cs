@@ -18,6 +18,8 @@ public static class AdminEndpoints
 
         app.MapAdminUserEndpoints();
         app.MapAdminFeatureFlagEndpoints();
+        app.MapAdminNotificationEmailTemplateEndpoints();
+        app.MapAdminNotificationSmtpSettingsEndpoints();
 
         return app;
     }

@@ -701,3 +701,58 @@ FeatureManagement jest na tym etapie dostępny wyłącznie przez AdminApp. Udost
 - `FeatureManagement.Application` ma świadomą zależność cross-module od `Audit.Application`. Jest to jedyna dozwolona zależność cross-module na poziomie warstwy aplikacji i nie może być rozszerzana bez nowego ADR.
 - `IDateTimeProvider` jest rejestrowane przez `TryAddSingleton` w FeatureManagement.Infrastructure, aby pierwsza rejestracja (Users.Infrastructure) wygrała gdy oba moduły są aktywne w tym samym hoście.
 - Konfiguracja pipeline CI/CD, środowiska stagingowe i automatyzacja wdrożeń pozostają odroczone do późniejszego etapu.
+
+---
+
+## ADR-023 — Moduł Notifications: SMTP zarządzany w bazie, silnik szablonów i IEmailNotificationService
+
+**Status:** zaakceptowana  
+**Data:** 2026-04-30
+
+### Decyzja
+
+Dodano nowy moduł `Notifications` (`Domain`, `Application`, `Infrastructure`) do obsługi całej wychodzacej komunikacji e-mail. Kluczowe decyzje projektowe:
+
+**Konfiguracja SMTP**
+- Agregat `SmtpSettings` przechowuje nazwę dostawcy, host, port, dane uwierzytelniające, tożsamość nadawcy, flagę SSL i stan włączenia w tabeli PostgreSQL `notifications.smtp_settings`.
+- Dokładnie jeden dostawca jest aktywny w danej chwili; włączenie nowego wyłącza wszystkich pozostałych (`DisableAllAsync` przed włączeniem docelowego).
+- Hasła są przechowywane przez `ISecretProtector`. Domyślna implementacja (`PassThroughSecretProtector`) to przeźroczyste przejście przeznaczone wyłącznie do developmentu. Przed produkcją należy ją zastąpić DPAPI, Azure Key Vault lub podobnym rozwiązaniem.
+- Hasła nigdy nie są zwracane w DTO, logowane ani umieszczane w wpisach audytu.
+
+**Szablony e-mail**
+- Trzy predefiniowane szablony są siane przy starcie: `auth.login_confirmation`, `auth.password_reset`, `auth.two_factor_code`.
+- Szablony przechowywane w `notifications.email_templates` z unikalnym indeksem na `template_key`.
+- Treść szablonów może być aktualizowana przez administratorów, ale klucze są niemutowalne. Szablony mogą być indywidualnie wyłączane.
+- Seeder jest idempotentny — nie nadpisuje istniejących szablonów.
+
+**Renderowanie szablonów**
+- `EmailTemplateRenderer` (warstwa Application, bez zależności infrastrukturalnych) rozwiązuje tokeny `{{Placeholder}}` za pomocą wyrażenia regularnego.
+- Wartości dla treści HTML są kodowane przez `WebUtility.HtmlEncode`; wartości tematu i treści tekstowej używane są bez zmian.
+- Nieznane placeholdery zwracają `NotificationsErrors.EmailUnknownPlaceholder(key)` — brak cichego podstawiania.
+
+**IEmailNotificationService**
+- Generyczna metoda `SendAsync<TModel>(key, recipient, model, ct)` jest jedynym publicznym kontraktem dla wysyłania e-maili cross-module.
+- `TModel : IEmailModel` dostarcza słownik `ToPlaceholders()`, chroniąc kod wywołujący przed manipulacją ciągami znaków.
+- Gotowe typy modeli obejmują wszystkie trzy predefiniowane szablony; przyszłe szablony wymagają nowego typu modelu.
+
+**Infrastruktura**
+- `SmtpEmailSender` używa `System.Net.Mail.SmtpClient` (wyłącznie BCL, bez zewnętrznych bibliotek SMTP).
+- Migracje są pisane ręcznie zgodnie z wzorcem FeatureManagement.
+- `NotificationsStartupService` (IHostedService) uruchamia migrację bazy danych, a następnie sianie szablonów sekwencyjnie przy starcie.
+
+**Endpointy administracyjne**
+- Ustawienia SMTP: lista, get-by-id, tworzenie, aktualizacja, włączanie (`/api/admin/notifications/smtp-settings`).
+- Szablony e-mail: lista, get-by-key, aktualizacja, lista-definicji, testowe wysyłanie (`/api/admin/notifications/email`).
+- Wszystkie endpointy są chronione polityką `AdminOnly`; brak endpointów odczytu po stronie użytkownika.
+
+### Uzasadnienie
+
+Powiadomienia e-mail to kluczowa zdolność przekrojowa potrzebna modułowi Users (potwierdzenie logowania, reset hasła, 2FA). Zdefiniowanie `IEmailNotificationService` w Notifications.Application i konsumowanie go z innych modułów izoluje zagadnienie wysyłania. Użycie BCL `SmtpClient` unika zależności od bibliotek zewnętrznych, zachowując łatwość zamiany. Umieszczenie `EmailTemplateRenderer` w Application (zamiast Infrastructure) pozwala testować logikę renderowania bez połączenia z bazą danych ani SMTP. `ISecretProtector` dostarcza bezpieczny punkt rozszerzenia dla produkcyjnego szyfrowania bez wiązania domeny z konkretnym magazynem sekretów.
+
+### Konsekwencje
+
+- `Notifications.Application` ma cross-modułową zależność od `Audit.Application` (dla `IAuditLogWriter`) — ten sam wzorzec co w ADR-022. Żadne inne cross-modułowe zależności warstwy Application nie są dozwolone bez nowego ADR.
+- `IDateTimeProvider` jest rejestrowane przez `TryAddSingleton` w `NotificationsInfrastructure`, aby pierwsza rejestracja wygrała gdy wiele modułów jest aktywnych.
+- `PassThroughSecretProtector` musi zostać zastąpiony prawdziwą implementacją szyfrowania przed obsługą rzeczywistych poświadczeń SMTP w środowisku niedevlopmentowym.
+- Klucze szablonów są niemutowalne po zasianiu. Dodanie czwartego szablonu wymaga nowej migracji, nowego wpisu w seederze, nowej implementacji `IEmailModel` i nowej stałej `EmailTemplateKey`.
+- `SmtpClient` (BCL) nie obsługuje OAuth ani nowoczesnych przepływów uwierzytelniania. Zastąpienie go MailKit lub adapterem transakcyjnego API e-mail wymaga tylko nowej implementacji `IEmailSender` — bez innych zmian w kodzie.

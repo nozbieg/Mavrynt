@@ -63,7 +63,10 @@ Mavrynt/
 │   │   ├── Mavrynt.Modules.FeatureManagement.Infrastructure/
 │   │   ├── Mavrynt.Modules.Audit.Domain/
 │   │   ├── Mavrynt.Modules.Audit.Application/
-│   │   └── Mavrynt.Modules.Audit.Infrastructure/
+│   │   ├── Mavrynt.Modules.Audit.Infrastructure/
+│   │   ├── Mavrynt.Modules.Notifications.Domain/
+│   │   ├── Mavrynt.Modules.Notifications.Application/
+│   │   └── Mavrynt.Modules.Notifications.Infrastructure/
 │   └── frontend/
 │       ├── Mavrynt.Web.App/
 │       ├── Mavrynt.Web.Admin/
@@ -82,6 +85,9 @@ Mavrynt/
     ├── Mavrynt.Modules.FeatureManagement.Domain.Tests/
     ├── Mavrynt.Modules.FeatureManagement.Application.Tests/
     ├── Mavrynt.Modules.FeatureManagement.Infrastructure.Tests/
+    ├── Mavrynt.Modules.Notifications.Domain.Tests/
+    ├── Mavrynt.Modules.Notifications.Application.Tests/
+    ├── Mavrynt.Modules.Notifications.Infrastructure.Tests/
     ├── Mavrynt.Api.IntegrationTests/
     └── Mavrynt.AdminApp.IntegrationTests/
 ```
@@ -131,8 +137,12 @@ Implemented Phase 1 modules:
 - `Mavrynt.Modules.Audit.Application`
 - `Mavrynt.Modules.Audit.Infrastructure`
 
+**Notifications** — outbound email: database-backed SMTP configuration, predefined template engine, and the `IEmailNotificationService` cross-module abstraction.
+- `Mavrynt.Modules.Notifications.Domain`
+- `Mavrynt.Modules.Notifications.Application`
+- `Mavrynt.Modules.Notifications.Infrastructure`
+
 Every module follows the same Domain / Application / Infrastructure separation. Expected future modules:
-- `Notifications` / `Email`,
 - possibly a separate `Authorization` module if roles and permissions grow beyond a simple Users model.
 
 ---
@@ -176,8 +186,11 @@ Current split:
 - `tests/Mavrynt.Modules.FeatureManagement.Domain.Tests` — FeatureManagement domain tests.
 - `tests/Mavrynt.Modules.FeatureManagement.Application.Tests` — FeatureManagement command/query handler tests.
 - `tests/Mavrynt.Modules.FeatureManagement.Infrastructure.Tests` — FeatureManagement infrastructure tests with PostgreSQL through Testcontainers.
+- `tests/Mavrynt.Modules.Notifications.Domain.Tests` — Notifications domain tests.
+- `tests/Mavrynt.Modules.Notifications.Application.Tests` — Notifications command/query handler and template renderer tests.
+- `tests/Mavrynt.Modules.Notifications.Infrastructure.Tests` — Notifications infrastructure tests with PostgreSQL through Testcontainers.
 - `tests/Mavrynt.Api.IntegrationTests` — main API integration tests.
-- `tests/Mavrynt.AdminApp.IntegrationTests` — AdminApp integration tests (role assignment + feature flag endpoints).
+- `tests/Mavrynt.AdminApp.IntegrationTests` — AdminApp integration tests (role assignment, feature flag, and notifications endpoints).
 
 Target backend validation has three layers:
 1. architectural tests,
@@ -238,10 +251,12 @@ Phase 1 focuses on the platform foundation:
 
 The administrative vertical slice (roles/permissions + FeatureManagement + persistent audit, wired through AdminApp, protected by `AdminOnly`, covered by architecture/unit/integration tests) is **complete** as of 2026-04-29.
 
-Remaining Phase 1 items: email/notifications, CI/CD pipeline configuration, staging environment wiring.
+The Notifications module (database-backed SMTP, predefined email templates, template rendering engine, `IEmailNotificationService`, and AdminApp endpoints) is **complete** as of 2026-04-30.
+
+Remaining Phase 1 items: CI/CD pipeline configuration, staging environment wiring.
 
 ---
 
 ## 10. Summary
 
-The Mavrynt repository has the modular monolith foundation, backend hosts, the Users / FeatureManagement / Audit modules, frontend applications, and a multi-layer backend test pyramid (architecture, unit, and Testcontainers integration tests). The repository structure should remain stable, and the next work should develop remaining Phase 1 items (email, CI/CD) without breaking layer boundaries or moving business logic into hosts.
+The Mavrynt repository has the modular monolith foundation, backend hosts, the Users / FeatureManagement / Audit / Notifications modules, frontend applications, and a multi-layer backend test pyramid (architecture, unit, and Testcontainers integration tests). The repository structure should remain stable, and the next work should develop remaining Phase 1 items (CI/CD) without breaking layer boundaries or moving business logic into hosts.

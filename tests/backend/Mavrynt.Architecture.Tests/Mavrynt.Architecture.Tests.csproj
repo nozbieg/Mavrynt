@@ -29,6 +29,9 @@
     <ProjectReference Include="..\..\..\src\backend\Mavrynt.Modules.FeatureManagement.Domain\Mavrynt.Modules.FeatureManagement.Domain.csproj" />
     <ProjectReference Include="..\..\..\src\backend\Mavrynt.Modules.FeatureManagement.Application\Mavrynt.Modules.FeatureManagement.Application.csproj" />
     <ProjectReference Include="..\..\..\src\backend\Mavrynt.Modules.FeatureManagement.Infrastructure\Mavrynt.Modules.FeatureManagement.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\backend\Mavrynt.Modules.Notifications.Domain\Mavrynt.Modules.Notifications.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\backend\Mavrynt.Modules.Notifications.Application\Mavrynt.Modules.Notifications.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\backend\Mavrynt.Modules.Notifications.Infrastructure\Mavrynt.Modules.Notifications.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\src\backend\Mavrynt.Api\Mavrynt.Api.csproj" />
     <ProjectReference Include="..\..\..\src\backend\Mavrynt.AdminApp\Mavrynt.AdminApp.csproj" />
     <ProjectReference Include="..\..\..\src\frontend\Mavrynt.Web.Admin\Mavrynt.Web.Admin.csproj" />

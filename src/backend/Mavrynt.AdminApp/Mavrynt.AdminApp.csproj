@@ -16,6 +16,8 @@
         <ProjectReference Include="..\Mavrynt.Modules.Audit.Infrastructure\Mavrynt.Modules.Audit.Infrastructure.csproj" />
         <ProjectReference Include="..\Mavrynt.Modules.FeatureManagement.Application\Mavrynt.Modules.FeatureManagement.Application.csproj" />
         <ProjectReference Include="..\Mavrynt.Modules.FeatureManagement.Infrastructure\Mavrynt.Modules.FeatureManagement.Infrastructure.csproj" />
+        <ProjectReference Include="..\Mavrynt.Modules.Notifications.Application\Mavrynt.Modules.Notifications.Application.csproj" />
+        <ProjectReference Include="..\Mavrynt.Modules.Notifications.Infrastructure\Mavrynt.Modules.Notifications.Infrastructure.csproj" />
         <ProjectReference Include="..\Mavrynt.ServiceDefaults\Mavrynt.ServiceDefaults.csproj" />
     </ItemGroup>
 

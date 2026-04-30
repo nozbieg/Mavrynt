@@ -204,10 +204,14 @@ Aktualnie zaimplementowane moduły:
 - `Mavrynt.Modules.Audit.Application`
 - `Mavrynt.Modules.Audit.Infrastructure`
 
+**Notifications** — wychodząca komunikacja e-mail: konfiguracja SMTP w bazie danych, silnik szablonów, abstrakcja cross-modułowa `IEmailNotificationService`.
+- `Mavrynt.Modules.Notifications.Domain`
+- `Mavrynt.Modules.Notifications.Application`
+- `Mavrynt.Modules.Notifications.Infrastructure`
+
 W przyszłości analogicznie mogą powstać moduły:
 - Identity
 - Authorization
-- Notifications
 - Billing
 - Signals
 - MarketData

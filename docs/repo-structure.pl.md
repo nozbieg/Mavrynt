@@ -63,7 +63,10 @@ Mavrynt/
 │   │   ├── Mavrynt.Modules.FeatureManagement.Infrastructure/
 │   │   ├── Mavrynt.Modules.Audit.Domain/
 │   │   ├── Mavrynt.Modules.Audit.Application/
-│   │   └── Mavrynt.Modules.Audit.Infrastructure/
+│   │   ├── Mavrynt.Modules.Audit.Infrastructure/
+│   │   ├── Mavrynt.Modules.Notifications.Domain/
+│   │   ├── Mavrynt.Modules.Notifications.Application/
+│   │   └── Mavrynt.Modules.Notifications.Infrastructure/
 │   └── frontend/
 │       ├── Mavrynt.Web.App/
 │       ├── Mavrynt.Web.Admin/
@@ -82,6 +85,9 @@ Mavrynt/
     ├── Mavrynt.Modules.FeatureManagement.Domain.Tests/
     ├── Mavrynt.Modules.FeatureManagement.Application.Tests/
     ├── Mavrynt.Modules.FeatureManagement.Infrastructure.Tests/
+    ├── Mavrynt.Modules.Notifications.Domain.Tests/
+    ├── Mavrynt.Modules.Notifications.Application.Tests/
+    ├── Mavrynt.Modules.Notifications.Infrastructure.Tests/
     ├── Mavrynt.Api.IntegrationTests/
     └── Mavrynt.AdminApp.IntegrationTests/
 ```
@@ -131,8 +137,12 @@ Zaimplementowane moduły Fazy 1:
 - `Mavrynt.Modules.Audit.Application`
 - `Mavrynt.Modules.Audit.Infrastructure`
 
+**Notifications** — wychodząca komunikacja e-mail: konfiguracja SMTP zarządzana w bazie danych, silnik szablonów, abstrakcja cross-modułowa `IEmailNotificationService`.
+- `Mavrynt.Modules.Notifications.Domain`
+- `Mavrynt.Modules.Notifications.Application`
+- `Mavrynt.Modules.Notifications.Infrastructure`
+
 Każdy moduł zachowuje ten sam podział na Domain / Application / Infrastructure. Przewidziane przyszłe moduły:
-- `Notifications` / `Email`,
 - ewentualnie wydzielone `Authorization`, jeśli role i uprawnienia urosną poza prosty model Users.
 
 ---
@@ -176,8 +186,11 @@ Aktualny podział:
 - `tests/Mavrynt.Modules.FeatureManagement.Domain.Tests` — testy domeny FeatureManagement.
 - `tests/Mavrynt.Modules.FeatureManagement.Application.Tests` — testy handlerów command/query FeatureManagement.
 - `tests/Mavrynt.Modules.FeatureManagement.Infrastructure.Tests` — testy infrastruktury FeatureManagement z PostgreSQL przez Testcontainers.
+- `tests/Mavrynt.Modules.Notifications.Domain.Tests` — testy domeny Notifications.
+- `tests/Mavrynt.Modules.Notifications.Application.Tests` — testy handlerów i silnika renderowania szablonów Notifications.
+- `tests/Mavrynt.Modules.Notifications.Infrastructure.Tests` — testy infrastruktury Notifications z PostgreSQL przez Testcontainers.
 - `tests/Mavrynt.Api.IntegrationTests` — testy integracyjne głównego API.
-- `tests/Mavrynt.AdminApp.IntegrationTests` — testy integracyjne AdminApp (role użytkowników + endpointy feature flag).
+- `tests/Mavrynt.AdminApp.IntegrationTests` — testy integracyjne AdminApp (role użytkowników, feature flagi i powiadomienia).
 
 Docelowo testy powinny tworzyć trzy warstwy walidacji backendu:
 1. testy architektoniczne,
@@ -238,10 +251,12 @@ Faza 1 koncentruje się na fundamencie platformy:
 
 Administracyjny vertical slice (role/uprawnienia + FeatureManagement + trwały audyt, spięty z AdminApp, chroniony przez `AdminOnly`, pokryty testami architektonicznymi/jednostkowymi/integracyjnymi) jest **ukończony** od 2026-04-29.
 
-Pozostałe elementy Fazy 1: email/powiadomienia, konfiguracja pipeline CI/CD, konfiguracja środowiska stagingowego.
+Moduł Notifications (SMTP zarządzany w bazie, predefiniowane szablony e-mail, silnik renderowania, `IEmailNotificationService` i endpointy AdminApp) jest **ukończony** od 2026-04-30.
+
+Pozostałe elementy Fazy 1: konfiguracja pipeline CI/CD, konfiguracja środowiska stagingowego.
 
 ---
 
 ## 10. Podsumowanie
 
-Repozytorium Mavrynt ma fundament modularnego monolitu, hosty backendowe, moduły Users / FeatureManagement / Audit, aplikacje frontendowe oraz wielowarstwową piramidę testów (architektoniczne, jednostkowe i integracyjne Testcontainers). Struktura repozytorium powinna pozostać stabilna, a kolejne prace powinny rozwijać pozostałe elementy Fazy 1 (email, CI/CD) bez łamania granic warstw i bez przenoszenia logiki biznesowej do hostów.
+Repozytorium Mavrynt ma fundament modularnego monolitu, hosty backendowe, moduły Users / FeatureManagement / Audit / Notifications, aplikacje frontendowe oraz wielowarstwową piramidę testów (architektoniczne, jednostkowe i integracyjne Testcontainers). Struktura repozytorium powinna pozostać stabilna, a kolejne prace powinny rozwijać pozostałe elementy Fazy 1 (CI/CD) bez łamania granic warstw i bez przenoszenia logiki biznesowej do hostów.

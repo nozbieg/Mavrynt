@@ -1,0 +1,3 @@
+namespace Mavrynt.Modules.Notifications.Application.DependencyInjection;
+
+public interface INotificationsApplicationMarker;

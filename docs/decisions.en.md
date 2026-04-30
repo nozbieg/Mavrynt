@@ -701,3 +701,58 @@ FeatureManagement is placed under AdminApp only at this stage. Exposing flags to
 - `FeatureManagement.Application` has a deliberate cross-module dependency on `Audit.Application`. This is the only permitted cross-module application-layer dependency and must not be extended without a new ADR.
 - `IDateTimeProvider` is registered with `TryAddSingleton` in FeatureManagement.Infrastructure so the first registration (Users.Infrastructure) wins when both modules are active in the same host.
 - CI/CD pipeline configuration, staging environments, and deployment automation remain deferred to a later stage.
+
+---
+
+## ADR-023 — Notifications module: database-backed SMTP, template engine, and IEmailNotificationService
+
+**Status:** Accepted  
+**Date:** 2026-04-30
+
+### Decision
+
+A new `Notifications` module (`Domain`, `Application`, `Infrastructure`) is added to handle all outbound email communication. Key design points:
+
+**SMTP configuration**
+- `SmtpSettings` aggregate stores provider name, host, port, credentials, sender identity, SSL flag, and enabled state in the `notifications.smtp_settings` PostgreSQL table.
+- Exactly one provider is active at any time; enabling a new one disables all others (`DisableAllAsync` before enabling the target).
+- Passwords are stored via `ISecretProtector`. The default implementation (`PassThroughSecretProtector`) is a dev-only pass-through. It must be replaced with DPAPI, Azure Key Vault, or similar before production.
+- Passwords are never returned in DTOs, never logged, and never included in audit entries.
+
+**Email templates**
+- Three predefined templates are seeded on startup: `auth.login_confirmation`, `auth.password_reset`, `auth.two_factor_code`.
+- Templates are stored in `notifications.email_templates` with a unique constraint on `template_key`.
+- Template content can be updated by administrators but keys are immutable. Templates can be disabled individually.
+- The seeder is idempotent — it never overwrites existing templates.
+
+**Template rendering**
+- `EmailTemplateRenderer` (Application layer, no infrastructure dependencies) resolves `{{Placeholder}}` tokens using a regex.
+- HTML body values are HTML-encoded via `WebUtility.HtmlEncode`; subject and text body values are used as-is.
+- Unknown placeholders return `NotificationsErrors.EmailUnknownPlaceholder(key)` — no silent substitution.
+
+**IEmailNotificationService**
+- The generic `SendAsync<TModel>(key, recipient, model, ct)` method is the single public contract for cross-module email dispatch.
+- `TModel : IEmailModel` provides a `ToPlaceholders()` dictionary, keeping caller code free of string-manipulation details.
+- Pre-built model types cover all three predefined templates; future templates require a new model type.
+
+**Infrastructure**
+- `SmtpEmailSender` uses `System.Net.Mail.SmtpClient` (BCL only, no third-party SMTP library).
+- Migrations are written manually following the FeatureManagement pattern.
+- `NotificationsStartupService` (IHostedService) runs database migration then template seeding in sequence on startup.
+
+**Admin endpoints**
+- SMTP settings: list, get-by-id, create, update, enable (`/api/admin/notifications/smtp-settings`).
+- Email templates: list, get-by-key, update, list-definitions, send-test (`/api/admin/notifications/email`).
+- All endpoints are `AdminOnly` protected; no user-facing read endpoints are exposed.
+
+### Rationale
+
+Email notification is a core cross-cutting capability needed by the Users module (login confirmation, password reset, 2FA). Defining `IEmailNotificationService` in Notifications.Application and consuming it from other modules keeps the sending concern isolated. Using BCL `SmtpClient` avoids a third-party dependency at this stage while remaining easy to replace. Placing `EmailTemplateRenderer` in Application (rather than Infrastructure) allows unit-testing the rendering logic without any database or SMTP connection. `ISecretProtector` provides a safe extension point for production-grade encryption without coupling the domain to any specific secret store.
+
+### Consequences
+
+- `Notifications.Application` has a cross-module dependency on `Audit.Application` (for `IAuditLogWriter`) — the same pattern established in ADR-022. No other cross-module application-layer dependencies are permitted without a new ADR.
+- `IDateTimeProvider` is registered with `TryAddSingleton` in `NotificationsInfrastructure` so the first registration wins when multiple modules are active.
+- `PassThroughSecretProtector` must be replaced with a real encryption implementation before the application handles real SMTP credentials in a non-development environment.
+- Template keys are immutable once seeded. Adding a fourth template requires a new migration, a new seeder entry, a new `IEmailModel` implementation, and a new `EmailTemplateKey` constant.
+- `SmtpClient` (BCL) does not support OAuth or modern authentication flows. Replacing it with MailKit or a transactional email API adapter requires only a new `IEmailSender` implementation — no other code changes.

@@ -4,6 +4,8 @@ using Mavrynt.Modules.Audit.Application.DependencyInjection;
 using Mavrynt.Modules.Audit.Infrastructure.DependencyInjection;
 using Mavrynt.Modules.FeatureManagement.Application.DependencyInjection;
 using Mavrynt.Modules.FeatureManagement.Infrastructure.DependencyInjection;
+using Mavrynt.Modules.Notifications.Application.DependencyInjection;
+using Mavrynt.Modules.Notifications.Infrastructure.DependencyInjection;
 using Mavrynt.Modules.Users.Application.DependencyInjection;
 using Mavrynt.Modules.Users.Infrastructure.DependencyInjection;
 
@@ -23,6 +25,10 @@ builder.Services.AddAuditInfrastructure(builder.Configuration);
 // ── FeatureManagement module ──────────────────────────────────────────────────
 builder.Services.AddFeatureManagementApplication();
 builder.Services.AddFeatureManagementInfrastructure(builder.Configuration);
+
+// ── Notifications module ──────────────────────────────────────────────────────
+builder.Services.AddNotificationsApplication();
+builder.Services.AddNotificationsInfrastructure(builder.Configuration);
 
 // ── Authentication + authorisation ───────────────────────────────────────────
 builder.Services.AddApiAuthentication(builder.Configuration);
