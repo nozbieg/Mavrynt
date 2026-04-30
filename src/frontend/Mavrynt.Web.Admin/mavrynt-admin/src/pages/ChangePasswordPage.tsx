@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { Section, buttonStyles, cn } from "@mavrynt/ui";
 import { AuthCard, PasswordField } from "@mavrynt/auth-ui";
 import { Seo } from "../lib/seo/Seo.tsx";
+import { clearAdminSession, getAdminAccessToken } from "../lib/auth/adminSession.ts";
 
 const CHANGE_PASSWORD_URL = "/admin-api/auth/change-password";
 
@@ -45,6 +46,12 @@ const ChangePasswordPage = () => {
     setErrorMessage(undefined);
     setStatus("submitting");
 
+    const token = getAdminAccessToken();
+    if (!token) {
+      void navigate("/login", { replace: true });
+      return;
+    }
+
     void (async () => {
       try {
         const response = await fetch(CHANGE_PASSWORD_URL, {
@@ -52,6 +59,7 @@ const ChangePasswordPage = () => {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ currentPassword, newPassword }),
           credentials: "include",
@@ -70,6 +78,7 @@ const ChangePasswordPage = () => {
         }
 
         setStatus("success");
+        clearAdminSession();
         void navigate("/login", { replace: true });
       } catch {
         setErrorMessage("Network error. Please try again.");

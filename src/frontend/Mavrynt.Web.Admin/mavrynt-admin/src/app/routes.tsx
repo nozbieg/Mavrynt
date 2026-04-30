@@ -1,6 +1,7 @@
 import { lazy, Suspense, type ReactNode } from "react";
 import { type RouteObject } from "react-router";
 import { AdminLayout } from "../layouts/AdminLayout.tsx";
+import { RequireAdminAuth } from "../lib/auth/RequireAdminAuth.tsx";
 
 /**
  * Route tree for `mavrynt-admin`.
@@ -14,6 +15,7 @@ const HomePage = lazy(() => import("../pages/HomePage.tsx"));
 const LoginPage = lazy(() => import("../pages/LoginPage.tsx"));
 const RegisterPage = lazy(() => import("../pages/RegisterPage.tsx"));
 const ChangePasswordPage = lazy(() => import("../pages/ChangePasswordPage.tsx"));
+const DashboardPage = lazy(() => import("../pages/DashboardPage.tsx"));
 const NotFoundPage = lazy(() => import("../pages/NotFoundPage.tsx"));
 
 const RouteFallback = (): ReactNode => (
@@ -39,6 +41,7 @@ export const routes: ReadonlyArray<RouteObject> = [
       { path: "login", element: withSuspense(<LoginPage />) },
       { path: "register", element: withSuspense(<RegisterPage />) },
       { path: "change-password", element: withSuspense(<ChangePasswordPage />) },
+      { path: "dashboard", element: withSuspense(<RequireAdminAuth><DashboardPage /></RequireAdminAuth>) },
       { path: "*", element: withSuspense(<NotFoundPage />) },
     ],
   },

@@ -58,7 +58,7 @@ const LoginPage = () => {
               if (session.requiresPasswordChange) {
                 void navigate("/change-password", { replace: true });
               } else {
-                void navigate("/", { replace: true });
+                void navigate("/dashboard", { replace: true });
               }
             }}
           />
