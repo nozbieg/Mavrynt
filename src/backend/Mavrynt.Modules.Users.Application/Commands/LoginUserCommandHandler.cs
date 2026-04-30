@@ -64,7 +64,8 @@ public sealed class LoginUserCommandHandler : ICommandHandler<LoginUserCommand, 
             user.Id.Value,
             user.Email.Value,
             user.DisplayName?.Value,
-            user.Role.ToString());
+            user.Role.ToString(),
+            user.RequiresPasswordChange);
 
         await _auditService.RecordAsync(new AuditEntry(
             EventType: "login_success",
@@ -77,7 +78,8 @@ public sealed class LoginUserCommandHandler : ICommandHandler<LoginUserCommand, 
             user.ToDto(),
             tokenResult.Token,
             "Bearer",
-            tokenResult.ExpiresAt);
+            tokenResult.ExpiresAt,
+            user.RequiresPasswordChange);
     }
 
     private Task RecordFailedLoginAsync(

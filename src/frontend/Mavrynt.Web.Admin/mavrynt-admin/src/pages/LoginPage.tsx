@@ -54,8 +54,12 @@ const LoginPage = () => {
         >
           <LoginForm
             source="admin:login"
-            onSuccess={() => {
-              void navigate("/", { replace: true });
+            onSuccess={(session) => {
+              if (session.requiresPasswordChange) {
+                void navigate("/change-password", { replace: true });
+              } else {
+                void navigate("/", { replace: true });
+              }
             }}
           />
         </AuthCard>

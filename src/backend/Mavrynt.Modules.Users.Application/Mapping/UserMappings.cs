@@ -13,6 +13,7 @@ internal static class UserMappings
             user.Status.ToString(),
             user.Role.ToString(),
             user.CreatedAt,
-            user.UpdatedAt
+            user.UpdatedAt,
+            user.RequiresPasswordChange
         );
 }

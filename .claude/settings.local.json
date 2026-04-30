@@ -19,7 +19,13 @@
       "Bash(find /c/Repo/Mavrynt/src/backend/Mavrynt.Modules.Audit* -type f -name \"*.cs\")",
       "Bash(find /c/Repo/Mavrynt/src/backend/Mavrynt.Modules.FeatureManagement* -type f -name \"*.cs\")",
       "Bash(cat)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(find C:/Repo/Mavrynt/src/backend/Mavrynt.Modules.FeatureManagement.* -type f -name \"*.cs\")",
+      "Bash(find C:/Repo/Mavrynt/src/backend/Mavrynt.Modules.Audit.* -type f -name \"*.cs\")",
+      "Bash(find C:/Repo/Mavrynt/src/backend/Mavrynt.Modules.Notifications.* -type f -name \"*.cs\")",
+      "Bash(find C:/Repo/Mavrynt/src/backend/Mavrynt.BuildingBlocks.* -type f -name \"*.cs\")",
+      "Bash(mkdir -p /tmp/hashgen)",
+      "Bash(dotnet run *)"
     ]
   }
 }

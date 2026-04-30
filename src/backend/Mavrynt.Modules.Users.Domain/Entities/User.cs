@@ -38,6 +38,8 @@ public sealed class User : AggregateRoot<UserId>
     public UserRole Role { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset? UpdatedAt { get; private set; }
+    public bool RequiresPasswordChange { get; private set; }
+    public DateTimeOffset? PasswordChangedAt { get; private set; }
 
     /// <summary>
     /// Creates and registers a new user with the default <see cref="UserRole.User"/> role.
@@ -84,12 +86,15 @@ public sealed class User : AggregateRoot<UserId>
 
     /// <summary>
     /// Replaces the stored password hash.
+    /// Clears <see cref="RequiresPasswordChange"/> and records <see cref="PasswordChangedAt"/>.
     /// Raises <see cref="UserPasswordChangedDomainEvent"/>.
     /// Does not perform hashing.
     /// </summary>
     public Result ChangePasswordHash(PasswordHash newPasswordHash, DateTimeOffset changedAt)
     {
         PasswordHash = newPasswordHash;
+        RequiresPasswordChange = false;
+        PasswordChangedAt = changedAt;
         UpdatedAt = changedAt;
 
         RaiseDomainEvent(new UserPasswordChangedDomainEvent(

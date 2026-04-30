@@ -31,7 +31,7 @@ internal sealed class FakeAuditService : IAuditService
 
 internal sealed class FakeJwtTokenService : IJwtTokenService
 {
-    public AccessTokenResult GenerateToken(Guid userId, string email, string? displayName, string role)
+    public AccessTokenResult GenerateToken(Guid userId, string email, string? displayName, string role, bool requiresPasswordChange)
         => new("placeholder-token", DateTimeOffset.UtcNow.AddMinutes(30));
 }
 

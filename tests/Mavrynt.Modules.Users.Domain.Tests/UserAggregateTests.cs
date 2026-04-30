@@ -75,6 +75,29 @@ public sealed class UserAggregateTests
         Assert.Equal(UserStatus.Active, user.Status);
     }
 
+    [Fact]
+    public void Register_Should_Have_RequiresPasswordChange_False_By_Default()
+    {
+        var user = CreateUser();
+
+        Assert.False(user.RequiresPasswordChange);
+        Assert.Null(user.PasswordChangedAt);
+    }
+
+    [Fact]
+    public void ChangePasswordHash_Should_Clear_RequiresPasswordChange_And_Set_PasswordChangedAt()
+    {
+        var user = CreateUser();
+        var newHash = PasswordHash.Create("new-hash").Value;
+        var changedAt = DateTimeOffset.UtcNow;
+
+        user.ChangePasswordHash(newHash, changedAt);
+
+        Assert.False(user.RequiresPasswordChange);
+        Assert.Equal(changedAt, user.PasswordChangedAt);
+        Assert.Equal(newHash, user.PasswordHash);
+    }
+
     private static User CreateUser() =>
         User.Register(
             UserId.New().Value,

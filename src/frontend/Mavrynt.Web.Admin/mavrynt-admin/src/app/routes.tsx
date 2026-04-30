@@ -13,6 +13,7 @@ import { AdminLayout } from "../layouts/AdminLayout.tsx";
 const HomePage = lazy(() => import("../pages/HomePage.tsx"));
 const LoginPage = lazy(() => import("../pages/LoginPage.tsx"));
 const RegisterPage = lazy(() => import("../pages/RegisterPage.tsx"));
+const ChangePasswordPage = lazy(() => import("../pages/ChangePasswordPage.tsx"));
 const NotFoundPage = lazy(() => import("../pages/NotFoundPage.tsx"));
 
 const RouteFallback = (): ReactNode => (
@@ -37,6 +38,7 @@ export const routes: ReadonlyArray<RouteObject> = [
       { index: true, element: withSuspense(<HomePage />) },
       { path: "login", element: withSuspense(<LoginPage />) },
       { path: "register", element: withSuspense(<RegisterPage />) },
+      { path: "change-password", element: withSuspense(<ChangePasswordPage />) },
       { path: "*", element: withSuspense(<NotFoundPage />) },
     ],
   },

@@ -44,4 +44,7 @@ public static class UserErrors
 
     public static readonly Error InvalidRole =
         new("Users.User.InvalidRole", "The provided role value is not valid. Accepted values: User, Admin.");
+
+    public static readonly Error InvalidCurrentPassword =
+        new("Users.User.InvalidCurrentPassword", "The provided current password is incorrect.");
 }

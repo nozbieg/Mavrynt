@@ -7,5 +7,6 @@ public sealed record UserDto(
     string Status,
     string Role,
     DateTimeOffset CreatedAt,
-    DateTimeOffset? UpdatedAt
+    DateTimeOffset? UpdatedAt,
+    bool RequiresPasswordChange
 );

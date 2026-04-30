@@ -22,12 +22,13 @@ const ADMIN_ROLES: readonly string[] = ["admin"];
 
 const useHttp = import.meta.env.VITE_AUTH === "http";
 
+// The Vite dev proxy rewrites /admin-api/* → /api/* on Mavrynt.AdminApp.
 export const authService: AuthService = useHttp
   ? createHttpAuthService({
       endpoints: {
-        login: "/api/auth/login",
-        register: "/api/auth/register",
-        logout: "/api/auth/logout",
+        login: "/admin-api/auth/login",
+        register: "/admin-api/auth/register",
+        logout: "/admin-api/auth/logout",
       },
     })
   : createConsoleAuthService({ roles: ADMIN_ROLES });

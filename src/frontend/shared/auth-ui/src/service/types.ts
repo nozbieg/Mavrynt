@@ -21,6 +21,8 @@ export interface AuthSession {
   readonly user: AuthUser;
   /** ISO 8601 instant; absent means the host treats the token as session-bound. */
   readonly expiresAt?: string;
+  /** True when the backend requires the user to change their password before proceeding. */
+  readonly requiresPasswordChange?: boolean;
 }
 
 export interface LoginCredentials {

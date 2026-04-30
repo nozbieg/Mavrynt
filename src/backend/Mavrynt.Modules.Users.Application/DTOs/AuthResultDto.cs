@@ -7,5 +7,6 @@ public sealed record AuthResultDto(
     UserDto User,
     string AccessToken,
     string TokenType,
-    DateTimeOffset ExpiresAt
+    DateTimeOffset ExpiresAt,
+    bool RequiresPasswordChange
 );

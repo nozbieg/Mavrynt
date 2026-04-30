@@ -79,5 +79,15 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.UpdatedAt)
             .HasColumnName("updated_at")
             .IsRequired(false);
+
+        // ── Password change tracking ──────────────────────────────────────────
+        builder.Property(u => u.RequiresPasswordChange)
+            .HasColumnName("requires_password_change")
+            .HasDefaultValue(false)
+            .IsRequired();
+
+        builder.Property(u => u.PasswordChangedAt)
+            .HasColumnName("password_changed_at")
+            .IsRequired(false);
     }
 }

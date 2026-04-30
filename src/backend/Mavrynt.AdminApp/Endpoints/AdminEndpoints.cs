@@ -16,6 +16,7 @@ public static class AdminEndpoints
             .RequireAuthorization("AdminOnly")
             .WithName("GetCurrentAdmin");
 
+        app.MapAdminAuthEndpoints();
         app.MapAdminUserEndpoints();
         app.MapAdminFeatureFlagEndpoints();
         app.MapAdminNotificationEmailTemplateEndpoints();

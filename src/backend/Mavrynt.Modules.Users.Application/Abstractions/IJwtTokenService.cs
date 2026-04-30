@@ -14,5 +14,6 @@ public interface IJwtTokenService
         Guid userId,
         string email,
         string? displayName,
-        string role);
+        string role,
+        bool requiresPasswordChange);
 }

@@ -24,7 +24,8 @@ internal sealed class JwtTokenService : IJwtTokenService
         Guid userId,
         string email,
         string? displayName,
-        string role)
+        string role,
+        bool requiresPasswordChange)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Secret));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -40,6 +41,7 @@ internal sealed class JwtTokenService : IJwtTokenService
             // ClaimTypes.Role is recognised by ASP.NET Core's policy engine
             // and maps correctly to RequireRole / [Authorize(Roles = "...")].
             new(ClaimTypes.Role, role),
+            new("requires_password_change", requiresPasswordChange ? "true" : "false"),
         };
 
         if (displayName is not null)
