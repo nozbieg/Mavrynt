@@ -8,21 +8,13 @@ import {
   featureFlags,
   ADMIN_REGISTER_ENABLED_FLAG,
 } from "../lib/feature-flags/index.ts";
+import { useAdminSession } from "../lib/auth/AdminSessionProvider.tsx";
 
-/**
- * Admin LoginPage — identical presentation to `mavrynt-web`'s login
- * page (same `<AuthCard>` + `<LoginForm>` from `@mavrynt/auth-ui`).
- * The only differences are:
- *   - the AuthService adapter is the admin one (stamped with
- *     `roles: ["admin"]` in the console adapter), resolved by
- *     `<AuthServiceContext.Provider>` in `Providers.tsx`.
- *   - the "register" secondary link is hidden when the feature flag is
- *     off, so operators aren't led to a disabled page.
- */
 const LoginPage = () => {
   const { t } = useTranslation(AUTH_I18N_NAMESPACE);
   const { t: tCommon } = useTranslation();
   const navigate = useNavigate();
+  const { syncSession } = useAdminSession();
   const registerEnabled = featureFlags.isEnabled(ADMIN_REGISTER_ENABLED_FLAG);
 
   return (
@@ -55,6 +47,7 @@ const LoginPage = () => {
           <LoginForm
             source="admin:login"
             onSuccess={(session) => {
+              syncSession();
               if (session.requiresPasswordChange) {
                 void navigate("/change-password", { replace: true });
               } else {

@@ -1,17 +1,17 @@
+import { Navigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Section, Stack, buttonStyles, cn } from "@mavrynt/ui";
 import { RouterLink } from "../lib/router/RouterLink.tsx";
 import { Seo } from "../lib/seo/Seo.tsx";
+import { useAdminSession } from "../lib/auth/AdminSessionProvider.tsx";
 
-/**
- * Admin HomePage — "you are signed out" landing.
- *
- * Deliberately sparse: operators shouldn't see marketing copy. Once
- * auth state wiring lands (Phase 4+), this route redirects signed-in
- * users to the operator dashboard.
- */
 const HomePage = () => {
   const { t } = useTranslation();
+  const { session } = useAdminSession();
+
+  if (session) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   return (
     <>

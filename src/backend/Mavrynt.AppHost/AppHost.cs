@@ -18,6 +18,7 @@ builder.Configuration["DcpPublisher:RandomizePorts"] = "false";
 // advisory lock, so running both Api and AdminApp simultaneously is safe.
 
 var postgres = builder.AddPostgres("postgres")
+    .WithDataVolume("mavrynt-postgres-data")
     .AddDatabase("MavryntDb");
 
 // ── Backend services ──────────────────────────────────────────────────────────

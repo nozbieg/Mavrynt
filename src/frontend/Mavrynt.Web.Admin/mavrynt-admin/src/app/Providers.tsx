@@ -16,23 +16,7 @@ import {
   type AnalyticsClient,
 } from "../lib/analytics/index.ts";
 import { authService as defaultAuthService } from "../lib/auth/authService.ts";
-
-/**
- * Providers — single composition root for cross-cutting concerns in
- * `mavrynt-admin`. Same order as `mavrynt-web` and `mavrynt-landing`
- * so all three SPAs feel identical at runtime:
- *
- *  1. HelmetProvider       — head-tag side effects
- *  2. I18nextProvider      — translation below
- *  3. ThemeProvider        — `<html data-theme="...">`
- *  4. AnalyticsContext     — app-level analytics (pageview, generic events)
- *  5. AuthAnalyticsContext — auth-specific analytics port
- *  6. AuthServiceContext   — injected AuthService (admin-roles console default)
- *
- * Every external dependency is a port with a safe default (Dependency
- * Inversion), so the SPA boots end-to-end without any backend wiring.
- * Hosts / tests override by passing props.
- */
+import { AdminSessionProvider } from "../lib/auth/AdminSessionProvider.tsx";
 export interface ProvidersProps {
   readonly i18n: I18nInstance;
   readonly analytics?: AnalyticsClient;
@@ -54,7 +38,9 @@ export const Providers = ({
         <AnalyticsContext.Provider value={analytics}>
           <AuthAnalyticsContext.Provider value={authAnalytics}>
             <AuthServiceContext.Provider value={authService}>
-              {children}
+              <AdminSessionProvider>
+                {children}
+              </AdminSessionProvider>
             </AuthServiceContext.Provider>
           </AuthAnalyticsContext.Provider>
         </AnalyticsContext.Provider>

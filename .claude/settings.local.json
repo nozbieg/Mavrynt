@@ -25,7 +25,12 @@
       "Bash(find C:/Repo/Mavrynt/src/backend/Mavrynt.Modules.Notifications.* -type f -name \"*.cs\")",
       "Bash(find C:/Repo/Mavrynt/src/backend/Mavrynt.BuildingBlocks.* -type f -name \"*.cs\")",
       "Bash(mkdir -p /tmp/hashgen)",
-      "Bash(dotnet run *)"
+      "Bash(dotnet run *)",
+      "Bash(git stash *)",
+      "Bash(npm run *)",
+      "Bash(xargs grep *)",
+      "Bash(xargs head *)",
+      "Bash(xargs cat *)"
     ]
   }
 }

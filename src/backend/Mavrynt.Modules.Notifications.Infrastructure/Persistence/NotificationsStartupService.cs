@@ -18,6 +18,18 @@ internal sealed class NotificationsStartupService(
         var context = scope.ServiceProvider.GetRequiredService<NotificationsDbContext>();
         var seeder = scope.ServiceProvider.GetRequiredService<DefaultEmailTemplateSeeder>();
 
+        await context.Database.ExecuteSqlRawAsync(
+            """
+            CREATE SCHEMA IF NOT EXISTS notifications;
+            CREATE TABLE IF NOT EXISTS notifications.__ef_migrations_history (
+                "MigrationId" character varying(150) NOT NULL,
+                "ProductVersion" character varying(32) NOT NULL,
+                CONSTRAINT "PK___ef_migrations_history" PRIMARY KEY ("MigrationId")
+            );
+            """,
+            Array.Empty<object>(),
+            cancellationToken);
+
         await context.Database.MigrateAsync(cancellationToken);
         logger.LogInformation("Notifications module migrations applied successfully.");
 

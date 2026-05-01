@@ -76,7 +76,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     <button
       ref={ref}
       type={type}
-      className={cn(buttonStyles({ variant, size, fullWidth }), className)}
+      className={cn(buttonStyles({
+        ...(variant !== undefined && { variant }),
+        ...(size !== undefined && { size }),
+        ...(fullWidth !== undefined && { fullWidth }),
+      }), className)}
       {...rest}
     >
       {leadingIcon}

@@ -43,12 +43,14 @@ const toAuthSession = (response: BackendAuthResponse): AuthSession => {
   const normalizedRole = normalizeRole(response.user.role);
   return {
     token: response.accessToken,
-    expiresAt: response.expiresAt,
-    requiresPasswordChange: response.requiresPasswordChange,
+    ...(response.expiresAt !== undefined ? { expiresAt: response.expiresAt } : {}),
+    ...(response.requiresPasswordChange !== undefined
+      ? { requiresPasswordChange: response.requiresPasswordChange }
+      : {}),
     user: {
       id: response.user.id,
       email: response.user.email,
-      name: response.user.displayName,
+      ...(response.user.displayName !== undefined ? { name: response.user.displayName } : {}),
       roles: normalizedRole ? [normalizedRole] : [],
     },
   };

@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Navbar, buttonStyles, cn } from "@mavrynt/ui";
 import { resolveAppUrls } from "@mavrynt/config/app-urls";
@@ -8,25 +9,20 @@ import {
 } from "../../lib/feature-flags/index.ts";
 import { LanguageSwitcher } from "./LanguageSwitcher.tsx";
 import { ThemeToggle } from "./ThemeToggle.tsx";
+import { useAdminSession } from "../../lib/auth/AdminSessionProvider.tsx";
 
-/**
- * Cross-app URLs — single source of truth in `@mavrynt/config`.
- * Overridable at build time via `VITE_APP_URL_*` env vars; dev defaults
- * line up with the per-app Vite ports.
- */
 const appUrls = resolveAppUrls();
 
-/**
- * AdminNav — top navigation for the internal operator console.
- *
- * The "Register" link is hidden (not just the page disabled) when
- * `admin.register.enabled` is off so operators aren't led to a
- * dead-end surface. Escape hatches point to the user web SPA and
- * marketing site via the shared URL resolver.
- */
 export const AdminNav = () => {
   const { t } = useTranslation();
+  const { session, logout } = useAdminSession();
+  const navigate = useNavigate();
   const registerEnabled = featureFlags.isEnabled(ADMIN_REGISTER_ENABLED_FLAG);
+
+  const handleLogout = () => {
+    logout();
+    void navigate("/login", { replace: true });
+  };
 
   const links = (
     <>
@@ -35,25 +31,39 @@ export const AdminNav = () => {
           {t("nav.home")}
         </RouterLink>
       </li>
-      <li>
-        <RouterLink
-          to="/login"
-          variant="subtle"
-          className="text-sm font-medium"
-        >
-          {t("nav.login")}
-        </RouterLink>
-      </li>
-      {registerEnabled && (
+      {session ? (
         <li>
           <RouterLink
-            to="/register"
+            to="/dashboard"
             variant="subtle"
             className="text-sm font-medium"
           >
-            {t("nav.register")}
+            Dashboard
           </RouterLink>
         </li>
+      ) : (
+        <>
+          <li>
+            <RouterLink
+              to="/login"
+              variant="subtle"
+              className="text-sm font-medium"
+            >
+              {t("nav.login")}
+            </RouterLink>
+          </li>
+          {registerEnabled && (
+            <li>
+              <RouterLink
+                to="/register"
+                variant="subtle"
+                className="text-sm font-medium"
+              >
+                {t("nav.register")}
+              </RouterLink>
+            </li>
+          )}
+        </>
       )}
     </>
   );
@@ -62,34 +72,45 @@ export const AdminNav = () => {
     <>
       <LanguageSwitcher />
       <ThemeToggle />
-      <a
-        href={appUrls.web}
-        className={cn(
-          buttonStyles({ variant: "ghost", size: "sm" }),
-          "hidden md:inline-flex",
-        )}
-      >
-        {t("nav.backToWeb")}
-      </a>
-      <a
-        href={appUrls.landing}
-        className={cn(
-          buttonStyles({ variant: "ghost", size: "sm" }),
-          "hidden sm:inline-flex",
-        )}
-      >
-        {t("nav.backToSite")}
-      </a>
-      <RouterLink
-        to="/login"
-        variant="inline"
-        className={cn(
-          buttonStyles({ variant: "primary", size: "sm" }),
-          "hidden sm:inline-flex",
-        )}
-      >
-        {t("nav.login")}
-      </RouterLink>
+      {session ? (
+        <>
+          <span className="hidden text-sm text-fg-muted sm:block">
+            {session.user.name ?? session.user.email}
+          </span>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className={cn(
+              buttonStyles({ variant: "ghost", size: "sm" }),
+              "hidden sm:inline-flex",
+            )}
+          >
+            Logout
+          </button>
+        </>
+      ) : (
+        <>
+          <a
+            href={appUrls.web}
+            className={cn(
+              buttonStyles({ variant: "ghost", size: "sm" }),
+              "hidden md:inline-flex",
+            )}
+          >
+            {t("nav.backToWeb")}
+          </a>
+          <RouterLink
+            to="/login"
+            variant="inline"
+            className={cn(
+              buttonStyles({ variant: "primary", size: "sm" }),
+              "hidden sm:inline-flex",
+            )}
+          >
+            {t("nav.login")}
+          </RouterLink>
+        </>
+      )}
     </>
   );
 

@@ -20,6 +20,18 @@ internal sealed class DatabaseMigrationService(
         await using var scope = serviceProvider.CreateAsyncScope();
         var context = scope.ServiceProvider.GetRequiredService<UsersDbContext>();
 
+        await context.Database.ExecuteSqlRawAsync(
+            """
+            CREATE SCHEMA IF NOT EXISTS users;
+            CREATE TABLE IF NOT EXISTS users.__ef_migrations_history (
+                "MigrationId" character varying(150) NOT NULL,
+                "ProductVersion" character varying(32) NOT NULL,
+                CONSTRAINT "PK___ef_migrations_history" PRIMARY KEY ("MigrationId")
+            );
+            """,
+            Array.Empty<object>(),
+            cancellationToken);
+
         // MigrateAsync is idempotent: creates the schema/history table on first run,
         // applies any pending migrations, and no-ops when the schema is current.
         // PostgreSQL advisory locking inside MigrateAsync makes concurrent startup safe.
