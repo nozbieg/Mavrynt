@@ -20,6 +20,48 @@ npm run test:cov       # Vitest with V8 coverage
 
 No Playwright suite yet — added when admin routes carry real state worth smoke-testing.
 
+## Screens
+
+All routes below are protected by `RequireAdminAuth` and redirect to `/login` when unauthenticated.
+
+| Route | Screen | Description |
+| --- | --- | --- |
+| `/dashboard` | Dashboard | Profile overview, system status, quick action links |
+| `/users` | Users | Role assignment by user ID (`PATCH /api/admin/users/{id}/role`). No list endpoint exists in the backend yet — the screen documents this limitation clearly. |
+| `/feature-flags` | Feature Flags | List, create, edit, toggle feature flags |
+| `/smtp-settings` | SMTP Settings | List, create, edit, activate SMTP configurations. Password is never displayed in the edit form. |
+| `/settings` | Settings | Session info, links to other sections, environment details |
+
+### Backend endpoints
+
+| Screen | Endpoint | Notes |
+| --- | --- | --- |
+| Users | `PATCH /api/admin/users/{userId}/role` | Only operation available — no list endpoint |
+| Feature Flags | `GET /api/admin/feature-flags/` | — |
+| Feature Flags | `POST /api/admin/feature-flags/` | key, name, description?, isEnabled |
+| Feature Flags | `PATCH /api/admin/feature-flags/{key}` | name, description? |
+| Feature Flags | `PATCH /api/admin/feature-flags/{key}/toggle` | — |
+| SMTP Settings | `GET /api/admin/notifications/smtp-settings/` | — |
+| SMTP Settings | `POST /api/admin/notifications/smtp-settings/` | password required |
+| SMTP Settings | `PATCH /api/admin/notifications/smtp-settings/{id}` | password optional (omit = keep current) |
+| SMTP Settings | `PATCH /api/admin/notifications/smtp-settings/{id}/enable` | — |
+
+### Form validation
+
+- **Feature flag key**: required, lowercase letters/numbers/dots/hyphens/underscores, max 100 chars
+- **Feature flag name**: required, max 200 chars
+- **Feature flag description**: optional, max 500 chars
+- **SMTP port**: required, integer 1–65535
+- **SMTP senderEmail**: required, valid email format
+- **SMTP password**: required on create, optional on edit (empty = unchanged)
+
+### Out of scope (separate tasks)
+
+- Test email send (`POST /api/admin/notifications/email/test-send`)
+- First-login forced password change
+- Password reset
+- User listing (no backend endpoint)
+
 ## Architecture snapshot
 
 ```
@@ -27,6 +69,7 @@ src/
 ├── app/            Providers composition root + router
 ├── pages/          Route-level components
 ├── layouts/        Console shell (AdminNav, AdminFooter, AdminLayout)
+├── components/     Shared admin components (AdminCard, AdminPageHeader, AdminState, AdminTable)
 ├── lib/            Per-app concerns (analytics, auth, feature-flags, i18n, router, seo)
 ├── test/           Vitest setup
 └── main.tsx        Bootstrap

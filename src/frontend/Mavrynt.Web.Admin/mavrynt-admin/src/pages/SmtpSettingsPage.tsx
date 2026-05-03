@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { cn, buttonStyles } from "@mavrynt/ui";
 import { Seo } from "../lib/seo/Seo.tsx";
-import { adminApi, type SmtpSettingsDto } from "../lib/api/adminApi.ts";
+import { adminApi, ApiError, type SmtpSettingsDto } from "../lib/api/adminApi.ts";
 import { AdminPageHeader } from "../components/AdminPageHeader.tsx";
 import { AdminState } from "../components/AdminState.tsx";
 import { AdminCard } from "../components/AdminCard.tsx";
@@ -21,6 +21,42 @@ type SmtpFormData = {
   isEnabled: boolean;
 };
 
+type FormErrors = Partial<Record<keyof SmtpFormData, string>>;
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function validateSmtpForm(
+  data: SmtpFormData,
+  isCreate: boolean,
+): FormErrors {
+  const errors: FormErrors = {};
+  if (!data.providerName.trim()) errors.providerName = "Provider name is required.";
+  if (!data.host.trim()) errors.host = "Host is required.";
+  const port = parseInt(data.port, 10);
+  if (!data.port || isNaN(port) || port < 1 || port > 65535) {
+    errors.port = "Port must be a number between 1 and 65535.";
+  }
+  if (!data.username.trim()) errors.username = "Username is required.";
+  if (isCreate && !data.password) errors.password = "Password is required.";
+  if (!data.senderEmail.trim()) {
+    errors.senderEmail = "Sender email is required.";
+  } else if (!EMAIL_RE.test(data.senderEmail.trim())) {
+    errors.senderEmail = "Enter a valid email address.";
+  }
+  if (!data.senderName.trim()) errors.senderName = "Sender name is required.";
+  return errors;
+}
+
+function apiErrorMessage(err: unknown): string {
+  if (err instanceof ApiError) {
+    if (err.status === 404) return "SMTP configuration not found.";
+    if (err.status === 400) return "Invalid request. Check your input.";
+    if (err.status === 0) return "Network error. Check your connection.";
+    return `Request failed (HTTP ${String(err.status)}).`;
+  }
+  return "An unexpected error occurred.";
+}
+
 const emptyForm: SmtpFormData = {
   providerName: "",
   host: "",
@@ -33,9 +69,39 @@ const emptyForm: SmtpFormData = {
   isEnabled: false,
 };
 
-const fieldClass = "w-full rounded-md border border-border bg-bg px-3 py-2 text-sm text-fg placeholder:text-fg-muted focus:outline-none focus:ring-2 focus:ring-focus-ring";
+const fieldClass =
+  "w-full rounded-md border border-border bg-bg px-3 py-2 text-sm text-fg placeholder:text-fg-muted focus:outline-none focus:ring-2 focus:ring-focus-ring";
+const fieldErrorClass =
+  "w-full rounded-md border border-red-500 bg-bg px-3 py-2 text-sm text-fg placeholder:text-fg-muted focus:outline-none focus:ring-2 focus:ring-red-500/50";
 const labelClass = "block text-sm font-medium text-fg-muted";
 const formGroupClass = "flex flex-col gap-1";
+
+type FieldProps = {
+  id: string;
+  label: string | React.ReactNode;
+  error: string | undefined;
+  required?: boolean;
+  children: React.ReactNode;
+};
+
+const FormField = ({ id, label, error, required, children }: FieldProps) => (
+  <div className={formGroupClass}>
+    <label htmlFor={id} className={labelClass}>
+      {label}
+      {required && <span aria-hidden="true"> *</span>}
+    </label>
+    {children}
+    {error && (
+      <p
+        id={`${id}-error`}
+        role="alert"
+        className="text-xs text-red-600 dark:text-red-400"
+      >
+        {error}
+      </p>
+    )}
+  </div>
+);
 
 const SmtpSettingsPage = () => {
   const [loadState, setLoadState] = useState<LoadState>("loading");
@@ -43,9 +109,12 @@ const SmtpSettingsPage = () => {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [formMode, setFormMode] = useState<FormMode>("none");
   const [formData, setFormData] = useState<SmtpFormData>(emptyForm);
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [submitting, setSubmitting] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [enablingId, setEnablingId] = useState<string | null>(null);
+  const [enableError, setEnableError] = useState<string | null>(null);
 
   useEffect(() => {
     void load();
@@ -65,7 +134,10 @@ const SmtpSettingsPage = () => {
 
   function openCreate() {
     setFormData(emptyForm);
-    setFormError(null);
+    setFormErrors({});
+    setSubmitError(null);
+    setSuccessMessage(null);
+    setEnableError(null);
     setFormMode("create");
   }
 
@@ -81,58 +153,93 @@ const SmtpSettingsPage = () => {
       useSsl: s.useSsl,
       isEnabled: s.isEnabled,
     });
-    setFormError(null);
+    setFormErrors({});
+    setSubmitError(null);
+    setSuccessMessage(null);
+    setEnableError(null);
     setFormMode({ edit: s });
   }
 
   function cancelForm() {
     setFormMode("none");
-    setFormError(null);
+    setFormErrors({});
+    setSubmitError(null);
+  }
+
+  function clearFieldError(field: keyof SmtpFormData) {
+    setFormErrors((prev) => {
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  }
+
+  function field(key: keyof SmtpFormData) {
+    return {
+      value: formData[key] as string,
+      onChange: (
+        e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+      ) => {
+        setFormData((d) => ({ ...d, [key]: e.target.value }));
+        clearFieldError(key);
+      },
+      className: formErrors[key] ? fieldErrorClass : fieldClass,
+      "aria-describedby": formErrors[key] ? `smtp-${key}-error` : undefined,
+      "aria-invalid": formErrors[key] ? ("true" as const) : undefined,
+    };
   }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (submitting) return;
-    setFormError(null);
-    setSubmitting(true);
+    setSubmitError(null);
+    setSuccessMessage(null);
 
-    const port = parseInt(formData.port, 10);
-    if (isNaN(port) || port < 1 || port > 65535) {
-      setFormError("Port must be between 1 and 65535.");
-      setSubmitting(false);
+    const isCreate = formMode === "create";
+    const errors = validateSmtpForm(formData, isCreate);
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
       return;
     }
+    setFormErrors({});
 
+    const port = parseInt(formData.port, 10);
+    setSubmitting(true);
     try {
-      if (formMode === "create") {
+      if (isCreate) {
         const created = await adminApi.createSmtpSettings({
-          providerName: formData.providerName,
-          host: formData.host,
+          providerName: formData.providerName.trim(),
+          host: formData.host.trim(),
           port,
-          username: formData.username,
+          username: formData.username.trim(),
           password: formData.password,
-          senderEmail: formData.senderEmail,
-          senderName: formData.senderName,
+          senderEmail: formData.senderEmail.trim(),
+          senderName: formData.senderName.trim(),
           useSsl: formData.useSsl,
           isEnabled: formData.isEnabled,
         });
         setSettings((prev) => [...prev, created]);
+        setFormMode("none");
+        setSuccessMessage(`SMTP configuration "${created.providerName}" created.`);
       } else if (typeof formMode === "object") {
         const updated = await adminApi.updateSmtpSettings(formMode.edit.id, {
-          providerName: formData.providerName,
-          host: formData.host,
+          providerName: formData.providerName.trim(),
+          host: formData.host.trim(),
           port,
-          username: formData.username,
+          username: formData.username.trim(),
           ...(formData.password ? { password: formData.password } : {}),
-          senderEmail: formData.senderEmail,
-          senderName: formData.senderName,
+          senderEmail: formData.senderEmail.trim(),
+          senderName: formData.senderName.trim(),
           useSsl: formData.useSsl,
         });
-        setSettings((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
+        setSettings((prev) =>
+          prev.map((s) => (s.id === updated.id ? updated : s)),
+        );
+        setFormMode("none");
+        setSuccessMessage(`SMTP configuration "${updated.providerName}" updated.`);
       }
-      setFormMode("none");
-    } catch {
-      setFormError("Failed to save SMTP settings.");
+    } catch (err) {
+      setSubmitError(apiErrorMessage(err));
     } finally {
       setSubmitting(false);
     }
@@ -140,20 +247,32 @@ const SmtpSettingsPage = () => {
 
   async function handleEnable(id: string) {
     if (enablingId === id) return;
+    setEnableError(null);
+    setSuccessMessage(null);
     setEnablingId(id);
     try {
       const updated = await adminApi.enableSmtpSettings(id);
-      setSettings((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
-    } catch {
-      // ignore
+      setSettings((prev) =>
+        prev.map((s) => (s.id === updated.id ? updated : s)),
+      );
+      setSuccessMessage(
+        `SMTP configuration "${updated.providerName}" activated.`,
+      );
+    } catch (err) {
+      setEnableError(apiErrorMessage(err));
     } finally {
       setEnablingId(null);
     }
   }
 
+  const isCreate = formMode === "create";
+
   return (
     <>
-      <Seo title="SMTP Settings — Mavrynt Admin" description="Configure SMTP settings" />
+      <Seo
+        title="SMTP Settings — Mavrynt Admin"
+        description="Configure SMTP settings"
+      />
       <AdminPageHeader
         title="SMTP Settings"
         description="Configure email delivery providers."
@@ -170,113 +289,184 @@ const SmtpSettingsPage = () => {
         }
       />
 
+      {successMessage && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="mb-5 rounded-lg border border-green-500/30 bg-green-500/10 p-3 text-sm text-fg"
+        >
+          {successMessage}
+        </div>
+      )}
+
+      {enableError && (
+        <div
+          role="alert"
+          className="mb-5 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-fg"
+        >
+          {enableError}
+        </div>
+      )}
+
       {loadState === "loading" && <AdminState type="loading" />}
-      {loadState === "error" && <AdminState type="error" message={loadError ?? undefined} />}
+      {loadState === "error" && (
+        <AdminState type="error" message={loadError ?? undefined} />
+      )}
 
       {loadState === "ready" && formMode !== "none" && (
         <AdminCard
-          title={formMode === "create" ? "New SMTP configuration" : "Edit SMTP configuration"}
+          title={
+            isCreate ? "New SMTP configuration" : "Edit SMTP configuration"
+          }
           className="mb-5"
         >
-          <form onSubmit={(e) => void handleSubmit(e)} className="grid gap-4 sm:grid-cols-2">
-            <div className={formGroupClass}>
-              <label htmlFor="smtp-provider" className={labelClass}>Provider name</label>
+          <form
+            onSubmit={(e) => void handleSubmit(e)}
+            className="grid gap-4 sm:grid-cols-2"
+            noValidate
+            aria-label={
+              isCreate
+                ? "Create SMTP configuration form"
+                : "Edit SMTP configuration form"
+            }
+          >
+            <FormField
+              id="smtp-providerName"
+              label="Provider name"
+              error={formErrors.providerName}
+              required
+            >
               <input
-                id="smtp-provider"
-                required
-                value={formData.providerName}
-                onChange={(e) => setFormData((d) => ({ ...d, providerName: e.target.value }))}
-                className={fieldClass}
+                id="smtp-providerName"
+                {...field("providerName")}
                 placeholder="e.g. SendGrid"
+                aria-required="true"
               />
-            </div>
-            <div className={formGroupClass}>
-              <label htmlFor="smtp-host" className={labelClass}>Host</label>
+            </FormField>
+
+            <FormField
+              id="smtp-host"
+              label="Host"
+              error={formErrors.host}
+              required
+            >
               <input
                 id="smtp-host"
-                required
-                value={formData.host}
-                onChange={(e) => setFormData((d) => ({ ...d, host: e.target.value }))}
-                className={fieldClass}
+                {...field("host")}
                 placeholder="smtp.example.com"
+                aria-required="true"
               />
-            </div>
-            <div className={formGroupClass}>
-              <label htmlFor="smtp-port" className={labelClass}>Port</label>
+            </FormField>
+
+            <FormField
+              id="smtp-port"
+              label="Port"
+              error={formErrors.port}
+              required
+            >
               <input
                 id="smtp-port"
                 type="number"
-                required
-                value={formData.port}
-                onChange={(e) => setFormData((d) => ({ ...d, port: e.target.value }))}
-                className={fieldClass}
+                {...field("port")}
                 min={1}
                 max={65535}
+                aria-required="true"
               />
-            </div>
-            <div className={formGroupClass}>
-              <label htmlFor="smtp-username" className={labelClass}>Username</label>
+            </FormField>
+
+            <FormField
+              id="smtp-username"
+              label="Username"
+              error={formErrors.username}
+              required
+            >
               <input
                 id="smtp-username"
-                required
-                value={formData.username}
-                onChange={(e) => setFormData((d) => ({ ...d, username: e.target.value }))}
-                className={fieldClass}
+                {...field("username")}
                 autoComplete="username"
+                aria-required="true"
               />
-            </div>
-            <div className={formGroupClass}>
-              <label htmlFor="smtp-password" className={labelClass}>
-                Password {formMode !== "create" && <span className="text-xs">(leave blank to keep current)</span>}
-              </label>
+            </FormField>
+
+            <FormField
+              id="smtp-password"
+              label={
+                isCreate
+                  ? "Password"
+                  : "Password (leave blank to keep current)"
+              }
+              error={formErrors.password}
+              required={isCreate}
+            >
               <input
                 id="smtp-password"
                 type="password"
-                required={formMode === "create"}
                 value={formData.password}
-                onChange={(e) => setFormData((d) => ({ ...d, password: e.target.value }))}
-                className={fieldClass}
+                onChange={(e) => {
+                  setFormData((d) => ({ ...d, password: e.target.value }));
+                  clearFieldError("password");
+                }}
+                className={formErrors.password ? fieldErrorClass : fieldClass}
+                aria-describedby={
+                  formErrors.password ? "smtp-password-error" : undefined
+                }
+                aria-invalid={formErrors.password ? "true" : undefined}
+                aria-required={isCreate ? "true" : undefined}
                 autoComplete="new-password"
-                placeholder={formMode !== "create" ? "Leave blank to keep unchanged" : ""}
+                placeholder={isCreate ? "" : "Leave blank to keep unchanged"}
               />
-            </div>
-            <div className={formGroupClass}>
-              <label htmlFor="smtp-sender-email" className={labelClass}>Sender email</label>
+            </FormField>
+
+            <FormField
+              id="smtp-senderEmail"
+              label="Sender email"
+              error={formErrors.senderEmail}
+              required
+            >
               <input
-                id="smtp-sender-email"
+                id="smtp-senderEmail"
                 type="email"
-                required
-                value={formData.senderEmail}
-                onChange={(e) => setFormData((d) => ({ ...d, senderEmail: e.target.value }))}
-                className={fieldClass}
+                {...field("senderEmail")}
+                aria-required="true"
               />
-            </div>
-            <div className={formGroupClass}>
-              <label htmlFor="smtp-sender-name" className={labelClass}>Sender name</label>
+            </FormField>
+
+            <FormField
+              id="smtp-senderName"
+              label="Sender name"
+              error={formErrors.senderName}
+              required
+            >
               <input
-                id="smtp-sender-name"
-                required
-                value={formData.senderName}
-                onChange={(e) => setFormData((d) => ({ ...d, senderName: e.target.value }))}
-                className={fieldClass}
+                id="smtp-senderName"
+                {...field("senderName")}
+                aria-required="true"
               />
-            </div>
-            <div className="flex items-center gap-3 sm:col-span-2">
+            </FormField>
+
+            <div className="flex flex-wrap items-center gap-4 sm:col-span-2">
               <label className="flex cursor-pointer items-center gap-2 text-sm text-fg">
                 <input
                   type="checkbox"
                   checked={formData.useSsl}
-                  onChange={(e) => setFormData((d) => ({ ...d, useSsl: e.target.checked }))}
+                  onChange={(e) =>
+                    setFormData((d) => ({ ...d, useSsl: e.target.checked }))
+                  }
                   className="h-4 w-4 rounded border-border"
                 />
                 Use SSL/TLS
               </label>
-              {formMode === "create" && (
+              {isCreate && (
                 <label className="flex cursor-pointer items-center gap-2 text-sm text-fg">
                   <input
                     type="checkbox"
                     checked={formData.isEnabled}
-                    onChange={(e) => setFormData((d) => ({ ...d, isEnabled: e.target.checked }))}
+                    onChange={(e) =>
+                      setFormData((d) => ({
+                        ...d,
+                        isEnabled: e.target.checked,
+                      }))
+                    }
                     className="h-4 w-4 rounded border-border"
                   />
                   Enable immediately
@@ -284,9 +474,12 @@ const SmtpSettingsPage = () => {
               )}
             </div>
 
-            {formError && (
-              <div role="alert" className="rounded-lg border border-danger-500/30 bg-danger-500/10 p-3 text-sm text-fg sm:col-span-2">
-                {formError}
+            {submitError && (
+              <div
+                role="alert"
+                className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-fg sm:col-span-2"
+              >
+                {submitError}
               </div>
             )}
 
@@ -318,18 +511,29 @@ const SmtpSettingsPage = () => {
         <AdminCard>
           <ul className="divide-y divide-border">
             {settings.map((s) => (
-              <li key={s.id} className="flex flex-wrap items-start justify-between gap-4 py-4 first:pt-0 last:pb-0">
+              <li
+                key={s.id}
+                className="flex flex-wrap items-start justify-between gap-4 py-4 first:pt-0 last:pb-0"
+              >
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-fg">{s.providerName}</p>
+                  <p className="text-sm font-semibold text-fg">
+                    {s.providerName}
+                  </p>
                   <p className="text-xs text-fg-muted">
-                    {s.host}:{s.port} · {s.username} · {s.useSsl ? "SSL" : "Plain"}
+                    {s.host}:{s.port} · {s.username} ·{" "}
+                    {s.useSsl ? "SSL" : "Plain"}
                   </p>
                   <p className="text-xs text-fg-muted">
                     From: {s.senderName} &lt;{s.senderEmail}&gt;
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                  <span className={cn("text-xs font-medium", s.isEnabled ? "text-green-600" : "text-fg-muted")}>
+                  <span
+                    className={cn(
+                      "text-xs font-medium",
+                      s.isEnabled ? "text-green-600" : "text-fg-muted",
+                    )}
+                  >
                     {s.isEnabled ? "Active" : "Inactive"}
                   </span>
                   {!s.isEnabled && (
@@ -337,7 +541,9 @@ const SmtpSettingsPage = () => {
                       type="button"
                       disabled={enablingId === s.id}
                       onClick={() => void handleEnable(s.id)}
-                      className={cn(buttonStyles({ variant: "secondary", size: "sm" }))}
+                      className={cn(
+                        buttonStyles({ variant: "secondary", size: "sm" }),
+                      )}
                     >
                       {enablingId === s.id ? "…" : "Activate"}
                     </button>

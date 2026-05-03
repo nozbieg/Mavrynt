@@ -16,6 +16,10 @@ const LoginPage = lazy(() => import("../pages/LoginPage.tsx"));
 const RegisterPage = lazy(() => import("../pages/RegisterPage.tsx"));
 const ChangePasswordPage = lazy(() => import("../pages/ChangePasswordPage.tsx"));
 const DashboardPage = lazy(() => import("../pages/DashboardPage.tsx"));
+const UsersPage = lazy(() => import("../pages/UsersPage.tsx"));
+const FeatureFlagsPage = lazy(() => import("../pages/FeatureFlagsPage.tsx"));
+const SmtpSettingsPage = lazy(() => import("../pages/SmtpSettingsPage.tsx"));
+const SettingsPage = lazy(() => import("../pages/SettingsPage.tsx"));
 const NotFoundPage = lazy(() => import("../pages/NotFoundPage.tsx"));
 
 const RouteFallback = (): ReactNode => (
@@ -32,6 +36,10 @@ const withSuspense = (element: ReactNode): ReactNode => (
   <Suspense fallback={<RouteFallback />}>{element}</Suspense>
 );
 
+const protect = (element: ReactNode): ReactNode => (
+  <RequireAdminAuth>{element}</RequireAdminAuth>
+);
+
 export const routes: ReadonlyArray<RouteObject> = [
   {
     path: "/",
@@ -41,7 +49,11 @@ export const routes: ReadonlyArray<RouteObject> = [
       { path: "login", element: withSuspense(<LoginPage />) },
       { path: "register", element: withSuspense(<RegisterPage />) },
       { path: "change-password", element: withSuspense(<ChangePasswordPage />) },
-      { path: "dashboard", element: withSuspense(<RequireAdminAuth><DashboardPage /></RequireAdminAuth>) },
+      { path: "dashboard", element: withSuspense(protect(<DashboardPage />)) },
+      { path: "users", element: withSuspense(protect(<UsersPage />)) },
+      { path: "feature-flags", element: withSuspense(protect(<FeatureFlagsPage />)) },
+      { path: "smtp-settings", element: withSuspense(protect(<SmtpSettingsPage />)) },
+      { path: "settings", element: withSuspense(protect(<SettingsPage />)) },
       { path: "*", element: withSuspense(<NotFoundPage />) },
     ],
   },

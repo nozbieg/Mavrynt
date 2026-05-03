@@ -85,8 +85,13 @@ describe("SmtpSettingsPage", () => {
 });
 
 describe("UsersPage", () => {
-  it("shows informational message about missing list endpoint", () => {
+  it("shows limitation note about missing list endpoint", () => {
     render(<MemoryRouter><UsersPage /></MemoryRouter>, { wrapper });
-    expect(screen.getByText(/User listing is not available yet/i)).toBeInTheDocument();
+    expect(screen.getByText(/User listing is not available/i)).toBeInTheDocument();
+  });
+
+  it("renders assign role form", () => {
+    render(<MemoryRouter><UsersPage /></MemoryRouter>, { wrapper });
+    expect(screen.getByRole("button", { name: /Assign role/i })).toBeInTheDocument();
   });
 });

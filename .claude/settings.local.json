@@ -30,7 +30,10 @@
       "Bash(npm run *)",
       "Bash(xargs grep *)",
       "Bash(xargs head *)",
-      "Bash(xargs cat *)"
+      "Bash(xargs cat *)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Repo\\\\Mavrynt\\\\src\\\\frontend\\\\Mavrynt.Web.Admin\\\\mavrynt-admin\" -Recurse | Select-Object -Property FullName | ForEach-Object { $_.FullName } | Sort-Object)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Repo\\\\Mavrynt\\\\src\\\\backend\" -Directory | ForEach-Object { $_.Name })",
+      "Bash(npm test *)"
     ]
   }
 }
