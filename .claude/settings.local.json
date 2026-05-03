@@ -33,7 +33,13 @@
       "Bash(xargs cat *)",
       "PowerShell(Get-ChildItem -Path \"C:\\\\Repo\\\\Mavrynt\\\\src\\\\frontend\\\\Mavrynt.Web.Admin\\\\mavrynt-admin\" -Recurse | Select-Object -Property FullName | ForEach-Object { $_.FullName } | Sort-Object)",
       "PowerShell(Get-ChildItem -Path \"C:\\\\Repo\\\\Mavrynt\\\\src\\\\backend\" -Directory | ForEach-Object { $_.Name })",
-      "Bash(npm test *)"
+      "Bash(npm test *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Repo\\\\Mavrynt\\\\src\\\\backend\\\\Mavrynt.Modules.Users\" -Recurse)",
+      "Bash(Select-Object FullName)",
+      "Bash(ConvertTo-Json)",
+      "PowerShell(Test-Path \"C:\\\\Repo\\\\Mavrynt\\\\src\\\\backend\\\\Mavrynt.Modules.Users\"; if \\($?\\) { Get-ChildItem \"C:\\\\Repo\\\\Mavrynt\\\\src\\\\backend\\\\Mavrynt.Modules.Users\" -Recurse -Force | % { $_.FullName } })",
+      "Bash(Get-ChildItem -Path \"C:\\\\Repo\\\\Mavrynt\\\\src\\\\backend\\\\Mavrynt.Modules.Users\" -Recurse -File)",
+      "Bash(Sort-Object FullName)"
     ]
   }
 }

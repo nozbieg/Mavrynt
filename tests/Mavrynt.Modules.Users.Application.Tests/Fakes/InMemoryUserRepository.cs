@@ -29,6 +29,12 @@ internal sealed class InMemoryUserRepository : IUserRepository
         return Task.CompletedTask;
     }
 
+    public Task<IReadOnlyList<User>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<User> result = _users.Values.OrderBy(u => u.CreatedAt).ToList();
+        return Task.FromResult(result);
+    }
+
     public void Seed(User user) => _users[user.Id.Value] = user;
     public IReadOnlyCollection<User> Users => _users.Values.ToArray();
 }

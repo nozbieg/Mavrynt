@@ -85,13 +85,37 @@ describe("SmtpSettingsPage", () => {
 });
 
 describe("UsersPage", () => {
-  it("shows limitation note about missing list endpoint", () => {
+  it("shows loading state initially", () => {
+    vi.spyOn(globalThis, "fetch").mockReturnValue(new Promise(() => {}));
     render(<MemoryRouter><UsersPage /></MemoryRouter>, { wrapper });
-    expect(screen.getByText(/User listing is not available/i)).toBeInTheDocument();
+    expect(screen.getByText(/Loading/i)).toBeInTheDocument();
   });
 
-  it("renders assign role form", () => {
+  it("shows error state on fetch failure", async () => {
+    vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("net"));
     render(<MemoryRouter><UsersPage /></MemoryRouter>, { wrapper });
-    expect(screen.getByRole("button", { name: /Assign role/i })).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByRole("alert")).toBeInTheDocument());
+  });
+
+  it("renders user table with email and role", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => [
+        {
+          id: "u-1",
+          email: "jane@test.com",
+          displayName: "Jane",
+          status: "Active",
+          role: "Admin",
+          createdAt: "2024-01-01T00:00:00Z",
+          requiresPasswordChange: false,
+        },
+      ],
+    } as Response);
+
+    render(<MemoryRouter><UsersPage /></MemoryRouter>, { wrapper });
+    await waitFor(() => expect(screen.getByText("jane@test.com")).toBeInTheDocument());
+    expect(screen.getByRole("combobox", { name: /Role for jane@test.com/i })).toBeInTheDocument();
   });
 });

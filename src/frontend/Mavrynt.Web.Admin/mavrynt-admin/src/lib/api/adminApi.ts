@@ -101,6 +101,9 @@ export const adminApi = {
   getCurrentAdmin: (): Promise<AdminProfile> =>
     apiFetch<AdminProfile>("/admin/me"),
 
+  listUsers: (): Promise<UserDto[]> =>
+    apiFetch<UserDto[]>("/admin/users"),
+
   assignUserRole: (userId: string, role: string): Promise<UserDto> =>
     apiFetch<UserDto>(`/admin/users/${userId}/role`, {
       method: "PATCH",

@@ -104,85 +104,120 @@ describe("SettingsPage", () => {
 // UsersPage
 // ---------------------------------------------------------------------------
 
+const USER_ROW = {
+  id: "u-2",
+  email: "jane@test.com",
+  displayName: "Jane",
+  status: "Active",
+  role: "User",
+  createdAt: "2024-01-01T00:00:00Z",
+  requiresPasswordChange: false,
+};
+
 describe("UsersPage", () => {
-  it("shows limitation note and assign role form", () => {
+  it("shows loading state initially", () => {
+    vi.spyOn(globalThis, "fetch").mockReturnValue(new Promise(() => {}));
     renderInRouter(<UsersPage />);
-    expect(screen.getByText(/User listing is not available/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Assign role/i })).toBeInTheDocument();
+    expect(screen.getByText(/Loading/i)).toBeInTheDocument();
   });
 
-  it("shows validation error when user ID is empty", async () => {
+  it("shows error state when list fails", async () => {
+    vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("net"));
     renderInRouter(<UsersPage />);
-    fireEvent.click(screen.getByRole("button", { name: /Assign role/i }));
     await waitFor(() =>
       expect(screen.getByRole("alert")).toBeInTheDocument(),
     );
-    expect(screen.getByText(/User ID is required/i)).toBeInTheDocument();
   });
 
-  it("shows success after role assignment", async () => {
+  it("shows empty state when no users", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue({
       ok: true,
       status: 200,
-      json: async () => ({
-        id: "u-2",
-        email: "jane@test.com",
-        role: "admin",
-        status: "Active",
-        createdAt: "2024-01-01T00:00:00Z",
-        requiresPasswordChange: false,
-      }),
+      json: async () => [],
+    } as Response);
+    renderInRouter(<UsersPage />);
+    await waitFor(() =>
+      expect(screen.getByText(/No users found/i)).toBeInTheDocument(),
+    );
+  });
+
+  it("renders user table with email, status and role select", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => [USER_ROW],
     } as Response);
 
     renderInRouter(<UsersPage />);
 
-    fireEvent.change(screen.getByLabelText(/User ID/i), {
-      target: { value: "some-uuid" },
+    await waitFor(() =>
+      expect(screen.getByText("jane@test.com")).toBeInTheDocument(),
+    );
+    expect(screen.getByText("Active")).toBeInTheDocument();
+    const roleSelect = screen.getByRole("combobox", {
+      name: /Role for jane@test.com/i,
+    }) as HTMLSelectElement;
+    expect(roleSelect.value).toBe("User");
+  });
+
+  it("saves role change with success feedback", async () => {
+    vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => [USER_ROW],
+      } as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ ...USER_ROW, role: "Admin" }),
+      } as Response);
+
+    renderInRouter(<UsersPage />);
+    await waitFor(() => screen.getByText("jane@test.com"));
+
+    const roleSelect = screen.getByRole("combobox", {
+      name: /Role for jane@test.com/i,
     });
-    fireEvent.click(screen.getByRole("button", { name: /Assign role/i }));
+    fireEvent.change(roleSelect, { target: { value: "Admin" } });
+    fireEvent.click(
+      screen.getByRole("button", { name: /Save role for jane@test.com/i }),
+    );
 
     await waitFor(() =>
       expect(screen.getByRole("status")).toBeInTheDocument(),
     );
-    expect(screen.getByText(/Role updated/i)).toBeInTheDocument();
-    expect(screen.getByText("jane@test.com")).toBeInTheDocument();
+    expect(screen.getByText("Saved")).toBeInTheDocument();
   });
 
-  it("shows error on 404", async () => {
-    vi.spyOn(globalThis, "fetch").mockResolvedValue({
-      ok: false,
-      status: 404,
-      json: async () => null,
-    } as Response);
+  it("shows per-row error on 404", async () => {
+    vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => [USER_ROW],
+      } as Response)
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+        json: async () => null,
+      } as Response);
 
     renderInRouter(<UsersPage />);
+    await waitFor(() => screen.getByText("jane@test.com"));
 
-    fireEvent.change(screen.getByLabelText(/User ID/i), {
-      target: { value: "nonexistent-uuid" },
+    const roleSelect = screen.getByRole("combobox", {
+      name: /Role for jane@test.com/i,
     });
-    fireEvent.click(screen.getByRole("button", { name: /Assign role/i }));
+    fireEvent.change(roleSelect, { target: { value: "Admin" } });
+    fireEvent.click(
+      screen.getByRole("button", { name: /Save role for jane@test.com/i }),
+    );
 
     await waitFor(() =>
       expect(screen.getByRole("alert")).toBeInTheDocument(),
     );
     expect(screen.getByText(/User not found/i)).toBeInTheDocument();
-  });
-
-  it("shows error on 400 (invalid role)", async () => {
-    vi.spyOn(globalThis, "fetch").mockResolvedValue({
-      ok: false,
-      status: 400,
-      json: async () => null,
-    } as Response);
-
-    renderInRouter(<UsersPage />);
-    fireEvent.change(screen.getByLabelText(/User ID/i), { target: { value: "uid" } });
-    fireEvent.click(screen.getByRole("button", { name: /Assign role/i }));
-
-    await waitFor(() =>
-      expect(screen.getByRole("alert")).toBeInTheDocument(),
-    );
-    expect(screen.getByText(/Invalid role value/i)).toBeInTheDocument();
   });
 });
 

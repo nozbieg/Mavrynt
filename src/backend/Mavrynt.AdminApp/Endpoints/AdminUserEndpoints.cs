@@ -1,9 +1,8 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using Mavrynt.BuildingBlocks.Application.Messaging;
 using Mavrynt.BuildingBlocks.Domain.Results;
 using Mavrynt.Modules.Users.Application.Commands;
 using Mavrynt.Modules.Users.Application.DTOs;
+using Mavrynt.Modules.Users.Application.Queries;
 
 namespace Mavrynt.AdminApp.Endpoints;
 
@@ -13,11 +12,25 @@ public static class AdminUserEndpoints
     {
         var group = app.MapGroup("/api/admin/users").WithTags("Admin");
 
+        group.MapGet("", ListUsersAsync)
+            .RequireAuthorization("AdminOnly")
+            .WithName("ListUsers");
+
         group.MapPatch("/{userId:guid}/role", AssignRoleAsync)
             .RequireAuthorization("AdminOnly")
             .WithName("AssignUserRole");
 
         return app;
+    }
+
+    private static async Task<IResult> ListUsersAsync(
+        IMediator mediator,
+        CancellationToken ct)
+    {
+        var result = await mediator.SendAsync(new ListUsersQuery(), ct);
+        return result.IsFailure
+            ? Results.StatusCode(StatusCodes.Status500InternalServerError)
+            : Results.Ok(result.Value);
     }
 
     private sealed record AssignRoleRequest(string Role);

@@ -1,65 +1,133 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState } from "react";
 import { cn, buttonStyles } from "@mavrynt/ui";
 import { Seo } from "../lib/seo/Seo.tsx";
 import { adminApi, ApiError, type UserDto } from "../lib/api/adminApi.ts";
 import { AdminPageHeader } from "../components/AdminPageHeader.tsx";
+import { AdminState } from "../components/AdminState.tsx";
 import { AdminCard } from "../components/AdminCard.tsx";
 
-// Backend has no GET /api/admin/users list endpoint.
-// Only PATCH /{userId}/role exists. If a list endpoint is added, replace
-// this page with a full user table using AdminTable.
+type LoadState = "loading" | "ready" | "error";
 
-const ROLES = ["admin", "user"] as const;
+// Roles the backend accepts (Enum.TryParse ignoreCase: true).
+const ROLES = ["User", "Admin"] as const;
 type Role = (typeof ROLES)[number];
 
-const fieldClass =
-  "w-full rounded-md border border-border bg-bg px-3 py-2 text-sm text-fg placeholder:text-fg-muted focus:outline-none focus:ring-2 focus:ring-focus-ring";
-const fieldErrorClass =
-  "w-full rounded-md border border-red-500 bg-bg px-3 py-2 text-sm text-fg placeholder:text-fg-muted focus:outline-none focus:ring-2 focus:ring-red-500/50";
-const labelClass = "block text-sm font-medium text-fg-muted";
-const formGroupClass = "flex flex-col gap-1";
+type RowState = {
+  selectedRole: Role;
+  submitting: boolean;
+  error: string | null;
+  saved: boolean;
+};
+
+function normalizeRole(raw: string): Role {
+  const found = ROLES.find((r) => r.toLowerCase() === raw.toLowerCase());
+  return found ?? "User";
+}
 
 function apiErrorMessage(err: unknown): string {
   if (err instanceof ApiError) {
     if (err.status === 404) return "User not found.";
-    if (err.status === 400) return "Invalid role value.";
-    if (err.status === 0) return "Network error. Check your connection and try again.";
+    if (err.status === 400) return "Invalid role.";
+    if (err.status === 0) return "Network error.";
     return `Request failed (HTTP ${String(err.status)}).`;
   }
-  return "An unexpected error occurred.";
+  return "Unexpected error.";
+}
+
+function formatDate(iso: string): string {
+  try {
+    return new Date(iso).toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return iso;
+  }
 }
 
 const UsersPage = () => {
-  const [userId, setUserId] = useState("");
-  const [role, setRole] = useState<Role>("user");
-  const [submitting, setSubmitting] = useState(false);
-  const [result, setResult] = useState<UserDto | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [userIdError, setUserIdError] = useState<string | null>(null);
+  const [state, setState] = useState<LoadState>("loading");
+  const [users, setUsers] = useState<UserDto[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [rowStates, setRowStates] = useState<Record<string, RowState>>({});
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (submitting) return;
-    setError(null);
-    setResult(null);
-    setUserIdError(null);
+  useEffect(() => {
+    void load();
+  }, []);
 
-    const trimmedId = userId.trim();
-    if (!trimmedId) {
-      setUserIdError("User ID is required.");
-      return;
-    }
-
-    setSubmitting(true);
+  async function load() {
+    setState("loading");
     try {
-      const updated = await adminApi.assignUserRole(trimmedId, role);
-      setResult(updated);
-      setUserId("");
-    } catch (err) {
-      setError(apiErrorMessage(err));
-    } finally {
-      setSubmitting(false);
+      const data = await adminApi.listUsers();
+      setUsers(data);
+      setState("ready");
+      const initial: Record<string, RowState> = {};
+      data.forEach((u) => {
+        initial[u.id] = {
+          selectedRole: normalizeRole(u.role),
+          submitting: false,
+          error: null,
+          saved: false,
+        };
+      });
+      setRowStates(initial);
+    } catch {
+      setLoadError("Failed to load users.");
+      setState("error");
     }
+  }
+
+  function setRow(userId: string, patch: Partial<RowState>) {
+    setRowStates((prev) => ({
+      ...prev,
+      [userId]: { ...prev[userId], ...patch } as RowState,
+    }));
+  }
+
+  async function handleRoleSave(user: UserDto) {
+    const rs = rowStates[user.id];
+    if (!rs || rs.submitting) return;
+
+    setRow(user.id, { submitting: true, error: null, saved: false });
+    try {
+      const updated = await adminApi.assignUserRole(user.id, rs.selectedRole);
+      setUsers((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
+      setRow(user.id, {
+        submitting: false,
+        selectedRole: normalizeRole(updated.role),
+        saved: true,
+        error: null,
+      });
+    } catch (err) {
+      setRow(user.id, {
+        submitting: false,
+        error: apiErrorMessage(err),
+        saved: false,
+      });
+    }
+  }
+
+  const STATUS_CLASSES: Record<string, string> = {
+    active: "bg-green-500/15 text-green-700 dark:text-green-400",
+    inactive: "bg-gray-500/15 text-gray-600 dark:text-gray-400",
+    locked: "bg-red-500/15 text-red-700 dark:text-red-400",
+  };
+
+  function statusBadge(status: string) {
+    const key = status.toLowerCase();
+    const cls =
+      STATUS_CLASSES[key] ?? "bg-gray-500/15 text-gray-600 dark:text-gray-400";
+    return (
+      <span
+        className={cn(
+          "inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize",
+          cls,
+        )}
+      >
+        {status}
+      </span>
+    );
   }
 
   return (
@@ -70,100 +138,127 @@ const UsersPage = () => {
         description="Manage user accounts and roles."
       />
 
-      <div className="flex flex-col gap-5">
+      {state === "loading" && <AdminState type="loading" />}
+      {state === "error" && (
+        <AdminState type="error" message={loadError ?? undefined} />
+      )}
+      {state === "ready" && users.length === 0 && (
+        <AdminState type="empty" message="No users found." />
+      )}
+
+      {state === "ready" && users.length > 0 && (
         <AdminCard>
-          <p className="text-sm text-fg-muted">
-            <strong className="font-medium text-fg">Note:</strong> User listing
-            is not available — the backend does not expose a list users endpoint.
-            To assign a role to a specific user, enter their user ID below.
-          </p>
+          <div className="overflow-x-auto -mx-5">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-bg-subtle">
+                  {[
+                    "Email",
+                    "Display name",
+                    "Status",
+                    "Role",
+                    "Created",
+                    "",
+                  ].map((h) => (
+                    <th
+                      key={h}
+                      scope="col"
+                      className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-fg-muted first:pl-5 last:pr-5"
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {users.map((user) => {
+                  const rs = rowStates[user.id];
+                  const isDirty =
+                    rs && rs.selectedRole !== normalizeRole(user.role);
+                  return (
+                    <tr
+                      key={user.id}
+                      className="transition-colors hover:bg-bg-subtle"
+                    >
+                      <td className="px-5 py-3 font-medium text-fg">
+                        {user.email}
+                      </td>
+                      <td className="px-5 py-3 text-fg-muted">
+                        {user.displayName ?? (
+                          <span className="italic">—</span>
+                        )}
+                      </td>
+                      <td className="px-5 py-3">
+                        {statusBadge(user.status)}
+                      </td>
+                      <td className="px-5 py-3">
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2">
+                            <select
+                              value={rs?.selectedRole ?? normalizeRole(user.role)}
+                              onChange={(e) =>
+                                setRow(user.id, {
+                                  selectedRole: e.target.value as Role,
+                                  error: null,
+                                  saved: false,
+                                })
+                              }
+                              disabled={rs?.submitting}
+                              className="rounded-md border border-border bg-bg px-2 py-1 text-xs text-fg focus:outline-none focus:ring-2 focus:ring-focus-ring disabled:opacity-50"
+                              aria-label={`Role for ${user.email}`}
+                            >
+                              {ROLES.map((r) => (
+                                <option key={r} value={r}>
+                                  {r}
+                                </option>
+                              ))}
+                            </select>
+                            <button
+                              type="button"
+                              disabled={
+                                rs?.submitting || (!isDirty && !rs?.error)
+                              }
+                              onClick={() => void handleRoleSave(user)}
+                              className={cn(
+                                buttonStyles({ variant: "secondary", size: "sm" }),
+                                "text-xs",
+                              )}
+                              aria-label={`Save role for ${user.email}`}
+                            >
+                              {rs?.submitting ? "…" : "Save"}
+                            </button>
+                          </div>
+                          {rs?.error && (
+                            <p
+                              role="alert"
+                              className="text-xs text-red-600 dark:text-red-400"
+                            >
+                              {rs.error}
+                            </p>
+                          )}
+                          {rs?.saved && !rs.error && (
+                            <p
+                              role="status"
+                              aria-live="polite"
+                              className="text-xs text-green-600 dark:text-green-400"
+                            >
+                              Saved
+                            </p>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-5 py-3 text-fg-muted">
+                        {formatDate(user.createdAt)}
+                      </td>
+                      <td className="px-5 py-3" />
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </AdminCard>
-
-        <AdminCard title="Assign role">
-          <form
-            onSubmit={(e) => void handleSubmit(e)}
-            className="flex flex-col gap-4 sm:max-w-md"
-            noValidate
-          >
-            <div className={formGroupClass}>
-              <label htmlFor="user-id" className={labelClass}>
-                User ID
-              </label>
-              <input
-                id="user-id"
-                value={userId}
-                onChange={(e) => {
-                  setUserId(e.target.value);
-                  setUserIdError(null);
-                }}
-                className={userIdError ? fieldErrorClass : fieldClass}
-                placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                autoComplete="off"
-                aria-describedby={userIdError ? "user-id-error" : undefined}
-                aria-invalid={userIdError ? "true" : undefined}
-              />
-              {userIdError && (
-                <p
-                  id="user-id-error"
-                  role="alert"
-                  className="text-xs text-red-600 dark:text-red-400"
-                >
-                  {userIdError}
-                </p>
-              )}
-            </div>
-
-            <div className={formGroupClass}>
-              <label htmlFor="user-role" className={labelClass}>
-                New role
-              </label>
-              <select
-                id="user-role"
-                value={role}
-                onChange={(e) => setRole(e.target.value as Role)}
-                className={fieldClass}
-              >
-                {ROLES.map((r) => (
-                  <option key={r} value={r}>
-                    {r.charAt(0).toUpperCase() + r.slice(1)}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {error && (
-              <div
-                role="alert"
-                className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-fg"
-              >
-                {error}
-              </div>
-            )}
-
-            {result && (
-              <div
-                role="status"
-                aria-live="polite"
-                className="rounded-lg border border-green-500/30 bg-green-500/10 p-3 text-sm text-fg"
-              >
-                Role updated.{" "}
-                <span className="font-medium">{result.email}</span> is now{" "}
-                <strong className="font-medium">{result.role}</strong>.
-              </div>
-            )}
-
-            <div>
-              <button
-                type="submit"
-                disabled={submitting}
-                className={cn(buttonStyles({ variant: "primary", size: "sm" }))}
-              >
-                {submitting ? "Saving…" : "Assign role"}
-              </button>
-            </div>
-          </form>
-        </AdminCard>
-      </div>
+      )}
     </>
   );
 };

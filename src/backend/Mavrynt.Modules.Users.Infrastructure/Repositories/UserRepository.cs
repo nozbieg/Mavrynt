@@ -31,4 +31,9 @@ internal sealed class UserRepository : IUserRepository
         //       transactions are required. For now each add is its own transaction.
         await _context.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyList<User>> GetAllAsync(CancellationToken cancellationToken = default)
+        => await _context.Users
+            .OrderBy(u => u.CreatedAt)
+            .ToListAsync(cancellationToken);
 }
