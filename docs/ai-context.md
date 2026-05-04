@@ -169,3 +169,6 @@ In priority order:
 7. Renumber or clearly mark `docs/adr/*.md` to remove the numbering collision.
 
 Detailed plan: `docs/next-work.md`.
+
+
+- Redis-backed query cache is now active via mediator behaviors with tag-based invalidation metadata on mutating commands.

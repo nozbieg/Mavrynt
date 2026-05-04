@@ -971,3 +971,23 @@ This document is the canonical architectural decision register for Mavrynt. It
 preserves the chain of decisions made while the solution is built and extended.
 Every significant decision that changes architectural direction must be added
 here.
+
+
+## ADR-026 — Redis-backed query cache and object-level invalidation
+
+**Status:** Accepted  
+**Date:** 2026-05-04
+
+### Decision
+Enable Redis as an active cross-cutting cache through `MavryntMediator` behaviors. Queries declare explicit cache policy in Application (`ICachedQuery<TResponse>`). Mutating commands declare invalidation metadata (`IInvalidatesCache`), and invalidation is executed by pipeline behavior after successful persistence.
+
+### Rationale
+Keeps caching and invalidation out of handlers/endpoints, preserves module boundaries, and standardizes deterministic keys, TTLs, and tag invalidation. Redis has no native tags, so tag-to-key sets are implemented in Infrastructure.
+
+### Consequences
+- Redis is active (no longer only reserved from ADR-012).
+- Application owns cache policy declarations.
+- Infrastructure owns Redis implementation details.
+- Handlers do not call Redis directly.
+- Failed queries are not cached; failed commands do not invalidate cache.
+- Invalidation executes post-commit through pipeline ordering.

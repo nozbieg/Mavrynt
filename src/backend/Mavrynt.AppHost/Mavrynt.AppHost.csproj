@@ -9,6 +9,7 @@
     </PropertyGroup>
     <ItemGroup>
       <PackageReference Include="Aspire.Hosting.PostgreSQL" />
+      <PackageReference Include="Aspire.Hosting.Redis" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\..\frontend\Mavrynt.Web.Admin\Mavrynt.Web.Admin.csproj" />

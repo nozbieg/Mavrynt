@@ -1,15 +1,17 @@
 using Mavrynt.BuildingBlocks.Application.Behaviors;
+using Mavrynt.BuildingBlocks.Application.Caching;
 using Mavrynt.BuildingBlocks.Application.Messaging;
 using Mavrynt.Modules.Users.Application.DTOs;
+using Mavrynt.Modules.Users.Application.Queries;
 
 namespace Mavrynt.Modules.Users.Application.Commands;
 
-/// <summary>
-/// Registers a new user. The raw <see cref="Password"/> is hashed by the handler
-/// before being stored — it must never be logged or persisted as-is.
-/// </summary>
 public sealed record RegisterUserCommand(
     string Email,
     string Password,
     string? DisplayName
-) : ICommand<UserDto>, ITransactionalRequest;
+) : ICommand<UserDto>, ITransactionalRequest, IInvalidatesCache
+{
+    public IReadOnlyCollection<string> CacheKeysToInvalidate => [UsersCacheKeys.UserByEmail(Email), UsersCacheKeys.UsersList];
+    public IReadOnlyCollection<string> CacheTagsToInvalidate => ["users", $"users:email:{Email.Trim().ToLowerInvariant()}"];
+}

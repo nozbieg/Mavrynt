@@ -21,16 +21,22 @@ var postgres = builder.AddPostgres("postgres")
     .WithDataVolume("mavrynt-postgres-data")
     .AddDatabase("MavryntDb");
 
+var redis = builder.AddRedis("redis");
+
 // ── Backend services ──────────────────────────────────────────────────────────
 
 var api = builder.AddProject<Projects.Mavrynt_Api>(apiName)
-    .WithReference(postgres)
+     .WithReference(postgres)
+    .WithReference(redis)
     .WaitFor(postgres)
+    .WaitFor(redis)
     .WithExternalHttpEndpoints();
 
 var adminApi = builder.AddProject<Projects.Mavrynt_AdminApp>(adminApiName)
-    .WithReference(postgres)
+     .WithReference(postgres)
+    .WithReference(redis)
     .WaitFor(postgres)
+    .WaitFor(redis)
     .WithExternalHttpEndpoints();
 
 // ── Frontend SPAs — all three start in parallel ───────────────────────────────

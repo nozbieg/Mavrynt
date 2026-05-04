@@ -1,3 +1,4 @@
+using Mavrynt.BuildingBlocks.Infrastructure.DependencyInjection;
 using Mavrynt.Api.DependencyInjection;
 using Mavrynt.Api.Endpoints;
 using Mavrynt.Modules.Users.Application.DependencyInjection;
@@ -11,6 +12,9 @@ builder.AddServiceDefaults();
 // ── Users module ──────────────────────────────────────────────────────────────
 builder.Services.AddUsersApplication();
 builder.Services.AddUsersInfrastructure(builder.Configuration);
+
+// ── Cross-cutting infrastructure ──────────────────────────────────────────────
+builder.Services.AddMavryntCaching(builder.Configuration);
 
 // ── Authentication + authorisation ───────────────────────────────────────────
 builder.Services.AddApiAuthentication(builder.Configuration);

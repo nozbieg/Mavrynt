@@ -1,3 +1,4 @@
+using Mavrynt.BuildingBlocks.Infrastructure.DependencyInjection;
 using Mavrynt.AdminApp.DependencyInjection;
 using Mavrynt.AdminApp.Endpoints;
 using Mavrynt.Modules.Audit.Application.DependencyInjection;
@@ -29,6 +30,9 @@ builder.Services.AddFeatureManagementInfrastructure(builder.Configuration);
 // ── Notifications module ──────────────────────────────────────────────────────
 builder.Services.AddNotificationsApplication();
 builder.Services.AddNotificationsInfrastructure(builder.Configuration);
+
+// ── Cross-cutting infrastructure ──────────────────────────────────────────────
+builder.Services.AddMavryntCaching(builder.Configuration);
 
 // ── Authentication + authorisation ───────────────────────────────────────────
 builder.Services.AddApiAuthentication(builder.Configuration);

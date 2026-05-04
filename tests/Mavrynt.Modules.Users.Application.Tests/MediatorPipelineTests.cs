@@ -1,5 +1,6 @@
 using Mavrynt.BuildingBlocks.Application.Abstractions;
 using Mavrynt.BuildingBlocks.Application.Behaviors;
+using Mavrynt.BuildingBlocks.Application.Caching;
 using Mavrynt.BuildingBlocks.Application.DependencyInjection;
 using Mavrynt.BuildingBlocks.Application.Messaging;
 using Mavrynt.BuildingBlocks.Application.Persistence;
@@ -38,6 +39,8 @@ public sealed class MediatorPipelineTests
     public async Task Mediator_Should_Return_Failure_For_Missing_Handler()
     {
         var services = new ServiceCollection();
+        services.AddSingleton<FakeCacheService>();
+        services.AddSingleton<ICacheService>(sp => sp.GetRequiredService<FakeCacheService>());
         services.AddMavryntMediator(typeof(MediatorPipelineTests).Assembly);
 
         await using var provider = services.BuildServiceProvider();
@@ -107,6 +110,32 @@ public sealed class MediatorPipelineTests
         Assert.Equal(1, unitOfWork.SaveChangesCalls);
     }
 
+
+    [Fact]
+    public async Task Cached_Query_Should_Hit_Cache_On_Second_Call()
+    {
+        await using var provider = BuildServices().BuildServiceProvider();
+        var mediator = provider.GetRequiredService<IMediator>();
+
+        await mediator.SendAsync(new CachedResponseQuery("cached"));
+        await mediator.SendAsync(new CachedResponseQuery("cached"));
+
+        Assert.Equal(1, CachedResponseQueryHandler.Calls);
+    }
+
+    [Fact]
+    public async Task Cache_Invalidation_Should_Run_After_Transactional_Success()
+    {
+        await using var provider = BuildServices().BuildServiceProvider();
+        var mediator = provider.GetRequiredService<IMediator>();
+        var cache = provider.GetRequiredService<FakeCacheService>();
+
+        await mediator.SendAsync(new InvalidateCommand());
+
+        Assert.Contains("invalidate:key", cache.RemovedKeys);
+        Assert.Contains("invalidate:tag", cache.RemovedTags);
+    }
+
     private static ServiceCollection BuildServices(bool validationFailure = false)
     {
         var services = new ServiceCollection();
@@ -115,6 +144,8 @@ public sealed class MediatorPipelineTests
         services.AddSingleton<ICurrentUserContext>(new FakeCurrentUserContext(Guid.NewGuid(), "test@example.com"));
         services.AddSingleton<FakeUnitOfWork>();
         services.AddSingleton<IUnitOfWork>(sp => sp.GetRequiredService<FakeUnitOfWork>());
+        services.AddSingleton<FakeCacheService>();
+        services.AddSingleton<ICacheService>(sp => sp.GetRequiredService<FakeCacheService>());
         services.AddMavryntMediator(typeof(MediatorPipelineTests).Assembly);
 
         if (validationFailure)
@@ -191,4 +222,44 @@ public sealed class MediatorPipelineTests
         public Task<Result> HandleAsync(FailedTransactionalCommand command, CancellationToken cancellationToken = default)
             => Task.FromResult(Result.Failure(new Error("Failure", "f")));
     }
+
+    private sealed class FakeCacheService : ICacheService
+    {
+        private readonly Dictionary<string, object?> _cache = new();
+        public List<string> RemovedKeys { get; } = [];
+        public List<string> RemovedTags { get; } = [];
+        public Task<CacheValue<T>> GetAsync<T>(string key, CancellationToken cancellationToken = default)
+            => Task.FromResult(_cache.TryGetValue(key, out var value) ? new CacheValue<T>(true, (T?)value) : new CacheValue<T>(false, default));
+        public Task SetAsync<T>(string key, T? value, CacheEntryOptions? options = null, CancellationToken cancellationToken = default){_cache[key]=value; return Task.CompletedTask;}
+        public Task RemoveAsync(string key, CancellationToken cancellationToken = default){RemovedKeys.Add(key); _cache.Remove(key); return Task.CompletedTask;}
+        public Task RemoveByTagAsync(string tag, CancellationToken cancellationToken = default){RemovedTags.Add(tag); return Task.CompletedTask;}
+        public Task RemoveByTagsAsync(IReadOnlyCollection<string> tags, CancellationToken cancellationToken = default){RemovedTags.AddRange(tags); return Task.CompletedTask;}
+    }
+
+    private sealed record CachedResponseQuery(string Value) : ICachedQuery<string>
+    {
+        public string CacheKey => $"test:{Value}";
+        public TimeSpan? CacheDuration => TimeSpan.FromMinutes(1);
+        public IReadOnlyCollection<string> CacheTags => ["test"];
+    }
+    private sealed class CachedResponseQueryHandler : IQueryHandler<CachedResponseQuery, string>
+    {
+        public static int Calls;
+        public Task<Result<string>> HandleAsync(CachedResponseQuery query, CancellationToken cancellationToken = default)
+        {
+            Calls++;
+            return Task.FromResult(Result.Success(query.Value));
+        }
+    }
+
+    private sealed record InvalidateCommand : ICommand, ITransactionalRequest, IInvalidatesCache
+    {
+        public IReadOnlyCollection<string> CacheKeysToInvalidate => ["invalidate:key"];
+        public IReadOnlyCollection<string> CacheTagsToInvalidate => ["invalidate:tag"];
+    }
+    private sealed class InvalidateCommandHandler : ICommandHandler<InvalidateCommand>
+    {
+        public Task<Result> HandleAsync(InvalidateCommand command, CancellationToken cancellationToken = default) => Task.FromResult(Result.Success());
+    }
+
 }

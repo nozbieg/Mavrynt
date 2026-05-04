@@ -157,3 +157,6 @@ shipped; remaining items are CI/CD and staging.
 4. Add the list-users admin endpoint.
 5. Replace `PassThroughSecretProtector`.
 6. Renumber the `docs/adr/*` files to remove the collision with `docs/decisions.en.md`.
+
+
+- Redis-backed query cache is now active via mediator behaviors with tag-based invalidation metadata on mutating commands.

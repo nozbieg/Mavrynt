@@ -51,10 +51,16 @@ public static class MediatorServiceCollectionExtensions
         // 3. Resilience — retry/timeout hook (no-op until Polly is introduced)
         services.AddTransient(typeof(IMavryntBehavior<,>), typeof(ResilienceBehavior<,>));
 
-        // 4. Audit — records after handler succeeds or fails
+        // 4. Cached query — query read-through cache via ICachedQuery<TResponse>
+        services.AddTransient(typeof(IMavryntBehavior<,>), typeof(CachedQueryBehavior<,>));
+
+        // 5. Audit — records after handler succeeds or fails
         services.AddTransient(typeof(IMavryntBehavior<,>), typeof(AuditBehavior<,>));
 
-        // 5. Transaction — commits unit-of-work on success (innermost, closest to handler)
+        // 6. Cache invalidation — executes after inner transaction commit on successful commands
+        services.AddTransient(typeof(IMavryntBehavior<,>), typeof(CacheInvalidationBehavior<,>));
+
+        // 7. Transaction — commits unit-of-work on success (innermost, closest to handler)
         services.AddTransient(typeof(IMavryntBehavior<,>), typeof(TransactionBehavior<,>));
 
         // ── Handlers and validators from provided assemblies ──────────────────
