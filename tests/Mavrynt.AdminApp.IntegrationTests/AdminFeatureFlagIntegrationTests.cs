@@ -191,6 +191,11 @@ public sealed class AdminFeatureFlagIntegrationTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadFromJsonAsync<JsonElement>();
         Assert.Equal("Updated Name", body.GetProperty("name").GetString());
+
+        // Persistence regression: re-fetch in a fresh request and assert the value is on disk.
+        var refetch = await _adminClient.GetAsync("/api/admin/feature-flags/update.test-flag");
+        var refetched = await refetch.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("Updated Name", refetched.GetProperty("name").GetString());
     }
 
     [Fact]
@@ -206,6 +211,11 @@ public sealed class AdminFeatureFlagIntegrationTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadFromJsonAsync<JsonElement>();
         Assert.False(body.GetProperty("isEnabled").GetBoolean());
+
+        // Persistence regression: re-fetch and confirm the toggle persisted to disk.
+        var refetch = await _adminClient.GetAsync("/api/admin/feature-flags/toggle.test-flag");
+        var refetched = await refetch.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.False(refetched.GetProperty("isEnabled").GetBoolean());
     }
 
     [Fact]

@@ -39,6 +39,8 @@ This is a living document and should be extended whenever important changes are 
 | ADR-021 | Backend test strategy: architecture, unit, Testcontainers integration | Accepted | 2026-04-28 | Test pyramid in place |
 | ADR-022 | Phase 1 Admin Foundation Slice: roles, FeatureManagement, Audit | Accepted | 2026-04-29 | Admin vertical slice complete |
 | ADR-023 | Notifications module: DB-backed SMTP, templates, `IEmailNotificationService` | Accepted | 2026-04-30 | Email module complete |
+| ADR-024 | Default local SMTP seed and per-configuration test email | Accepted | 2026-05-04 | SMTP foundation ready for password reset by email |
+| ADR-025 | Pipeline-owned commit: ITransactionalRequest + multi-UoW behavior | Accepted | 2026-05-04 | Mutating commands persist via TransactionBehavior; repositories no longer self-save |
 
 ### ADR-018 ↔ ADR-020 relationship
 
@@ -754,6 +756,182 @@ Email notification is a core cross-cutting capability needed by the Users module
 - `PassThroughSecretProtector` must be replaced with a real encryption implementation before the application handles real SMTP credentials in a non-development environment.
 - Template keys are immutable once seeded. Adding a fourth template requires a new migration, a new seeder entry, a new `IEmailModel` implementation, and a new `EmailTemplateKey` constant.
 - `SmtpClient` (BCL) does not support OAuth or modern authentication flows. Replacing it with MailKit or a transactional email API adapter requires only a new `IEmailSender` implementation — no other code changes.
+
+---
+
+## ADR-024 — Default local SMTP seed and per-configuration test email
+
+**Status:** Accepted  
+**Date:** 2026-05-04
+
+### Decision
+
+Two small additions to the Notifications module to prepare the SMTP foundation
+required by the upcoming password-reset-by-email flow:
+
+**Default local SMTP seed**
+- A new `DefaultSmtpSettingsSeeder` in `Notifications.Infrastructure` runs once on startup
+  (after migrations and template seeding) and creates exactly one default SMTP record
+  pointing at a local Mailpit/MailHog-style capture server when no SMTP settings exist:
+  `Local Dev SMTP` / `localhost:1025` / `dev` / `noreply@mavrynt.local` / SSL off / enabled.
+- The seeder is idempotent: it skips when any SMTP setting already exists, so re-running
+  the host never produces duplicates.
+- Password is stored via `ISecretProtector.Protect` exactly like user-created records.
+- `ISmtpSettingsRepository` gained a single new method, `AnyAsync(ct)`, used by the seeder
+  for an efficient existence check.
+
+**Per-configuration test email**
+- A new `ISmtpTestEmailService` (Application abstraction) and `SmtpTestEmailService`
+  (Infrastructure implementation) send a fixed `Mavrynt SMTP test email` message
+  through a *specifically selected* SMTP configuration, regardless of whether it is
+  active. This is intentionally separate from `IEmailSender.SendAsync(...)`, which
+  continues to use only the active provider.
+- A new `SendSmtpTestEmailCommand` + handler validates the recipient, calls the test
+  service, and writes a `SmtpTestEmailSent` audit entry on success. SMTP password
+  is never exposed in DTOs, audit metadata, logs, or HTTP responses.
+- A new `Notifications.Email.RecipientInvalid` error code is introduced for the
+  validation failure path.
+- AdminApp exposes `POST /api/admin/notifications/smtp-settings/{id:guid}/test`
+  (AdminOnly), returning `204` on success, `404` when the configuration is not
+  found, and `400` for validation or send failures.
+- The Admin SMTP Settings page gains a per-row `Send test` button with an inline
+  recipient form, surfacing success and failure messages without exposing the
+  stored password.
+
+### Rationale
+
+- Local-first development: a freshly cloned and started AdminApp must be able to
+  inspect, render, and (with Mailpit/MailHog running locally) actually send emails
+  without manual SMTP setup.
+- Verifying SMTP settings before activation: administrators need a safe way to
+  validate a newly entered configuration without touching the active provider used
+  by the rest of the application.
+- Foundation for password reset by email: the upcoming reset flow requires a known-
+  working SMTP configuration; default seed + manual verification removes that
+  dependency from the reset feature itself.
+
+### Consequences
+
+- `ISmtpSettingsRepository` is one method larger; in-memory test doubles and EF
+  Core implementation are updated together.
+- A second SMTP-using path now exists (`SmtpTestEmailService` next to `SmtpEmailSender`).
+  Both go through the same `System.Net.Mail.SmtpClient` style chosen in ADR-023;
+  if/when that is replaced (MailKit, transactional email API), both must move
+  together.
+- The default seed assumes Mailpit/MailHog on `localhost:1025` for local dev.
+  Operators that already have an external SMTP provider configured experience no
+  change because the seeder is a no-op when any SMTP record exists.
+- This ADR explicitly does **not** add password reset tokens, the
+  forgot/reset-password endpoints, or public reset pages — those remain
+  the next step.
+
+---
+
+## ADR-025 — Pipeline-owned commit: `ITransactionalRequest` + multi-`IUnitOfWork` behavior
+
+**Status:** Accepted  
+**Date:** 2026-05-04
+
+### Decision
+
+The mediator pipeline now owns persistence commits for every mutating command,
+through three coordinated changes:
+
+1. **`TransactionBehavior` commits all registered units of work.**
+   The behavior resolves `IEnumerable<IUnitOfWork>` from DI (instead of a single
+   `IUnitOfWork`) and calls `SaveChangesAsync` on each on handler success. This
+   removes the previous DI collision where the last module's
+   `services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<{Module}DbContext>())`
+   silently overrode prior registrations in a multi-module host such as
+   `Mavrynt.AdminApp`. EF Core only emits SQL when there are pending changes, so
+   contexts unrelated to the current command are essentially free.
+
+2. **All mutating commands implement `ITransactionalRequest`.**
+   `Users`: `RegisterUserCommand`, `AssignUserRoleCommand`, `ChangeOwnPasswordCommand`,
+   `ChangeUserPasswordCommand`, `ChangeUserEmailCommand`.
+   `FeatureManagement`: `CreateFeatureFlagCommand`, `UpdateFeatureFlagCommand`,
+   `ToggleFeatureFlagCommand`.
+   `Notifications`: `CreateSmtpSettingsCommand`, `UpdateSmtpSettingsCommand`,
+   `EnableSmtpSettingsCommand`, `UpdateEmailTemplateCommand`.
+   `LoginUserCommand` and the SMTP test-email commands stay non-transactional —
+   they do not mutate persisted entities directly. Audit-only writes continue
+   to be flushed by the audit writer (see point 3).
+
+3. **Repository `AddAsync` methods no longer self-save.**
+   `UserRepository.AddAsync`, `FeatureFlagRepository.AddAsync`, and
+   `SmtpSettingsRepository.AddAsync` previously called `SaveChangesAsync`
+   internally. They now only stage the entity in the change tracker; commit
+   happens via `TransactionBehavior` at end of pipeline. This removes the bug
+   where Update/Enable/Toggle handlers (which never go through `AddAsync`)
+   silently failed to persist their mutations.
+
+`AuditDbContext` is intentionally **not** registered as `IUnitOfWork`, and
+`EfAuditService` / `EfAuditLogWriter` continue to call `SaveChangesAsync`
+themselves. Audit rows are append-only and self-flushing keeps them outside
+the per-command transaction. Hardening audit so that an orphan audit entry
+cannot precede a failed command commit is deferred (it would require
+suppressing the audit save, registering `AuditDbContext` as a unit of work,
+and accepting that one DbContext write may succeed while another fails — the
+cross-context atomicity problem already noted in `TransactionBehavior`).
+
+### Rationale
+
+Before this ADR, three persistence mechanisms could in principle commit a
+mutation, but none of them fired for a wide class of handlers:
+
+- `TransactionBehavior` only activates for commands marked
+  `ITransactionalRequest`, and **no command in any module had that marker**.
+- `RepositoryX.AddAsync` self-saved, which made Create commands work. Update,
+  Enable, and Toggle handlers — which mutate an already-tracked aggregate —
+  had no save path.
+- The audit writer saves its own context. In Users, that context is shared
+  with `User` entities, so Users mutations got flushed *by accident* alongside
+  the audit row. In FeatureManagement and Notifications, the audit writer
+  uses a separate `AuditDbContext`, so the entity mutation was never persisted.
+
+Concretely, before this ADR every PATCH on `/api/admin/notifications/smtp-settings/{id}`,
+`/api/admin/notifications/smtp-settings/{id}/enable`,
+`/api/admin/notifications/email/templates/{key}`,
+`/api/admin/feature-flags/{key}`, and `/api/admin/feature-flags/{key}/toggle`
+returned a successful response with the updated DTO computed from the in-memory
+entity — but the database row was unchanged. `ChangeUserPasswordCommand` and
+`ChangeUserEmailCommand` were broken too (no audit write means no accidental
+save). Existing integration tests asserted only against the HTTP response body,
+not against a fresh re-read, so the bug was not detected.
+
+A pipeline-owned commit is the correct architectural fix:
+- Handlers stay focused on domain mutation; they no longer need to know whether
+  to call `_context.SaveChangesAsync()`, `_unitOfWork.SaveChangesAsync()`, or
+  rely on a side-effect from another component.
+- Adding a new mutating command becomes a one-line decision (add
+  `ITransactionalRequest`), preventing the "I forgot to save" footgun.
+- The collision between per-module `IUnitOfWork` registrations is resolved
+  structurally rather than by ordering DI calls carefully.
+
+### Consequences
+
+- New mutating commands MUST implement `ITransactionalRequest` to be persisted.
+  This is enforced by code review, not by the type system; an integration test
+  per endpoint that re-fetches state via a fresh GET catches the omission.
+- Repository unit tests and seeders that previously relied on
+  `repository.AddAsync` to save now must call `SaveChangesAsync` (or
+  `IUnitOfWork.SaveChangesAsync`) themselves. Updated:
+  `UsersInfrastructureIntegrationTests`, `FeatureManagementInfrastructureTests`,
+  `DefaultSmtpSettingsSeeder`, `DefaultEmailTemplateSeeder` (already did).
+- Cross-context atomicity is still not guaranteed. If a handler mutates two
+  module DbContexts and one save fails, the other has already committed. This
+  is unchanged from the pre-ADR state and is documented in
+  `TransactionBehavior`. Introducing an explicit `TransactionScope` or EF
+  Core `IDbContextTransaction` across contexts requires its own ADR.
+- Validation of the audit-write ordering is unchanged: the audit row may still
+  be written before the entity mutation is flushed (the audit writer
+  self-saves mid-handler). The pipeline commit guarantees the mutation lands
+  *after* the audit row in the same successful execution; on handler failure
+  we now correctly skip the entity commit but still leave a stale audit row.
+  Tightening this is deferred.
+- Persistence regression integration tests added to
+  `AdminNotificationsIntegrationTests` and `AdminFeatureFlagIntegrationTests`
+  re-fetch via GET after every PATCH to assert disk state matches the response.
 
 ---
 

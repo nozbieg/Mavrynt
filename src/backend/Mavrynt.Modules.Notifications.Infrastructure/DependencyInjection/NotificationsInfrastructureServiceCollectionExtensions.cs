@@ -34,12 +34,15 @@ public static class NotificationsInfrastructureServiceCollectionExtensions
 
         services.AddScoped<ISmtpSettingsRepository, SmtpSettingsRepository>();
         services.AddScoped<IEmailTemplateRepository, EmailTemplateRepository>();
-        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<NotificationsDbContext>());
+        services.AddScoped<Mavrynt.BuildingBlocks.Application.Persistence.IUnitOfWork>(
+            sp => sp.GetRequiredService<NotificationsDbContext>());
 
         services.AddScoped<DefaultEmailTemplateSeeder>();
+        services.AddScoped<DefaultSmtpSettingsSeeder>();
         services.AddHostedService<NotificationsStartupService>();
 
         services.AddScoped<IEmailSender, SmtpEmailSender>();
+        services.AddScoped<ISmtpTestEmailService, SmtpTestEmailService>();
         services.AddSingleton<ISecretProtector, PassThroughSecretProtector>();
 
         services.TryAddSingleton<IDateTimeProvider,

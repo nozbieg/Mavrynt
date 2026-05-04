@@ -1,3 +1,4 @@
+using Mavrynt.BuildingBlocks.Application.Behaviors;
 using Mavrynt.BuildingBlocks.Application.Messaging;
 
 namespace Mavrynt.Modules.Users.Application.Commands;
@@ -9,4 +10,4 @@ namespace Mavrynt.Modules.Users.Application.Commands;
 public sealed record ChangeUserPasswordCommand(
     Guid UserId,
     string NewPassword
-) : ICommand;
+) : ICommand, ITransactionalRequest;

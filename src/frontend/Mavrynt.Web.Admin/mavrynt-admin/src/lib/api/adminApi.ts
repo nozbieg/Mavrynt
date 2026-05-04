@@ -183,4 +183,10 @@ export const adminApi = {
       `/admin/notifications/smtp-settings/${id}/enable`,
       { method: "PATCH" },
     ),
+
+  sendSmtpTestEmail: (id: string, recipientEmail: string): Promise<void> =>
+    apiFetch<void>(`/admin/notifications/smtp-settings/${id}/test`, {
+      method: "POST",
+      body: JSON.stringify({ recipientEmail }),
+    }),
 };

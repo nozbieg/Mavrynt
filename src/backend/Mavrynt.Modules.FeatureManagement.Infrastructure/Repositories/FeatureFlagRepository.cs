@@ -30,6 +30,5 @@ internal sealed class FeatureFlagRepository : IFeatureFlagRepository
     public async Task AddAsync(FeatureFlag featureFlag, CancellationToken cancellationToken = default)
     {
         await _context.FeatureFlags.AddAsync(featureFlag, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
     }
 }

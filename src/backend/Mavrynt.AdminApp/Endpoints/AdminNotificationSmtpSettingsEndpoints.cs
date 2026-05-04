@@ -32,6 +32,10 @@ public static class AdminNotificationSmtpSettingsEndpoints
             .RequireAuthorization("AdminOnly")
             .WithName("EnableSmtpSettings");
 
+        group.MapPost("/{id:guid}/test", SendTestAsync)
+            .RequireAuthorization("AdminOnly")
+            .WithName("SendSmtpTestEmail");
+
         return app;
     }
 
@@ -57,6 +61,8 @@ public static class AdminNotificationSmtpSettingsEndpoints
         string SenderEmail,
         string SenderName,
         bool UseSsl);
+
+    private sealed record SendTestEmailRequest(string RecipientEmail);
 
     // ── Handlers ──────────────────────────────────────────────────────────────
 
@@ -119,6 +125,19 @@ public static class AdminNotificationSmtpSettingsEndpoints
     {
         var result = await mediator.SendAsync(new EnableSmtpSettingsCommand(id), ct);
         return result.IsFailure ? MapToHttpError(result.Error) : Results.Ok(result.Value);
+    }
+
+    private static async Task<IResult> SendTestAsync(
+        Guid id,
+        SendTestEmailRequest request,
+        IMediator mediator,
+        CancellationToken ct)
+    {
+        var result = await mediator.SendAsync(
+            new SendSmtpTestEmailCommand(id, request.RecipientEmail),
+            ct);
+
+        return result.IsFailure ? MapToHttpError(result.Error) : Results.NoContent();
     }
 
     // ── Error mapping ──────────────────────────────────────────────────────────

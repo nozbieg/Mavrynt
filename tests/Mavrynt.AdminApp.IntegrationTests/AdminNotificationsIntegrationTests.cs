@@ -210,6 +210,67 @@ public sealed class AdminNotificationsIntegrationTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.OK, updateResponse.StatusCode);
         var updated = await updateResponse.Content.ReadFromJsonAsync<JsonElement>();
         Assert.Equal("NewProvider", updated.GetProperty("providerName").GetString());
+
+        // Persistence regression: re-fetch and confirm the update was committed to the database.
+        var refetchResponse = await _adminClient.GetAsync($"/api/admin/notifications/smtp-settings/{id}");
+        var refetched = await refetchResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("NewProvider", refetched.GetProperty("providerName").GetString());
+        Assert.Equal("smtp.new.com", refetched.GetProperty("host").GetString());
+        Assert.Equal(587, refetched.GetProperty("port").GetInt32());
+        Assert.Equal("newuser", refetched.GetProperty("username").GetString());
+        Assert.True(refetched.GetProperty("useSsl").GetBoolean());
+    }
+
+    [Fact]
+    public async Task SendTest_Without_Token_Returns_401()
+    {
+        var response = await _anonClient.PostAsJsonAsync(
+            $"/api/admin/notifications/smtp-settings/{Guid.NewGuid()}/test",
+            new { recipientEmail = "admin@example.com" });
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task SendTest_With_User_Token_Returns_403()
+    {
+        var response = await _userClient.PostAsJsonAsync(
+            $"/api/admin/notifications/smtp-settings/{Guid.NewGuid()}/test",
+            new { recipientEmail = "admin@example.com" });
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task SendTest_Returns_404_For_Unknown_Id()
+    {
+        var response = await _adminClient.PostAsJsonAsync(
+            $"/api/admin/notifications/smtp-settings/{Guid.NewGuid()}/test",
+            new { recipientEmail = "admin@example.com" });
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task SendTest_Returns_400_For_Invalid_Recipient()
+    {
+        var createResponse = await _adminClient.PostAsJsonAsync("/api/admin/notifications/smtp-settings/", new
+        {
+            providerName = "TestRecipientProvider",
+            host = "smtp.test.com",
+            port = 587,
+            username = "user",
+            password = "pass",
+            senderEmail = "test@test.com",
+            senderName = "Test",
+            useSsl = true,
+            isEnabled = false
+        });
+        var created = await createResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var id = created.GetProperty("id").GetString();
+
+        var response = await _adminClient.PostAsJsonAsync(
+            $"/api/admin/notifications/smtp-settings/{id}/test",
+            new { recipientEmail = "not-an-email" });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [Fact]
@@ -237,6 +298,11 @@ public sealed class AdminNotificationsIntegrationTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.OK, enableResponse.StatusCode);
         var enabled = await enableResponse.Content.ReadFromJsonAsync<JsonElement>();
         Assert.True(enabled.GetProperty("isEnabled").GetBoolean());
+
+        // Persistence regression: re-fetch and confirm the enable persisted.
+        var refetchResponse = await _adminClient.GetAsync($"/api/admin/notifications/smtp-settings/{id}");
+        var refetched = await refetchResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.True(refetched.GetProperty("isEnabled").GetBoolean());
     }
 
     // ── Authorization – email templates ───────────────────────────────────────
@@ -298,6 +364,12 @@ public sealed class AdminNotificationsIntegrationTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.OK, updateResponse.StatusCode);
         var body = await updateResponse.Content.ReadFromJsonAsync<JsonElement>();
         Assert.Equal("Reset your password", body.GetProperty("subjectTemplate").GetString());
+
+        // Persistence regression: re-fetch and confirm the update was committed.
+        var refetchResponse = await _adminClient.GetAsync(
+            "/api/admin/notifications/email/templates/auth.password_reset");
+        var refetched = await refetchResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("Reset your password", refetched.GetProperty("subjectTemplate").GetString());
     }
 
     [Fact]

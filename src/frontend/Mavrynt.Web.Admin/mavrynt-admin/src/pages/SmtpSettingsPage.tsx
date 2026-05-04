@@ -57,6 +57,26 @@ function apiErrorMessage(err: unknown): string {
   return "An unexpected error occurred.";
 }
 
+function testEmailErrorMessage(err: unknown): string {
+  if (err instanceof ApiError) {
+    if (err.status === 404) return "SMTP configuration not found.";
+    const code =
+      err.body && typeof err.body === "object" && "code" in err.body
+        ? String((err.body as { code: unknown }).code)
+        : null;
+    if (err.status === 400 && code === "Notifications.Email.RecipientInvalid") {
+      return "Invalid recipient email.";
+    }
+    if (err.status === 400 && code === "Notifications.Email.SendFailed") {
+      return "Failed to send test email. Check SMTP settings.";
+    }
+    if (err.status === 400) return "Failed to send test email. Check SMTP settings.";
+    if (err.status === 0) return "Network error. Check your connection.";
+    return `Request failed (HTTP ${String(err.status)}).`;
+  }
+  return "An unexpected error occurred.";
+}
+
 const emptyForm: SmtpFormData = {
   providerName: "",
   host: "",
@@ -115,6 +135,12 @@ const SmtpSettingsPage = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [enablingId, setEnablingId] = useState<string | null>(null);
   const [enableError, setEnableError] = useState<string | null>(null);
+  const [testFormId, setTestFormId] = useState<string | null>(null);
+  const [testRecipient, setTestRecipient] = useState("");
+  const [testFieldError, setTestFieldError] = useState<string | null>(null);
+  const [testRowError, setTestRowError] = useState<string | null>(null);
+  const [testRowErrorId, setTestRowErrorId] = useState<string | null>(null);
+  const [sendingTestId, setSendingTestId] = useState<string | null>(null);
 
   useEffect(() => {
     void load();
@@ -242,6 +268,51 @@ const SmtpSettingsPage = () => {
       setSubmitError(apiErrorMessage(err));
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  function openTestForm(id: string) {
+    setTestFormId(id);
+    setTestRecipient("");
+    setTestFieldError(null);
+    setTestRowError(null);
+    setTestRowErrorId(null);
+    setSuccessMessage(null);
+  }
+
+  function closeTestForm() {
+    setTestFormId(null);
+    setTestRecipient("");
+    setTestFieldError(null);
+  }
+
+  async function handleSendTest(id: string, e: FormEvent) {
+    e.preventDefault();
+    if (sendingTestId === id) return;
+
+    const recipient = testRecipient.trim();
+    if (!recipient) {
+      setTestFieldError("Recipient email is required.");
+      return;
+    }
+    if (!EMAIL_RE.test(recipient)) {
+      setTestFieldError("Enter a valid email address.");
+      return;
+    }
+    setTestFieldError(null);
+    setTestRowError(null);
+    setTestRowErrorId(null);
+    setSuccessMessage(null);
+    setSendingTestId(id);
+    try {
+      await adminApi.sendSmtpTestEmail(id, recipient);
+      setSuccessMessage("Test email sent.");
+      closeTestForm();
+    } catch (err) {
+      setTestRowError(testEmailErrorMessage(err));
+      setTestRowErrorId(id);
+    } finally {
+      setSendingTestId(null);
     }
   }
 
@@ -513,49 +584,141 @@ const SmtpSettingsPage = () => {
             {settings.map((s) => (
               <li
                 key={s.id}
-                className="flex flex-wrap items-start justify-between gap-4 py-4 first:pt-0 last:pb-0"
+                className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0"
               >
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-fg">
-                    {s.providerName}
-                  </p>
-                  <p className="text-xs text-fg-muted">
-                    {s.host}:{s.port} · {s.username} ·{" "}
-                    {s.useSsl ? "SSL" : "Plain"}
-                  </p>
-                  <p className="text-xs text-fg-muted">
-                    From: {s.senderName} &lt;{s.senderEmail}&gt;
-                  </p>
-                </div>
-                <div className="flex shrink-0 items-center gap-2">
-                  <span
-                    className={cn(
-                      "text-xs font-medium",
-                      s.isEnabled ? "text-green-600" : "text-fg-muted",
-                    )}
-                  >
-                    {s.isEnabled ? "Active" : "Inactive"}
-                  </span>
-                  {!s.isEnabled && (
-                    <button
-                      type="button"
-                      disabled={enablingId === s.id}
-                      onClick={() => void handleEnable(s.id)}
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-fg">
+                      {s.providerName}
+                    </p>
+                    <p className="text-xs text-fg-muted">
+                      {s.host}:{s.port} · {s.username} ·{" "}
+                      {s.useSsl ? "SSL" : "Plain"}
+                    </p>
+                    <p className="text-xs text-fg-muted">
+                      From: {s.senderName} &lt;{s.senderEmail}&gt;
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <span
                       className={cn(
-                        buttonStyles({ variant: "secondary", size: "sm" }),
+                        "text-xs font-medium",
+                        s.isEnabled ? "text-green-600" : "text-fg-muted",
                       )}
                     >
-                      {enablingId === s.id ? "…" : "Activate"}
+                      {s.isEnabled ? "Active" : "Inactive"}
+                    </span>
+                    {!s.isEnabled && (
+                      <button
+                        type="button"
+                        disabled={enablingId === s.id}
+                        onClick={() => void handleEnable(s.id)}
+                        className={cn(
+                          buttonStyles({ variant: "secondary", size: "sm" }),
+                        )}
+                      >
+                        {enablingId === s.id ? "…" : "Activate"}
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        testFormId === s.id ? closeTestForm() : openTestForm(s.id)
+                      }
+                      className={cn(buttonStyles({ variant: "ghost", size: "sm" }))}
+                      aria-expanded={testFormId === s.id}
+                      aria-controls={`smtp-test-form-${s.id}`}
+                    >
+                      {testFormId === s.id ? "Close" : "Send test"}
                     </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => openEdit(s)}
-                    className={cn(buttonStyles({ variant: "ghost", size: "sm" }))}
-                  >
-                    Edit
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => openEdit(s)}
+                      className={cn(buttonStyles({ variant: "ghost", size: "sm" }))}
+                    >
+                      Edit
+                    </button>
+                  </div>
                 </div>
+
+                {testFormId === s.id && (
+                  <form
+                    id={`smtp-test-form-${s.id}`}
+                    onSubmit={(e) => void handleSendTest(s.id, e)}
+                    className="flex flex-wrap items-end gap-2 rounded-md border border-border bg-bg-subtle/40 p-3"
+                    noValidate
+                    aria-label={`Send test email through ${s.providerName}`}
+                  >
+                    <div className="flex flex-1 min-w-[14rem] flex-col gap-1">
+                      <label
+                        htmlFor={`smtp-test-recipient-${s.id}`}
+                        className={labelClass}
+                      >
+                        Recipient email
+                      </label>
+                      <input
+                        id={`smtp-test-recipient-${s.id}`}
+                        type="email"
+                        value={testRecipient}
+                        onChange={(e) => {
+                          setTestRecipient(e.target.value);
+                          if (testFieldError) setTestFieldError(null);
+                        }}
+                        className={
+                          testFieldError ? fieldErrorClass : fieldClass
+                        }
+                        placeholder="admin@example.com"
+                        autoComplete="email"
+                        aria-required="true"
+                        aria-invalid={testFieldError ? "true" : undefined}
+                        aria-describedby={
+                          testFieldError
+                            ? `smtp-test-recipient-${s.id}-error`
+                            : undefined
+                        }
+                      />
+                      {testFieldError && (
+                        <p
+                          id={`smtp-test-recipient-${s.id}-error`}
+                          role="alert"
+                          className="text-xs text-red-600 dark:text-red-400"
+                        >
+                          {testFieldError}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        type="submit"
+                        disabled={sendingTestId === s.id}
+                        className={cn(
+                          buttonStyles({ variant: "primary", size: "sm" }),
+                        )}
+                      >
+                        {sendingTestId === s.id ? "Sending…" : "Send"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={closeTestForm}
+                        className={cn(
+                          buttonStyles({ variant: "ghost", size: "sm" }),
+                        )}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                {testRowErrorId === s.id && testRowError && (
+                  <div
+                    role="alert"
+                    aria-live="polite"
+                    className="rounded-md border border-red-500/30 bg-red-500/10 p-2 text-xs text-fg"
+                  >
+                    {testRowError}
+                  </div>
+                )}
               </li>
             ))}
           </ul>

@@ -1,3 +1,4 @@
+using Mavrynt.BuildingBlocks.Application.Behaviors;
 using Mavrynt.BuildingBlocks.Application.Messaging;
 using Mavrynt.Modules.Users.Application.DTOs;
 
@@ -11,4 +12,4 @@ public sealed record RegisterUserCommand(
     string Email,
     string Password,
     string? DisplayName
-) : ICommand<UserDto>;
+) : ICommand<UserDto>, ITransactionalRequest;

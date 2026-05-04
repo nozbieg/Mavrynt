@@ -1,4 +1,4 @@
-using Mavrynt.BuildingBlocks.Infrastructure.Persistence;
+using Mavrynt.BuildingBlocks.Application.Persistence;
 using Mavrynt.Modules.Users.Domain.Entities;
 using Mavrynt.Modules.Users.Domain.Repositories;
 using Mavrynt.Modules.Users.Domain.ValueObjects;
@@ -30,8 +30,10 @@ public sealed class UsersInfrastructureIntegrationTests(PostgreSqlContainerFixtu
     {
         await using var scope = CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
+        var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
         var user = CreateUser("john@example.com");
         await repository.AddAsync(user);
+        await unitOfWork.SaveChangesAsync();
 
         var byId = await repository.GetByIdAsync(user.Id);
         var byEmail = await repository.GetByEmailAsync(user.Email);

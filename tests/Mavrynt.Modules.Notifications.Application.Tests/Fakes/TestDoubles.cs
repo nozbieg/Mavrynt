@@ -48,6 +48,21 @@ internal sealed class FakeEmailSender : IEmailSender
     }
 }
 
+internal sealed class FakeSmtpTestEmailService : ISmtpTestEmailService
+{
+    public List<(Guid SmtpSettingsId, string RecipientEmail)> Calls { get; } = [];
+    public Result NextResult { get; set; } = Result.Success();
+
+    public Task<Result> SendTestEmailAsync(
+        Guid smtpSettingsId,
+        string recipientEmail,
+        CancellationToken cancellationToken = default)
+    {
+        Calls.Add((smtpSettingsId, recipientEmail));
+        return Task.FromResult(NextResult);
+    }
+}
+
 internal sealed class InMemorySmtpSettingsRepository : ISmtpSettingsRepository
 {
     public List<SmtpSettings> Settings { get; } = [];
@@ -62,6 +77,9 @@ internal sealed class InMemorySmtpSettingsRepository : ISmtpSettingsRepository
 
     public Task<IReadOnlyList<SmtpSettings>> ListAsync(CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<SmtpSettings>>(Settings.AsReadOnly());
+
+    public Task<bool> AnyAsync(CancellationToken cancellationToken = default)
+        => Task.FromResult(Settings.Count > 0);
 
     public Task AddAsync(SmtpSettings settings, CancellationToken cancellationToken = default)
     {

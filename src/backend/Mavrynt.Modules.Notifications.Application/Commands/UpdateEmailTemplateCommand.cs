@@ -1,3 +1,4 @@
+using Mavrynt.BuildingBlocks.Application.Behaviors;
 using Mavrynt.BuildingBlocks.Application.Messaging;
 using Mavrynt.Modules.Notifications.Application.DTOs;
 
@@ -11,4 +12,4 @@ public sealed record UpdateEmailTemplateCommand(
     string? HtmlBodyTemplate,
     string? TextBodyTemplate,
     bool? IsEnabled
-) : ICommand<EmailTemplateDto>;
+) : ICommand<EmailTemplateDto>, ITransactionalRequest;

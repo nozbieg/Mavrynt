@@ -3,14 +3,23 @@ using Mavrynt.BuildingBlocks.Application.Persistence;
 namespace Mavrynt.BuildingBlocks.Infrastructure.Persistence;
 
 /// <summary>
-/// Infrastructure-layer unit of work. Extends the Application-layer
-/// <see cref="Application.Persistence.IUnitOfWork"/> so that concrete
-/// implementations (e.g. EF Core DbContext) satisfy the contract expected by
-/// <see cref="Mavrynt.BuildingBlocks.Application.Behaviors.TransactionBehavior{TRequest,TResponse}"/>.
+/// Marker interface for Infrastructure-layer unit-of-work implementations
+/// (e.g. EF Core <c>DbContext</c>). Extends the canonical Application-layer
+/// <see cref="Application.Persistence.IUnitOfWork"/> contract.
 ///
-/// Register concrete implementations against both interfaces in Infrastructure DI:
-///   services.AddScoped&lt;IUnitOfWork, YourDbContext&gt;();
-/// (the Application IUnitOfWork is satisfied transitively via this interface)
+/// IMPORTANT registration rule: the mediator pipeline
+/// (<see cref="Mavrynt.BuildingBlocks.Application.Behaviors.TransactionBehavior{TRequest,TResponse}"/>)
+/// resolves <see cref="Application.Persistence.IUnitOfWork"/>. DI does not
+/// auto-resolve a base interface from a derived registration, so module
+/// Infrastructure DI must register against the Application-layer type:
+/// <code>
+/// services.AddScoped&lt;Mavrynt.BuildingBlocks.Application.Persistence.IUnitOfWork&gt;(
+///     sp =&gt; sp.GetRequiredService&lt;YourDbContext&gt;());
+/// </code>
+/// In a multi-module host, every module registers its own scoped DbContext as
+/// <see cref="Application.Persistence.IUnitOfWork"/>; <c>TransactionBehavior</c>
+/// resolves <c>IEnumerable&lt;IUnitOfWork&gt;</c> and commits each on handler
+/// success (ADR-025).
 /// </summary>
 public interface IUnitOfWork : Application.Persistence.IUnitOfWork
 {

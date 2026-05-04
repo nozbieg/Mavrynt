@@ -1,3 +1,4 @@
+using Mavrynt.BuildingBlocks.Application.Behaviors;
 using Mavrynt.BuildingBlocks.Application.Messaging;
 using Mavrynt.Modules.FeatureManagement.Application.DTOs;
 
@@ -8,4 +9,4 @@ public sealed record CreateFeatureFlagCommand(
     string Name,
     string? Description,
     bool IsEnabled
-) : ICommand<FeatureFlagDto>;
+) : ICommand<FeatureFlagDto>, ITransactionalRequest;

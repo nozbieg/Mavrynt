@@ -8,6 +8,7 @@ public interface ISmtpSettingsRepository
     Task<SmtpSettings?> GetByIdAsync(SmtpSettingsId id, CancellationToken cancellationToken = default);
     Task<SmtpSettings?> GetActiveAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<SmtpSettings>> ListAsync(CancellationToken cancellationToken = default);
+    Task<bool> AnyAsync(CancellationToken cancellationToken = default);
     Task AddAsync(SmtpSettings settings, CancellationToken cancellationToken = default);
     Task DisableAllAsync(CancellationToken cancellationToken = default);
 }

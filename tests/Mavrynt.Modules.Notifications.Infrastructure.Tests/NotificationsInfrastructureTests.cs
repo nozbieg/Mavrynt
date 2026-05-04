@@ -1,3 +1,4 @@
+using Mavrynt.Modules.Notifications.Application.Abstractions;
 using Mavrynt.Modules.Notifications.Domain.Entities;
 using Mavrynt.Modules.Notifications.Domain.Repositories;
 using Mavrynt.Modules.Notifications.Domain.ValueObjects;
@@ -222,6 +223,90 @@ public sealed class NotificationsInfrastructureTests(PostgreSqlContainerFixture 
         var repo3 = scope3.ServiceProvider.GetRequiredService<IEmailTemplateRepository>();
         var verified = await repo3.GetByKeyAsync(EmailTemplateKey.Create(EmailTemplateKey.LoginConfirmation).Value);
         Assert.Equal("Admin Modified Name", verified!.DisplayName);
+    }
+
+    // ── Default SMTP Seeder ────────────────────────────────────────────────────
+
+    [Fact]
+    public async Task DefaultSmtpSeeder_Should_Create_Default_Configuration_When_None_Exist()
+    {
+        await using var scope = CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<ISmtpSettingsRepository>();
+        var context = scope.ServiceProvider.GetRequiredService<NotificationsDbContext>();
+        var protector = scope.ServiceProvider.GetRequiredService<ISecretProtector>();
+        var seeder = new DefaultSmtpSettingsSeeder(
+            repository, context, protector,
+            NullLogger<DefaultSmtpSettingsSeeder>.Instance);
+
+        await seeder.SeedAsync();
+
+        var all = await repository.ListAsync();
+        Assert.Single(all);
+        var seeded = all[0];
+        Assert.Equal("Local Dev SMTP", seeded.ProviderName);
+        Assert.Equal("localhost", seeded.Host);
+        Assert.Equal(1025, seeded.Port);
+        Assert.Equal("dev", seeded.Username);
+        Assert.Equal("noreply@mavrynt.local", seeded.SenderEmail);
+        Assert.Equal("Mavrynt", seeded.SenderName);
+        Assert.False(seeded.UseSsl);
+        Assert.True(seeded.IsEnabled);
+    }
+
+    [Fact]
+    public async Task DefaultSmtpSeeder_Should_Be_Idempotent()
+    {
+        await using var scope = CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<ISmtpSettingsRepository>();
+        var context = scope.ServiceProvider.GetRequiredService<NotificationsDbContext>();
+        var protector = scope.ServiceProvider.GetRequiredService<ISecretProtector>();
+        var seeder = new DefaultSmtpSettingsSeeder(
+            repository, context, protector,
+            NullLogger<DefaultSmtpSettingsSeeder>.Instance);
+
+        await seeder.SeedAsync();
+        await seeder.SeedAsync();
+        await seeder.SeedAsync();
+
+        var all = await repository.ListAsync();
+        Assert.Single(all);
+    }
+
+    [Fact]
+    public async Task DefaultSmtpSeeder_Should_Skip_When_Configuration_Already_Exists()
+    {
+        await using var scope1 = CreateScope();
+        var repository1 = scope1.ServiceProvider.GetRequiredService<ISmtpSettingsRepository>();
+        var context1 = scope1.ServiceProvider.GetRequiredService<NotificationsDbContext>();
+
+        var existing = SmtpSettings.Create(
+            SmtpSettingsId.New().Value,
+            "Existing Provider",
+            "smtp.existing.com",
+            587,
+            "existing-user",
+            "existing-protected-password",
+            "existing@example.com",
+            "Existing",
+            useSsl: true,
+            isEnabled: false,
+            createdAt: DateTimeOffset.UtcNow).Value;
+        await repository1.AddAsync(existing);
+        await context1.SaveChangesAsync();
+
+        await using var scope2 = CreateScope();
+        var repository2 = scope2.ServiceProvider.GetRequiredService<ISmtpSettingsRepository>();
+        var context2 = scope2.ServiceProvider.GetRequiredService<NotificationsDbContext>();
+        var protector2 = scope2.ServiceProvider.GetRequiredService<ISecretProtector>();
+        var seeder = new DefaultSmtpSettingsSeeder(
+            repository2, context2, protector2,
+            NullLogger<DefaultSmtpSettingsSeeder>.Instance);
+
+        await seeder.SeedAsync();
+
+        var all = await repository2.ListAsync();
+        Assert.Single(all);
+        Assert.Equal("Existing Provider", all[0].ProviderName);
     }
 
     private static EmailTemplate CreateTemplate(string keyStr) =>

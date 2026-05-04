@@ -1,3 +1,4 @@
+using Mavrynt.BuildingBlocks.Application.Behaviors;
 using Mavrynt.BuildingBlocks.Application.Messaging;
 using Mavrynt.Modules.Notifications.Application.DTOs;
 
@@ -13,4 +14,4 @@ public sealed record UpdateSmtpSettingsCommand(
     string SenderEmail,
     string SenderName,
     bool UseSsl
-) : ICommand<SmtpSettingsDto>;
+) : ICommand<SmtpSettingsDto>, ITransactionalRequest;

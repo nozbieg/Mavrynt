@@ -27,9 +27,6 @@ internal sealed class UserRepository : IUserRepository
     public async Task AddAsync(User user, CancellationToken cancellationToken = default)
     {
         await _context.Users.AddAsync(user, cancellationToken);
-        // TODO: migrate to explicit IUnitOfWork.SaveChangesAsync when multi-aggregate
-        //       transactions are required. For now each add is its own transaction.
-        await _context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyList<User>> GetAllAsync(CancellationToken cancellationToken = default)

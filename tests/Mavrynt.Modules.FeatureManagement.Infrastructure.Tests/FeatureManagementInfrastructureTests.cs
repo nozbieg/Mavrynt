@@ -30,8 +30,10 @@ public sealed class FeatureManagementInfrastructureTests(PostgreSqlContainerFixt
     {
         await using var scope = CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IFeatureFlagRepository>();
+        var context = scope.ServiceProvider.GetRequiredService<FeatureManagementDbContext>();
         var flag = CreateFlag("infra.test-flag");
         await repository.AddAsync(flag);
+        await context.SaveChangesAsync();
 
         var found = await repository.GetByKeyAsync(FeatureFlagKey.Create("infra.test-flag").Value);
 
@@ -65,7 +67,9 @@ public sealed class FeatureManagementInfrastructureTests(PostgreSqlContainerFixt
     {
         await using var scope1 = CreateScope();
         var repository1 = scope1.ServiceProvider.GetRequiredService<IFeatureFlagRepository>();
+        var context1 = scope1.ServiceProvider.GetRequiredService<FeatureManagementDbContext>();
         await repository1.AddAsync(CreateFlag("update.test"));
+        await context1.SaveChangesAsync();
 
         await using var scope2 = CreateScope();
         var repository2 = scope2.ServiceProvider.GetRequiredService<IFeatureFlagRepository>();
@@ -85,8 +89,10 @@ public sealed class FeatureManagementInfrastructureTests(PostgreSqlContainerFixt
     {
         await using var scope = CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IFeatureFlagRepository>();
+        var context = scope.ServiceProvider.GetRequiredService<FeatureManagementDbContext>();
         await repository.AddAsync(CreateFlag("list.flag-a"));
         await repository.AddAsync(CreateFlag("list.flag-b"));
+        await context.SaveChangesAsync();
 
         var all = await repository.ListAsync();
 

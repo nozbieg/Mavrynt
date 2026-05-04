@@ -97,6 +97,13 @@ These are not blocking Phase 1 but are explicit known gaps. All are scoped narro
 - **`Modules.Audit` test project.** Add `tests/Mavrynt.Modules.Audit.Domain.Tests`, `…Application.Tests`, `…Infrastructure.Tests` mirroring the FeatureManagement layout. Today, only `Mavrynt.Architecture.Tests` covers Audit.
 - **List-users admin endpoint.** Add a query handler in `Modules.Users.Application` and an endpoint in `AdminApp` so the admin SPA Users page can render real data. The admin SPA already has the page wiring.
 - **Propagate audit actor.** Inject `ICurrentUserContext` into the writer side and pass `actorUserId` into `IAuditLogWriter.WriteAsync(...)`. Today all admin audit entries are written with `actorUserId: null` (ADR-022 deferred this).
+- **Password reset by email (next).** SMTP foundation is now ready (default local SMTP seed + per-configuration test send, ADR-024). Remaining work for password reset:
+  - Domain: a `PasswordResetToken` value object/aggregate with hashed token and expiration.
+  - Application: `RequestPasswordResetCommand` (issues token, sends `auth.password_reset` email via `IEmailNotificationService`), `ResetPasswordCommand` (verifies hash + expiration, replaces hash, invalidates token).
+  - Infrastructure: persistence for tokens, single-use enforcement.
+  - `Mavrynt.Api`: public endpoints `POST /api/auth/forgot-password` and `POST /api/auth/reset-password`. Forgot-password must respond identically for unknown and known emails to avoid account enumeration.
+  - Public frontend pages: `/forgot-password` and `/reset-password?token=...` in `mavrynt-web`.
+  - Tests: domain unit tests for token expiration/uniqueness, integration tests for the two endpoints.
 
 ---
 

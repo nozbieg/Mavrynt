@@ -21,10 +21,12 @@ internal sealed class SmtpSettingsRepository : ISmtpSettingsRepository
     public async Task<IReadOnlyList<SmtpSettings>> ListAsync(CancellationToken cancellationToken = default)
         => await _context.SmtpSettings.OrderByDescending(s => s.CreatedAt).ToListAsync(cancellationToken);
 
+    public Task<bool> AnyAsync(CancellationToken cancellationToken = default)
+        => _context.SmtpSettings.AnyAsync(cancellationToken);
+
     public async Task AddAsync(SmtpSettings settings, CancellationToken cancellationToken = default)
     {
         await _context.SmtpSettings.AddAsync(settings, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task DisableAllAsync(CancellationToken cancellationToken = default)

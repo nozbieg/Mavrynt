@@ -70,6 +70,9 @@ public static class NotificationsErrors
     public static readonly Error EmailSendFailed =
         new("Notifications.Email.SendFailed", "Failed to send the email. See inner details for more information.");
 
+    public static readonly Error EmailRecipientInvalid =
+        new("Notifications.Email.RecipientInvalid", "Recipient email is not a valid address.");
+
     public static Error EmailUnknownPlaceholder(string placeholders) =>
         new("Notifications.Email.UnknownPlaceholder",
             $"The email template contains unknown placeholders: {placeholders}.");

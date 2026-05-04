@@ -52,6 +52,8 @@ shipped; remaining items are CI/CD and staging.
 - [x] `NotificationsStartupService` for migration + idempotent template seeding.
 - [x] AdminApp endpoints for SMTP settings and templates (`AdminOnly`).
 - [x] `ISecretProtector` extension point (default = dev-only `PassThroughSecretProtector`).
+- [x] Default local SMTP seed (`localhost:1025`) on startup when no SMTP record exists (ADR-024).
+- [x] `ISmtpTestEmailService` + `POST /api/admin/notifications/smtp-settings/{id}/test` for per-configuration test emails (ADR-024).
 
 ### Backend tests
 - [x] `tests/backend/Mavrynt.Architecture.Tests` — modular dependency rules.

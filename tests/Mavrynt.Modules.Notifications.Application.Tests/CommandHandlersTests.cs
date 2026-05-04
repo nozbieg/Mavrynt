@@ -1,3 +1,4 @@
+using Mavrynt.BuildingBlocks.Domain.Results;
 using Mavrynt.Modules.Notifications.Application.Commands;
 using Mavrynt.Modules.Notifications.Application.DTOs;
 using Mavrynt.Modules.Notifications.Application.Tests.Fakes;
@@ -154,6 +155,86 @@ public sealed class CommandHandlersTests
 
         Assert.True(result.IsFailure);
         Assert.Same(NotificationsErrors.SmtpSettingsNotFound, result.Error);
+    }
+
+    // ── SendSmtpTestEmail ──────────────────────────────────────────────────────
+
+    [Fact]
+    public async Task SendSmtpTestEmail_Should_Reject_Empty_Recipient()
+    {
+        var service = new FakeSmtpTestEmailService();
+        var audit = new FakeAuditLogWriter();
+        var handler = new SendSmtpTestEmailCommandHandler(service, audit);
+
+        var result = await handler.HandleAsync(new SendSmtpTestEmailCommand(Guid.NewGuid(), ""));
+
+        Assert.True(result.IsFailure);
+        Assert.Same(NotificationsErrors.EmailRecipientInvalid, result.Error);
+        Assert.Empty(service.Calls);
+        Assert.Empty(audit.Entries);
+    }
+
+    [Fact]
+    public async Task SendSmtpTestEmail_Should_Reject_Recipient_Without_At()
+    {
+        var service = new FakeSmtpTestEmailService();
+        var handler = new SendSmtpTestEmailCommandHandler(service, new FakeAuditLogWriter());
+
+        var result = await handler.HandleAsync(new SendSmtpTestEmailCommand(Guid.NewGuid(), "not-an-email"));
+
+        Assert.True(result.IsFailure);
+        Assert.Same(NotificationsErrors.EmailRecipientInvalid, result.Error);
+        Assert.Empty(service.Calls);
+    }
+
+    [Fact]
+    public async Task SendSmtpTestEmail_Should_Reject_Recipient_Without_Domain_Dot()
+    {
+        var service = new FakeSmtpTestEmailService();
+        var handler = new SendSmtpTestEmailCommandHandler(service, new FakeAuditLogWriter());
+
+        var result = await handler.HandleAsync(new SendSmtpTestEmailCommand(Guid.NewGuid(), "admin@localhost"));
+
+        Assert.True(result.IsFailure);
+        Assert.Same(NotificationsErrors.EmailRecipientInvalid, result.Error);
+    }
+
+    [Fact]
+    public async Task SendSmtpTestEmail_Should_Call_Service_And_Audit_On_Success()
+    {
+        var service = new FakeSmtpTestEmailService();
+        var audit = new FakeAuditLogWriter();
+        var handler = new SendSmtpTestEmailCommandHandler(service, audit);
+        var smtpId = Guid.NewGuid();
+
+        var result = await handler.HandleAsync(new SendSmtpTestEmailCommand(smtpId, "admin@example.com"));
+
+        Assert.True(result.IsSuccess);
+        Assert.Single(service.Calls);
+        Assert.Equal(smtpId, service.Calls[0].SmtpSettingsId);
+        Assert.Equal("admin@example.com", service.Calls[0].RecipientEmail);
+        Assert.Single(audit.Entries, e =>
+            e.Action == "SmtpTestEmailSent" &&
+            e.ResourceType == "SmtpSettings" &&
+            e.ResourceId == smtpId.ToString());
+    }
+
+    [Fact]
+    public async Task SendSmtpTestEmail_Should_Not_Audit_When_Service_Fails()
+    {
+        var service = new FakeSmtpTestEmailService
+        {
+            NextResult = Result.Failure(NotificationsErrors.SmtpSettingsNotFound),
+        };
+        var audit = new FakeAuditLogWriter();
+        var handler = new SendSmtpTestEmailCommandHandler(service, audit);
+
+        var result = await handler.HandleAsync(
+            new SendSmtpTestEmailCommand(Guid.NewGuid(), "admin@example.com"));
+
+        Assert.True(result.IsFailure);
+        Assert.Same(NotificationsErrors.SmtpSettingsNotFound, result.Error);
+        Assert.Empty(audit.Entries);
     }
 
     private static EmailTemplate CreateTemplate(string keyStr) =>

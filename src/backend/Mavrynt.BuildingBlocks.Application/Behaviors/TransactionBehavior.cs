@@ -11,12 +11,16 @@ namespace Mavrynt.BuildingBlocks.Application.Behaviors;
 ///
 /// Rules:
 ///   - Activates only when the request implements <see cref="ITransactionalRequest"/>.
-///   - Resolves <see cref="IUnitOfWork"/> optionally from DI. If not registered, safe no-op.
+///   - Resolves every <see cref="IUnitOfWork"/> registered in DI and commits each on
+///     handler success. In a multi-module host this means each module's DbContext
+///     flushes its own change tracker. EF Core only emits SQL when there are pending
+///     changes, so contexts with no work to commit are essentially free.
 ///   - Calls <see cref="IUnitOfWork.SaveChangesAsync"/> only on handler success.
 ///   - Does NOT commit on failure result or exception (EF Core rolls back on dispose).
 ///   - Queries must NOT implement <see cref="ITransactionalRequest"/>.
-///   - Does not open an explicit DB transaction — relies on EF Core's implicit transaction
-///     per SaveChanges. Explicit transaction support can be added in a future ADR.
+///   - Does not open an explicit cross-context DB transaction — each SaveChanges runs
+///     in its own EF Core implicit transaction. Cross-context atomicity is out of scope
+///     for now (see ADR-025).
 ///
 /// Pipeline order: FIFTH / LAST (wraps the handler call directly).
 /// </summary>
@@ -42,8 +46,8 @@ public sealed class TransactionBehavior<TRequest, TResponse> : IMavryntBehavior<
         if (request is not ITransactionalRequest)
             return await next(cancellationToken);
 
-        var unitOfWork = _serviceProvider.GetService<IUnitOfWork>();
-        if (unitOfWork is null)
+        var unitsOfWork = _serviceProvider.GetServices<IUnitOfWork>().ToList();
+        if (unitsOfWork.Count == 0)
         {
             _logger.LogDebug(
                 "Request {RequestType} is transactional but no IUnitOfWork is registered. Executing without commit.",
@@ -57,11 +61,13 @@ public sealed class TransactionBehavior<TRequest, TResponse> : IMavryntBehavior<
         // Commit only on success — do not persist changes when the handler signals failure.
         if (IsSuccess(response))
         {
-            await unitOfWork.SaveChangesAsync(cancellationToken);
+            foreach (var unitOfWork in unitsOfWork)
+                await unitOfWork.SaveChangesAsync(cancellationToken);
 
             _logger.LogDebug(
-                "Transaction committed for {RequestType}.",
-                typeof(TRequest).Name);
+                "Transaction committed for {RequestType} across {UnitOfWorkCount} unit(s) of work.",
+                typeof(TRequest).Name,
+                unitsOfWork.Count);
         }
         else
         {

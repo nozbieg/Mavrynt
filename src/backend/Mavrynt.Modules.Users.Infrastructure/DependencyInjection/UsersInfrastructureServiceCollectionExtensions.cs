@@ -44,9 +44,12 @@ public static class UsersInfrastructureServiceCollectionExtensions
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IAuditService, EfAuditService>();
 
-        // Expose the scoped DbContext as IUnitOfWork for callers that need
-        // explicit commit control over multi-aggregate operations.
-        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<UsersDbContext>());
+        // Expose the scoped DbContext as IUnitOfWork for the mediator pipeline
+        // (TransactionBehavior) and any caller that needs explicit commit control.
+        // Registered against the Application-layer interface — that is the contract
+        // TransactionBehavior resolves; the Infrastructure marker interface adds nothing.
+        services.AddScoped<Mavrynt.BuildingBlocks.Application.Persistence.IUnitOfWork>(
+            sp => sp.GetRequiredService<UsersDbContext>());
 
         // Applies any pending EF Core migrations on startup before the host
         // begins accepting requests. Safe to run in both Api and AdminApp —

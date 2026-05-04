@@ -16,7 +16,8 @@ internal sealed class NotificationsStartupService(
 
         await using var scope = serviceProvider.CreateAsyncScope();
         var context = scope.ServiceProvider.GetRequiredService<NotificationsDbContext>();
-        var seeder = scope.ServiceProvider.GetRequiredService<DefaultEmailTemplateSeeder>();
+        var templateSeeder = scope.ServiceProvider.GetRequiredService<DefaultEmailTemplateSeeder>();
+        var smtpSeeder = scope.ServiceProvider.GetRequiredService<DefaultSmtpSettingsSeeder>();
 
         await context.Database.ExecuteSqlRawAsync(
             """
@@ -33,8 +34,11 @@ internal sealed class NotificationsStartupService(
         await context.Database.MigrateAsync(cancellationToken);
         logger.LogInformation("Notifications module migrations applied successfully.");
 
-        await seeder.SeedAsync(cancellationToken);
+        await templateSeeder.SeedAsync(cancellationToken);
         logger.LogInformation("Notifications module default templates seeded.");
+
+        await smtpSeeder.SeedAsync(cancellationToken);
+        logger.LogInformation("Notifications module default SMTP configuration seed evaluated.");
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;

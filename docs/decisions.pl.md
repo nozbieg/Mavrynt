@@ -31,6 +31,8 @@
 | ADR-021 | Strategia testów backendu (architecture / unit / Testcontainers) | Zaakceptowana |
 | ADR-022 | Slice administracyjny Fazy 1: role, FeatureManagement, Audit | Zaakceptowana |
 | ADR-023 | Moduł Notifications: SMTP w bazie, szablony, `IEmailNotificationService` | Zaakceptowana |
+| ADR-024 | Domyślny lokalny seed SMTP i test e-maila per konfiguracja | Zaakceptowana |
+| ADR-025 | Commit po stronie pipeline'u: `ITransactionalRequest` + multi-`IUnitOfWork` | Zaakceptowana |
 
 Relacja **ADR-018 ↔ ADR-020:** ADR-018 świadomie odroczył wybór mediatora i
 udostępnił neutralne biblioteki interfejsy komend/zapytań. ADR-020 później

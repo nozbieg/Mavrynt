@@ -29,7 +29,8 @@ public static class FeatureManagementInfrastructureServiceCollectionExtensions
         });
 
         services.AddScoped<IFeatureFlagRepository, FeatureFlagRepository>();
-        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<FeatureManagementDbContext>());
+        services.AddScoped<Mavrynt.BuildingBlocks.Application.Persistence.IUnitOfWork>(
+            sp => sp.GetRequiredService<FeatureManagementDbContext>());
         services.AddHostedService<DatabaseMigrationService>();
 
         services.TryAddSingleton<IDateTimeProvider, Mavrynt.Modules.FeatureManagement.Infrastructure.Time.UtcDateTimeProvider>();

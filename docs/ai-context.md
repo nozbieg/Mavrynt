@@ -33,7 +33,7 @@ Detailed status: `docs/status.md`. Recommended next work: `docs/next-work.md`.
 - Users module: aggregate, value objects, domain events, JWT login, role assignment endpoint, EF Core persistence.
 - FeatureManagement module: flag CRUD with AdminApp endpoints, PostgreSQL schema `feature_management`.
 - Audit module: append-only `audit_log_entries`, PostgreSQL schema `audit`, `IAuditLogWriter` consumed by FM and Notifications.
-- Notifications module: DB-backed SMTP settings, three predefined templates (`auth.login_confirmation`, `auth.password_reset`, `auth.two_factor_code`), template renderer, `IEmailNotificationService`, AdminApp endpoints.
+- Notifications module: DB-backed SMTP settings, three predefined templates (`auth.login_confirmation`, `auth.password_reset`, `auth.two_factor_code`), template renderer, `IEmailNotificationService`, AdminApp endpoints, default local SMTP seed (Mailpit/MailHog-friendly) on startup, and `POST /api/admin/notifications/smtp-settings/{id}/test` for per-configuration test sends (ADR-024).
 - Auth UI: `@mavrynt/auth-ui` package with login/register, `AuthService` port, and i18n (PL/EN).
 - Cross-app URL helper: `resolveAppUrls()` in `@mavrynt/config/app-urls`.
 - Backend tests: architecture tests (NetArchTest), domain/application unit tests, infrastructure + host integration tests against real PostgreSQL via Testcontainers.
@@ -137,6 +137,8 @@ Frontend testing: Vitest (unit/integration) and Playwright (landing e2e).
 - ADR-021 — Backend test pyramid (architecture + unit + Testcontainers integration).
 - ADR-022 — Phase 1 admin slice: role assignment, FeatureManagement, persistent Audit.
 - ADR-023 — Notifications module: DB-backed SMTP, templates, `IEmailNotificationService`.
+- ADR-024 — Default local SMTP seed and per-configuration test email (foundation for password reset by email).
+- ADR-025 — Pipeline-owned commit: every mutating command implements `ITransactionalRequest`; `TransactionBehavior` resolves all registered `IUnitOfWork` instances and saves each on success. Repositories no longer self-save inside `AddAsync`.
 
 Full ADRs: `docs/decisions.en.md`. Detailed implementation notes for some areas live in `docs/adr/` — see the numbering note at the top of `docs/decisions.en.md`.
 
