@@ -1,155 +1,73 @@
 # Mavrynt
 
-## PL
+Mavrynt is an incrementally developed product platform built as a **modular monolith**
+in a single repository. It contains the backend, three frontend applications,
+documentation, tests, and deployment assets.
 
-### Opis projektu
+> **AI agents:** start with [`AGENTS.md`](AGENTS.md) and
+> [`docs/ai-context.md`](docs/ai-context.md). Do not scan the whole repository.
 
-Mavrynt to rozwijana etapowo platforma produktowa budowana w architekturze **modularnego monolitu** w ramach jednego repozytorium. Projekt obejmuje backend, aplikacje frontendowe, część administracyjną, dokumentację techniczną, testy oraz zasoby wdrożeniowe.
+---
 
-Na obecnym etapie celem jest zbudowanie solidnego fundamentu technicznego pod dalszy rozwój produktu, w szczególności w obszarach:
-- użytkowników,
-- uwierzytelniania i autoryzacji,
-- ról i uprawnień,
-- procesów administracyjnych,
-- feature flag,
-- observability,
-- testowalności,
-- przygotowania pod Continuous Delivery.
+## Status
 
-### Główne założenia
+- Phase 1 administrative vertical slice (roles, FeatureManagement, Audit) — **complete** (2026-04-29).
+- Notifications / email module (SMTP, templates, `IEmailNotificationService`) — **complete** (2026-04-30).
+- Admin SPA shell (login, protected routes, dashboard, feature flags, SMTP settings) — **complete**.
+- **Pending Phase 1:** CI/CD pipeline, staging environment, production secret handling.
 
-Projekt został zaprojektowany z następującymi założeniami:
-- jedno repozytorium dla całego produktu,
-- modularny monolit jako model startowy,
-- wyraźny podział odpowiedzialności pomiędzy hostami, modułami i warstwami wspólnymi,
-- osobna część administracyjna,
-- możliwość dalszej rozbudowy o kolejne moduły domenowe,
-- gotowość pod lokalną orkiestrację, konteneryzację i pipeline CI/CD.
+Authoritative status: [`docs/status.md`](docs/status.md).
+Recommended next work: [`docs/next-work.md`](docs/next-work.md).
 
-### Struktura repozytorium
+---
 
-    Mavrynt/
-    ├── Mavrynt.sln
-    ├── README.md
-    ├── .gitignore
-    ├── .gitattributes
-    ├── Directory.Build.props
-    ├── Directory.Packages.props
-    ├── docs/
-    ├── build/
-    ├── deploy/
-    ├── scripts/
-    ├── src/
-    │   ├── backend/
-    │   ├── frontend/
-    │   └── shared/
-    └── tests/
+## Stack
 
-### Główne elementy rozwiązania
+- **Backend:** .NET 10, C#, EF Core 9, PostgreSQL, JWT Bearer auth, internal `MavryntMediator`, Testcontainers for integration tests.
+- **Frontend:** React 19 + Vite 8 + TypeScript (strict), Tailwind v4, Vitest, Playwright (landing).
+- **Local orchestration:** Aspire AppHost (`Mavrynt.AppHost`) launches backend hosts and all three SPAs.
 
-#### Backend
+---
 
-W katalogu `src/backend` znajdują się projekty backendowe, w tym:
-- `Mavrynt.Api` — główny host API,
-- `Mavrynt.AdminApp` — host backendowy dla części administracyjnej,
-- `Mavrynt.AppHost` — projekt orkiestracyjny dla developmentu lokalnego,
-- `Mavrynt.ServiceDefaults` — wspólne ustawienia techniczne,
-- `Mavrynt.BuildingBlocks.*` — współdzielone warstwy bazowe,
-- `Mavrynt.Modules.*` — moduły domenowe.
+## Requirements
 
-#### Frontend
+- .NET 10 SDK
+- Node.js 22+ (per-SPA `npm` scripts)
+- Docker — required for Testcontainers-based integration tests
 
-W katalogu `src/frontend` przewidziano:
-- `mavrynt-web` — frontend użytkownika,
-- `mavrynt-admin` — frontend administracyjny,
-- `mavrynt-landing` — statyczny landing marketingowy.
+---
 
-#### Dokumentacja
+## Quick start
 
-W katalogu `docs` znajdują się dokumenty opisujące architekturę, decyzje projektowe oraz strukturę repozytorium.
+**Full stack via Aspire (backend + all SPAs):**
 
-#### Testy
+```bash
+dotnet run --project src/backend/Mavrynt.AppHost/Mavrynt.AppHost.csproj
+```
 
-W katalogu `tests` znajdują się miejsce na:
-- testy backendowe,
-- testy frontendowe,
-- testy integracyjne,
-- testy architektoniczne.
+`Mavrynt.AppHost` orchestrates `Mavrynt.Api`, `Mavrynt.AdminApp`, `mavrynt-web`,
+`mavrynt-admin`, and `mavrynt-landing`. The landing is intentionally decoupled from
+the API and runs even when the backend is stopped (ADR-015).
 
-### Dokumentacja techniczna
+**Per-SPA (run from the SPA folder):**
 
-Najważniejsze dokumenty znajdują się w katalogu `docs` (każdy w wersji PL i EN):
-- `docs/architecture.pl.md` / `docs/architecture.en.md`,
-- `docs/decisions.pl.md` / `docs/decisions.en.md`,
-- `docs/repo-structure.pl.md` / `docs/repo-structure.en.md`.
+```bash
+npm run dev          # Vite dev server
+npm run build        # tsc -b && vite build
+npm run test         # Vitest
+npm run typecheck    # tsc -b --noEmit
+npm run test:e2e     # Playwright (landing only)
+```
 
-Dokumenty te opisują:
-- architekturę rozwiązania,
-- najważniejsze decyzje techniczne,
-- strukturę katalogów i projektów,
-- kierunek dalszego rozwoju.
+SPA folders:
 
-### Aktualny stan
+- `src/frontend/Mavrynt.Web.App/mavrynt-web/`
+- `src/frontend/Mavrynt.Web.Admin/mavrynt-admin/`
+- `src/frontend/Mavrynt.Web.Landing/mavrynt-landing/`
 
-Repozytorium jest budowane ręcznie od czystego pliku solution `.sln`, krok po kroku, z pełną kontrolą nad:
-- strukturą projektów,
-- zależnościami,
-- nazewnictwem,
-- odpowiedzialnością poszczególnych warstw.
+---
 
-Fundament backendowy (hosty, building blocks, moduł Users, podstawowa autoryzacja JWT, mediator, pierwsze testy backendowe) oraz wszystkie trzy aplikacje frontendowe (`mavrynt-web`, `mavrynt-admin`, `mavrynt-landing`) są już na miejscu. Aplikacja landing przeszła pełny cykl fundament → treść → dostępność (WCAG 2.1 AA) → wydajność → testy end-to-end (Vitest + Playwright).
-
-### Stan Fazy 1
-
-Administracyjny vertical slice Fazy 1 jest ukończony (2026-04-29):
-- role i uprawnienia użytkowników (`PATCH /api/admin/users/{userId}/role`),
-- moduł FeatureManagement zarządzany z poziomu AdminApp (CRUD feature flag, `AdminOnly`),
-- trwały audyt operacji systemowych (`IAuditLogWriter`, schemat PostgreSQL `audit`),
-- pełna piramida testów: architektoniczne, jednostkowe domeny i aplikacji, integracyjne infrastruktury i AdminApp.
-
-Następne priorytety Fazy 1: email/powiadomienia, konfiguracja CI/CD, środowisko stagingowe.
-
-### Zasady organizacyjne
-
-W projekcie obowiązują następujące zasady:
-- nie umieszczamy logiki biznesowej w hostach,
-- nie mieszamy warstw domeny, aplikacji i infrastruktury,
-- każdy moduł powinien zachowywać spójny układ,
-- dokumentacja architektury jest utrzymywana razem z kodem,
-- większe decyzje techniczne powinny być dopisywane do `docs/decisions.pl.md` (oraz `docs/decisions.en.md`),
-- landing marketingowy jest niezależny od backendu — integracje idą wyłącznie przez adaptery (ADR-015).
-
-### Uruchomienie
-
-**Wymagania środowiskowe:**
-- .NET 10 SDK,
-- Node.js 22+ oraz pnpm 9+,
-- Docker (opcjonalnie, pod przyszłe zależności infrastrukturalne).
-
-**Cały stos przez Aspire AppHost (backend + wszystkie SPA):**
-
-    cd src/backend/Mavrynt.AppHost
-    dotnet run
-
-`Mavrynt.AppHost` orkiestruje API, Admin API, `mavrynt-web`, `mavrynt-admin` oraz `mavrynt-landing`. Landing jest świadomie niezwiązany z API — działa samodzielnie również wtedy, gdy backend jest wyłączony.
-
-**Tylko landing (szybka iteracja marketingu):**
-
-    pnpm --filter mavrynt-landing dev        # serwer deweloperski (HMR)
-    pnpm --filter mavrynt-landing test       # testy jednostkowe Vitest
-    pnpm --filter mavrynt-landing test:e2e   # smoke Playwright (Chromium)
-    pnpm --filter mavrynt-landing build      # build produkcyjny (gzip + brotli)
-
-Szczegółowa instrukcja landingu: [`src/frontend/mavrynt-landing/README.md`](src/frontend/mavrynt-landing/README.md).
-
-### Backend tests (architecture, unit, integration)
-
-Backendowy fundament testów jest podzielony na trzy warstwy:
-- **testy architektoniczne** chronią granice projektów i zależności w modularnym monolicie,
-- **testy jednostkowe** weryfikują prymitywy domenowe i handlery komend/zapytań,
-- **testy integracyjne** używają realnych kontenerów PostgreSQL przez Testcontainers dla infrastruktury i smoke testów hostów.
-
-Uruchomienie sprawdzeń backendowych z katalogu głównego repozytorium:
+## Validation
 
 ```bash
 dotnet restore Mavrynt.sln
@@ -157,171 +75,78 @@ dotnet build Mavrynt.sln --no-restore
 dotnet test Mavrynt.sln --no-build
 ```
 
-> Docker jest wymagany dla testów integracyjnych opartych o Testcontainers (`Mavrynt.Modules.Users.Infrastructure.Tests`, `Mavrynt.Api.IntegrationTests`, `Mavrynt.AdminApp.IntegrationTests`).
+The test pyramid has three layers:
 
-### Status
+1. **Architecture tests** — `tests/backend/Mavrynt.Architecture.Tests` (NetArchTest).
+2. **Unit tests** — domain primitives and command/query handlers with in-memory fakes.
+3. **Integration tests** — real PostgreSQL via Testcontainers (Docker required).
 
-Fundament architektoniczny jest gotowy, landing jest funkcjonalny i gotowy do wdrożenia. Backend ma pełny fundament Users/Auth, moduł FeatureManagement, moduł Audit, administracyjne endpointy pod `AdminOnly` oraz wielowarstwową piramidę testów. Następny krok Fazy 1: email/powiadomienia i konfiguracja CI/CD.
+---
 
-## EN
+## Documentation map
 
-### Project overview
+| Document | Purpose |
+|---|---|
+| [`AGENTS.md`](AGENTS.md) | AI-agent quick start, rules, validation, task routing |
+| [`docs/ai-context.md`](docs/ai-context.md) | Compact project context snapshot |
+| [`docs/status.md`](docs/status.md) | Current phase, completed and pending items |
+| [`docs/next-work.md`](docs/next-work.md) | Recommended next implementation tasks |
+| [`docs/architecture.en.md`](docs/architecture.en.md) | Solution architecture (canonical, English) |
+| [`docs/decisions.en.md`](docs/decisions.en.md) | ADR log (canonical, English) |
+| [`docs/repo-structure.en.md`](docs/repo-structure.en.md) | Repository layout |
+| [`docs/frontends.en.md`](docs/frontends.en.md) | Frontend overview |
+| [`docs/auth-ui.en.md`](docs/auth-ui.en.md) | `@mavrynt/auth-ui` reference |
+| [`docs/adr/`](docs/adr/) | Detailed ADR-style notes (auth, persistence, audit) — see numbering note in `docs/decisions.en.md` |
 
-Mavrynt is an incrementally developed product platform built as a **modular monolith** within a single repository. The project includes backend services, frontend applications, an administrative area, technical documentation, tests, and deployment assets.
+The Polish-language documents (`docs/*.pl.md`) remain as supporting summaries; the
+**English versions are canonical**. Add new technical content in English and only
+update the Polish counterpart if you can keep it consistent.
 
-At the current stage, the goal is to build a solid technical foundation for further product development, especially in areas such as:
-- users,
-- authentication and authorization,
-- roles and permissions,
-- administrative processes,
-- feature flags,
-- observability,
-- testability,
-- preparation for Continuous Delivery.
+---
 
-### Core assumptions
+## Repository layout (compact)
 
-The project is designed with the following assumptions:
-- a single repository for the whole product,
-- a modular monolith as the starting model,
-- clear responsibility boundaries between hosts, modules, and shared layers,
-- a separate administrative area,
-- readiness for future domain module expansion,
-- readiness for local orchestration, containerization, and CI/CD pipelines.
-
-### Repository structure
-
-    Mavrynt/
-    ├── Mavrynt.sln
-    ├── README.md
-    ├── .gitignore
-    ├── .gitattributes
-    ├── Directory.Build.props
-    ├── Directory.Packages.props
-    ├── docs/
-    ├── build/
-    ├── deploy/
-    ├── scripts/
-    ├── src/
-    │   ├── backend/
-    │   ├── frontend/
-    │   └── shared/
-    └── tests/
-
-### Main solution components
-
-#### Backend
-
-The `src/backend` folder contains backend projects, including:
-- `Mavrynt.Api` — the main API host,
-- `Mavrynt.AdminApp` — the backend host for the administrative area,
-- `Mavrynt.AppHost` — the orchestration project for local development,
-- `Mavrynt.ServiceDefaults` — shared technical defaults,
-- `Mavrynt.BuildingBlocks.*` — shared foundational layers,
-- `Mavrynt.Modules.*` — domain modules.
-
-#### Frontend
-
-The `src/frontend` folder is intended for:
-- `mavrynt-web` — the user-facing frontend,
-- `mavrynt-admin` — the administrative frontend,
-- `mavrynt-landing` — the static marketing landing page.
-
-#### Documentation
-
-The `docs` folder contains documents describing the architecture, project decisions, and repository structure.
-
-#### Tests
-
-The `tests` folder is reserved for:
-- backend tests,
-- frontend tests,
-- integration tests,
-- architectural tests.
-
-### Technical documentation
-
-The most important documents are located in the `docs` folder (each is shipped in PL and EN):
-- `docs/architecture.pl.md` / `docs/architecture.en.md`,
-- `docs/decisions.pl.md` / `docs/decisions.en.md`,
-- `docs/repo-structure.pl.md` / `docs/repo-structure.en.md`.
-
-These documents describe:
-- the solution architecture,
-- the key technical decisions,
-- the project and folder structure,
-- the intended direction of further development.
-
-### Current state
-
-The repository is being built manually from a clean `.sln` file, step by step, with full control over:
-- project structure,
-- dependencies,
-- naming,
-- responsibility boundaries.
-
-The backend foundation (hosts, building blocks, the Users module, basic JWT authentication, mediator, and the first backend tests) and all three frontend applications (`mavrynt-web`, `mavrynt-admin`, `mavrynt-landing`) are now in place. The landing app has completed a full lifecycle: foundation → content → accessibility (WCAG 2.1 AA) → performance → end-to-end testing (Vitest + Playwright).
-
-### Phase 1 status
-
-The administrative Phase 1 vertical slice is complete (2026-04-29):
-- user role assignment (`PATCH /api/admin/users/{userId}/role`),
-- FeatureManagement module managed from AdminApp (feature flag CRUD, `AdminOnly`),
-- persistent system audit (`IAuditLogWriter`, PostgreSQL schema `audit`),
-- full test pyramid: architecture, domain and application unit, infrastructure and AdminApp integration tests.
-
-Next Phase 1 priorities: email/notifications, CI/CD pipeline configuration, staging environment.
-
-### Organizational rules
-
-The following rules apply in the project:
-- business logic must not be placed in hosts,
-- domain, application, and infrastructure layers must not be mixed,
-- every module should follow a consistent structure,
-- architecture documentation is maintained together with the code,
-- major technical decisions should be added to `docs/decisions.en.md` (and `docs/decisions.pl.md`),
-- the marketing landing page is independent of the backend — integrations go through adapters only (ADR-015).
-
-### Running the solution
-
-**Requirements:**
-- .NET 10 SDK,
-- Node.js 22+ and pnpm 9+,
-- Docker (optional — for future infrastructure dependencies).
-
-**Full stack via Aspire AppHost (backend + all SPAs):**
-
-    cd src/backend/Mavrynt.AppHost
-    dotnet run
-
-`Mavrynt.AppHost` orchestrates the API, the Admin API, `mavrynt-web`, `mavrynt-admin`, and `mavrynt-landing`. The landing is deliberately not coupled to the API — it still runs when the backend is stopped.
-
-**Landing only (fast marketing iteration):**
-
-    pnpm --filter mavrynt-landing dev        # dev server (HMR)
-    pnpm --filter mavrynt-landing test       # Vitest unit + integration tests
-    pnpm --filter mavrynt-landing test:e2e   # Playwright smoke (Chromium)
-    pnpm --filter mavrynt-landing build      # production build (gzip + brotli)
-
-Detailed landing docs: [`src/frontend/mavrynt-landing/README.md`](src/frontend/mavrynt-landing/README.md).
-
-### Backend tests (architecture, unit, integration)
-
-Backend test foundation is split into three layers:
-- **Architecture tests** protect project and dependency boundaries in the modular monolith.
-- **Unit tests** verify domain primitives and command/query handlers.
-- **Integration tests** use **real PostgreSQL containers** via Testcontainers for infrastructure and host-level smoke tests.
-
-Run backend checks from repository root:
-
-```bash
-dotnet restore Mavrynt.sln
-dotnet build Mavrynt.sln --no-restore
-dotnet test Mavrynt.sln --no-build
+```
+Mavrynt/
+├── AGENTS.md
+├── README.md
+├── Mavrynt.sln
+├── Directory.Build.props
+├── Directory.Packages.props
+├── docs/                    docs (architecture, decisions, status, next-work, ADR detail)
+├── build/                   reserved (empty) — future build automation
+├── deploy/                  reserved (empty) — future deployment assets
+├── scripts/                 reserved (empty) — future operational scripts
+├── src/
+│   ├── backend/
+│   │   ├── Mavrynt.Api/                        main API host
+│   │   ├── Mavrynt.AdminApp/                   admin API host
+│   │   ├── Mavrynt.AppHost/                    Aspire orchestration
+│   │   ├── Mavrynt.ServiceDefaults/            shared technical defaults
+│   │   ├── Mavrynt.BuildingBlocks.{Domain,Application,Infrastructure}/
+│   │   ├── Mavrynt.BuildingBlocksContracts/
+│   │   ├── Mavrynt.Modules.Users.{Domain,Application,Infrastructure}/
+│   │   ├── Mavrynt.Modules.FeatureManagement.{Domain,Application,Infrastructure}/
+│   │   ├── Mavrynt.Modules.Audit.{Domain,Application,Infrastructure}/
+│   │   └── Mavrynt.Modules.Notifications.{Domain,Application,Infrastructure}/
+│   └── frontend/
+│       ├── Mavrynt.Web.App/      ASP.NET host wrapping mavrynt-web/
+│       ├── Mavrynt.Web.Admin/    ASP.NET host wrapping mavrynt-admin/
+│       ├── Mavrynt.Web.Landing/  ASP.NET host wrapping mavrynt-landing/
+│       └── shared/               @mavrynt/{auth-ui,config,design-tokens,eslint-config,tsconfig-base,ui}
+└── tests/                   architecture, unit, and integration tests
 ```
 
-> Docker is required for Testcontainers-based integration tests (`Mavrynt.Modules.Users.Infrastructure.Tests`, `Mavrynt.Api.IntegrationTests`, `Mavrynt.AdminApp.IntegrationTests`).
+Full layout and rules: [`docs/repo-structure.en.md`](docs/repo-structure.en.md).
 
-### Status
+---
 
-Architectural foundation is ready, the landing app is functional and deploy-ready. The backend has the full Users/Auth foundation, FeatureManagement module, Audit module, administrative endpoints under `AdminOnly`, and a multi-layer test pyramid. Next Phase 1 step: email/notifications and CI/CD configuration.
+## Project rules (summary)
+
+- Hosts must not contain business logic.
+- Domain has no Infrastructure / framework / host references.
+- Cross-module application dependencies are forbidden except FM→Audit and Notifications→Audit (ADR-022, ADR-023).
+- Use `IMediator` (`MavryntMediator`) — do not introduce MediatR.
+- Use `IEmailNotificationService` — do not call `SmtpClient` directly.
+- Marketing landing must remain decoupled from the backend (ADR-015).
+- New architecture decisions go into `docs/decisions.en.md` as a new ADR.

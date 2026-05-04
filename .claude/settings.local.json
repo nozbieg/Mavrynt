@@ -39,7 +39,8 @@
       "Bash(ConvertTo-Json)",
       "PowerShell(Test-Path \"C:\\\\Repo\\\\Mavrynt\\\\src\\\\backend\\\\Mavrynt.Modules.Users\"; if \\($?\\) { Get-ChildItem \"C:\\\\Repo\\\\Mavrynt\\\\src\\\\backend\\\\Mavrynt.Modules.Users\" -Recurse -Force | % { $_.FullName } })",
       "Bash(Get-ChildItem -Path \"C:\\\\Repo\\\\Mavrynt\\\\src\\\\backend\\\\Mavrynt.Modules.Users\" -Recurse -File)",
-      "Bash(Sort-Object FullName)"
+      "Bash(Sort-Object FullName)",
+      "Bash(ls C:\\\\Repo\\\\Mavrynt\\\\docs *)"
     ]
   }
 }

@@ -8,6 +8,57 @@ This document collects the most important architectural and organizational decis
 - what consequences follow from that decision.
 
 This is a living document and should be extended whenever important changes are made.
+**This file is the canonical ADR log.** Do not edit accepted ADRs in place; mark them `Superseded` and add a new ADR.
+
+---
+
+## Index
+
+| ID | Title | Status | Date | Relevance |
+|---|---|---|---|---|
+| ADR-001 | Solution model: modular monolith | Accepted | 2026-04-18 | Architectural style baseline |
+| ADR-002 | Single repository for the whole product | Accepted | 2026-04-18 | Repo organization |
+| ADR-003 | Separation of backend hosts | Accepted | 2026-04-18 | Hosts: Api / AdminApp / AppHost / ServiceDefaults |
+| ADR-004 | Separate administrative area | Accepted | 2026-04-18 | Why AdminApp is its own host |
+| ADR-005 | Layered module structure | Accepted | 2026-04-18 | Domain / Application / Infrastructure per module |
+| ADR-006 | Shared BuildingBlocks projects | Accepted | 2026-04-18 | What lives in BuildingBlocks |
+| ADR-007 | First foundational module: Users | Accepted | 2026-04-18 | Users is the template module |
+| ADR-008 | Feature flags as a core architectural capability | Accepted | 2026-04-18 | Flags from day one, AdminApp-managed |
+| ADR-009 | Full observability from the start | Accepted | 2026-04-18 | Observability lives in `ServiceDefaults` |
+| ADR-010 | Frontends in the same repository, separated from the backend | Accepted | 2026-04-18 | Frontend ↔ backend boundary |
+| ADR-011 | PostgreSQL as the primary database | Accepted | 2026-04-18 | Persistence default |
+| ADR-012 | Redis, RabbitMQ, and Kafka reserved in the architecture | Accepted | 2026-04-18 | Reserved, not active |
+| ADR-013 | Manual solution setup from a clean `.sln` | Accepted | 2026-04-18 | Why structure is hand-curated |
+| ADR-014 | Architecture documentation stored inside the repository | Accepted | 2026-04-18 | Docs live with the code |
+| ADR-015 | Marketing landing SPA: independent lifecycle with shared tooling | Accepted | 2026-04-19 | Landing decoupled from backend |
+| ADR-016 | Cross-app URL resolution via `@mavrynt/config/app-urls` | Accepted | 2026-04-20 | Cross-SPA navigation rule |
+| ADR-017 | `@mavrynt/auth-ui` as a separate shared package | Accepted | 2026-04-20 | Auth UI is not in `@mavrynt/ui` |
+| ADR-018 | BuildingBlocks baseline without mediator lock-in | Accepted (superseded by ADR-020 for the mediator decision) | 2026-04-27 | Sets foundation; deferred mediator choice |
+| ADR-019 | Users module Domain and Application baseline | Accepted | 2026-04-27 | Users domain + application contracts |
+| ADR-020 | Internal mediator and application pipeline behaviors | Accepted | 2026-04-28 | Internal `MavryntMediator`; supersedes ADR-018's mediator deferral |
+| ADR-021 | Backend test strategy: architecture, unit, Testcontainers integration | Accepted | 2026-04-28 | Test pyramid in place |
+| ADR-022 | Phase 1 Admin Foundation Slice: roles, FeatureManagement, Audit | Accepted | 2026-04-29 | Admin vertical slice complete |
+| ADR-023 | Notifications module: DB-backed SMTP, templates, `IEmailNotificationService` | Accepted | 2026-04-30 | Email module complete |
+
+### ADR-018 ↔ ADR-020 relationship
+
+ADR-018 deliberately deferred the mediator choice and shipped library-neutral
+command/query/handler interfaces. ADR-020 later **accepted the internal
+`MavryntMediator`**, replacing only that deferred decision. The library-neutral
+interfaces from ADR-018 remain valid; only the dispatch strategy moved from
+"deferred" to "internal mediator".
+
+### Note on `docs/adr/` files
+
+A separate folder `docs/adr/` contains detailed implementation notes that were
+written with their own ADR numbers (`ADR-020-jwt-bearer-authentication.md`,
+`ADR-021-efcore-postgresql-persistence.md`, `ADR-022-shared-users-module-admin-policy.md`,
+`ADR-023-audit-trail-design.md`). Those numbers **collide** with the ADRs in
+this file but cover different topics. **This file (`docs/decisions.en.md`) is the
+canonical ADR log.** The standalone files in `docs/adr/` should be treated as
+detailed implementation notes for the corresponding subsystem (auth, persistence,
+audit). Renumbering of `docs/adr/*.md` to remove the collision is tracked in
+`docs/next-work.md`.
 
 ---
 
@@ -420,24 +471,6 @@ Keeping the two packages separate lets each evolve on its own cadence. `@mavrynt
 
 ---
 
-## Rules for adding future decisions
-
-Each new decision should include:
-- an identifier,
-- a status,
-- a date,
-- the decision itself,
-- rationale,
-- consequences.
-
-Recommended statuses:
-- Proposed
-- Accepted
-- Rejected
-- Superseded
-
----
-
 ## ADR-018 — BuildingBlocks baseline without mediator lock-in
 
 **Status:** Accepted  
@@ -463,41 +496,6 @@ The Users module (and any future module) requires stable base types to build on 
 - concrete validation library (FluentValidation or DataAnnotations) remains an open decision,
 - concrete EF Core DbContext and migration strategy remain open decisions,
 - `BuildingBlocks.Infrastructure` must not be used as a general utility dump — only genuinely cross-module infrastructure abstractions belong there.
-
----
-
-## Open areas for future decisions
-
-The following areas require future decisions:
-- the exact authorization and role model,
-- the feature management module design,
-- API endpoint and versioning standards,
-- library and pattern selection for validation and mediators,
-- migration strategy,
-- architectural test strategy,
-- asynchronous communication model,
-- environment deployment standards,
-- secret and configuration management model,
-- CI/CD design.
-
----
-
-## Summary
-
-This document is the architectural decision register for Mavrynt. It is intended to preserve consistency while the solution is being built manually and extended over time. Every significant decision that changes architectural direction should be added here.- `Mavrynt.BuildingBlocksContracts` — integration event contracts: `IIntegrationEvent`, `IntegrationEvent`, `IRequestContract`, `IResponseContract`, `PagedResponse`.
-- `Mavrynt.BuildingBlocks.Infrastructure` — infrastructure abstractions: `IRepository<TEntity, TId>`, `IUnitOfWork`, `PostgreSqlOptions`, and configuration helpers.
-
-Command and query handler interfaces are library-neutral — no MediatR or other mediator library is introduced. Modules wire their own handlers through `ICommandHandler<TCommand, TResponse>` and `IQueryHandler<TQuery, TResponse>` directly.
-
-### Rationale
-Defining the interfaces in BuildingBlocks without committing to a mediator keeps each module free to dispatch commands and queries directly, or to adopt a mediator later without changing handler contracts. The abstractions are testable without an IoC container. Behavior pipeline slots (logging, validation, transaction) are reserved as marker interfaces so a future pipeline can be bolted in without modifying handler signatures.
-
-### Consequences
-- All module Domain projects reference only `Mavrynt.BuildingBlocks.Domain`.
-- All module Application projects reference `Mavrynt.BuildingBlocks.Application` and `Mavrynt.BuildingBlocks.Domain`.
-- Infrastructure implementations reference `Mavrynt.BuildingBlocks.Infrastructure`.
-- No MediatR, FluentValidation, or AutoMapper dependency is introduced at this stage.
-- Handler dispatch and pipeline behaviors are deferred until a concrete module proves the need.
 
 ---
 
@@ -756,3 +754,42 @@ Email notification is a core cross-cutting capability needed by the Users module
 - `PassThroughSecretProtector` must be replaced with a real encryption implementation before the application handles real SMTP credentials in a non-development environment.
 - Template keys are immutable once seeded. Adding a fourth template requires a new migration, a new seeder entry, a new `IEmailModel` implementation, and a new `EmailTemplateKey` constant.
 - `SmtpClient` (BCL) does not support OAuth or modern authentication flows. Replacing it with MailKit or a transactional email API adapter requires only a new `IEmailSender` implementation — no other code changes.
+
+---
+
+## Rules for adding future decisions
+
+Each new decision should include:
+- an identifier (next free `ADR-NNN`),
+- a status (`Proposed`, `Accepted`, `Rejected`, `Superseded`),
+- a date,
+- the decision itself,
+- rationale,
+- consequences.
+
+Add the new ADR at the bottom of this file and add a row to the index table at
+the top. Do not edit accepted ADRs in place — if a later ADR replaces an earlier
+one, mark the older entry `Superseded` in the index and reference the new ADR.
+
+---
+
+## Open areas for future decisions
+
+The following areas remain open at this stage:
+- production-grade `ISecretProtector` selection and key rotation,
+- CI/CD pipeline design and runner choice,
+- staging and production deployment topology,
+- user-facing feature-flag read endpoints (flags are AdminApp-only today),
+- Polly-backed resilience policies for `IResilientRequest`,
+- asynchronous communication model (RabbitMQ / Kafka activation),
+- API versioning standards,
+- full RBAC beyond `Admin` / `User` roles.
+
+---
+
+## Summary
+
+This document is the canonical architectural decision register for Mavrynt. It
+preserves the chain of decisions made while the solution is built and extended.
+Every significant decision that changes architectural direction must be added
+here.

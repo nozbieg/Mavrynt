@@ -368,11 +368,15 @@ Shared observability standards should be maintained centrally, mainly through `M
 
 ## 12. Testability
 
-The solution should be designed to support:
-- unit tests for modules,
-- integration tests for hosts and infrastructure layers,
-- architectural tests for dependency rules,
-- frontend tests for client applications.
+The backend test foundation has three layers (ADR-021):
+
+1. **Architecture tests** (NetArchTest + project-reference checks) protect modular boundaries and dependency direction.
+2. **Unit tests** cover domain primitives and command/query handlers with in-memory fakes.
+3. **Integration tests** run against real PostgreSQL via **Testcontainers** for infrastructure repositories and API/AdminApp host smoke scenarios.
+
+Frontend tests use Vitest (unit + integration, jsdom) for all SPAs and Playwright (Chromium smoke) for the marketing landing.
+
+All backend tests are executable from `dotnet test` at the solution level and do not depend on Aspire AppHost or Docker Compose orchestration. Docker is required for Testcontainers-based integration tests.
 
 Tests are treated as a first-class part of the repository, not as an afterthought.
 
@@ -408,14 +412,3 @@ In later stages, the architecture will be expanded with:
 Mavrynt is being built as a modular monolith in a single repository, with a clear split between hosts, building blocks, domain modules, frontends, and infrastructure assets. The main goal of the architecture is to preserve order, organizational and technical scalability, and readiness for future growth without unnecessary initial complexity.
 
 This document serves as a reference baseline for further implementation decisions and should be updated as the solution evolves.
----
-
-## 12. Testing strategy (backend foundation)
-
-The backend test strategy is based on three complementary layers:
-
-1. **Architecture tests** (NetArchTest + project reference checks) protect modular boundaries and dependency direction.
-2. **Unit tests** cover domain primitives and Users command/query handlers with in-memory fakes.
-3. **Integration tests** run against real PostgreSQL via Testcontainers for infrastructure repositories and API/Admin host smoke scenarios.
-
-All backend tests are executable from `dotnet test` and do not depend on Aspire AppHost or Docker Compose orchestration.

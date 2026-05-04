@@ -1,262 +1,225 @@
 # Mavrynt — Repository Structure
 
-## 1. Purpose of this document
+## 1. Purpose
 
-The purpose of this document is to describe the current and target structure of the Mavrynt repository. It defines:
-- the purpose of the main folders,
-- responsibilities of individual projects,
-- rules for organizing files and code,
-- the direction of future repository expansion.
+This document describes the current repository layout and the rules for adding
+new code, tests, and documentation. It is intended to be a navigation reference
+for both humans and AI agents.
 
-The repository should be readable for humans, predictable for AI agents, and maintainable over the long term.
+For high-signal context use `docs/ai-context.md`. For status use `docs/status.md`.
 
 ---
 
-## 2. Main organizational assumptions
-
-The repository:
-- contains the whole product,
-- includes backend, frontends, documentation, tests, and deployment assets,
-- avoids mixing responsibilities,
-- follows consistent naming,
-- supports modular monolith development,
-- supports local orchestration through Aspire AppHost,
-- is being prepared for Continuous Delivery.
-
-The basic rule is: **every folder should have a clear purpose and should contain only what belongs to that responsibility.**
-
----
-
-## 3. Top-level repository structure
-
-The current repository structure is:
+## 2. Top-level layout
 
 ```text
 Mavrynt/
-├── AGENTS.md
+├── AGENTS.md                    AI-agent quick start (read first)
+├── README.md                    Human-facing overview
 ├── Mavrynt.sln
-├── README.md
 ├── Directory.Build.props
 ├── Directory.Packages.props
-├── docs/
-│   ├── architecture.pl.md
-│   ├── architecture.en.md
-│   ├── decisions.pl.md
-│   ├── decisions.en.md
-│   ├── repo-structure.pl.md
-│   └── repo-structure.en.md
+├── docs/                        Architecture, decisions, status, next-work, ADR detail notes
+├── build/                       Reserved (empty) — future build automation
+├── deploy/                      Reserved (empty) — future deployment assets
+├── scripts/                     Reserved (empty) — future operational scripts
 ├── src/
 │   ├── backend/
-│   │   ├── Mavrynt.Api/
-│   │   ├── Mavrynt.AdminApp/
-│   │   ├── Mavrynt.AppHost/
-│   │   ├── Mavrynt.ServiceDefaults/
-│   │   ├── Mavrynt.BuildingBlocks.Domain/
-│   │   ├── Mavrynt.BuildingBlocks.Application/
-│   │   ├── Mavrynt.BuildingBlocks.Infrastructure/
-│   │   ├── Mavrynt.BuildingBlocksContracts/
-│   │   ├── Mavrynt.Modules.Users.Domain/
-│   │   ├── Mavrynt.Modules.Users.Application/
-│   │   ├── Mavrynt.Modules.Users.Infrastructure/
-│   │   ├── Mavrynt.Modules.FeatureManagement.Domain/
-│   │   ├── Mavrynt.Modules.FeatureManagement.Application/
-│   │   ├── Mavrynt.Modules.FeatureManagement.Infrastructure/
-│   │   ├── Mavrynt.Modules.Audit.Domain/
-│   │   ├── Mavrynt.Modules.Audit.Application/
-│   │   ├── Mavrynt.Modules.Audit.Infrastructure/
-│   │   ├── Mavrynt.Modules.Notifications.Domain/
-│   │   ├── Mavrynt.Modules.Notifications.Application/
-│   │   └── Mavrynt.Modules.Notifications.Infrastructure/
 │   └── frontend/
-│       ├── Mavrynt.Web.App/
-│       ├── Mavrynt.Web.Admin/
-│       ├── Mavrynt.Web.Landing/
-│       ├── mavrynt-web/
-│       ├── mavrynt-admin/
-│       ├── mavrynt-landing/
-│       └── shared/
 └── tests/
-    ├── backend/
-    │   ├── Mavrynt.Architecture.Tests/
-    │   └── Mavrynt.BuildingBlocks.Domain.Tests/
-    ├── Mavrynt.Modules.Users.Domain.Tests/
-    ├── Mavrynt.Modules.Users.Application.Tests/
-    ├── Mavrynt.Modules.Users.Infrastructure.Tests/
-    ├── Mavrynt.Modules.FeatureManagement.Domain.Tests/
-    ├── Mavrynt.Modules.FeatureManagement.Application.Tests/
-    ├── Mavrynt.Modules.FeatureManagement.Infrastructure.Tests/
-    ├── Mavrynt.Modules.Notifications.Domain.Tests/
-    ├── Mavrynt.Modules.Notifications.Application.Tests/
-    ├── Mavrynt.Modules.Notifications.Infrastructure.Tests/
-    ├── Mavrynt.Api.IntegrationTests/
-    └── Mavrynt.AdminApp.IntegrationTests/
 ```
 
-Note: `build/`, `deploy/`, and `scripts/` remain reserved locations for build/deploy automation and operational scripts, even if they are currently empty or not yet expanded.
+`build/`, `deploy/`, and `scripts/` exist as placeholders. Do not put unrelated
+files there.
 
 ---
 
-## 4. Backend
+## 3. Backend (`src/backend/`)
 
-The backend lives in `src/backend` and is organized as a modular monolith.
+Modular monolith — each module is split into Domain / Application / Infrastructure
+following ADR-005.
 
-### 4.1. Hosts
+### 3.1. Hosts
 
-- `Mavrynt.Api` — the main API host for the user-facing product area.
-- `Mavrynt.AdminApp` — the API host for the administrative area.
-- `Mavrynt.AppHost` — local orchestration through Aspire; runs backend and frontend applications.
-- `Mavrynt.ServiceDefaults` — shared technical defaults: observability, health checks, service discovery, and hosting standards.
+| Project | Purpose |
+|---|---|
+| `Mavrynt.Api` | Main user-facing API host. Composes modules; no business logic. |
+| `Mavrynt.AdminApp` | Admin API host; all endpoints `AdminOnly` by default. |
+| `Mavrynt.AppHost` | Aspire local orchestration of backend + all SPAs. |
+| `Mavrynt.ServiceDefaults` | Shared technical defaults: observability, health checks, hosting. |
 
-Hosts must not contain business logic. Their responsibility is module composition, HTTP pipeline configuration, and endpoint exposure.
+### 3.2. BuildingBlocks
 
-### 4.2. Building Blocks
+| Project | Purpose |
+|---|---|
+| `Mavrynt.BuildingBlocks.Domain` | Base types: `Entity<TId>`, `AggregateRoot<TId>`, `ValueObject`, `Result`, `Error`, domain abstractions. |
+| `Mavrynt.BuildingBlocks.Application` | Mediator, behavior contracts, validator contract, `IDateTimeProvider`, `ICurrentUserContext`. |
+| `Mavrynt.BuildingBlocks.Infrastructure` | `IRepository<TEntity, TId>`, `IUnitOfWork`, `PostgreSqlOptions`, configuration helpers. |
+| `Mavrynt.BuildingBlocksContracts` | Integration events and request/response contracts. |
 
-- `Mavrynt.BuildingBlocks.Domain` — base domain types, entities, aggregates, value objects, errors, and `Result`.
-- `Mavrynt.BuildingBlocks.Application` — command/query abstractions, mediator, validation, pipeline behaviors, and application contexts.
-- `Mavrynt.BuildingBlocks.Infrastructure` — shared infrastructure abstractions such as `IRepository`, `IUnitOfWork`, and PostgreSQL options.
-- `Mavrynt.BuildingBlocksContracts` — integration contracts and shared contract DTOs.
+BuildingBlocks must not become a helper dump.
 
-Building Blocks must not become a random helper dump. Only genuinely shared elements should be placed there.
+### 3.3. Domain modules
 
-### 4.3. Domain modules
+| Module | Schema | Status |
+|---|---|---|
+| `Mavrynt.Modules.Users.{Domain,Application,Infrastructure}` | `users` | complete |
+| `Mavrynt.Modules.FeatureManagement.{Domain,Application,Infrastructure}` | `feature_management` | complete |
+| `Mavrynt.Modules.Audit.{Domain,Application,Infrastructure}` | `audit` | complete |
+| `Mavrynt.Modules.Notifications.{Domain,Application,Infrastructure}` | `notifications` | complete |
 
-Implemented Phase 1 modules:
-
-**Users** — user registration, authentication, role assignment.
-- `Mavrynt.Modules.Users.Domain`
-- `Mavrynt.Modules.Users.Application`
-- `Mavrynt.Modules.Users.Infrastructure`
-
-**FeatureManagement** — feature flag CRUD, managed through AdminApp.
-- `Mavrynt.Modules.FeatureManagement.Domain`
-- `Mavrynt.Modules.FeatureManagement.Application`
-- `Mavrynt.Modules.FeatureManagement.Infrastructure`
-
-**Audit** — append-only administrative and system audit log.
-- `Mavrynt.Modules.Audit.Domain`
-- `Mavrynt.Modules.Audit.Application`
-- `Mavrynt.Modules.Audit.Infrastructure`
-
-**Notifications** — outbound email: database-backed SMTP configuration, predefined template engine, and the `IEmailNotificationService` cross-module abstraction.
-- `Mavrynt.Modules.Notifications.Domain`
-- `Mavrynt.Modules.Notifications.Application`
-- `Mavrynt.Modules.Notifications.Infrastructure`
-
-Every module follows the same Domain / Application / Infrastructure separation. Expected future modules:
-- possibly a separate `Authorization` module if roles and permissions grow beyond a simple Users model.
+The `Users` module is the canonical template for new modules.
 
 ---
 
-## 5. Frontend
+## 4. Frontend (`src/frontend/`)
 
-The frontend lives in `src/frontend`.
-
-Main applications:
-- `mavrynt-web` — user-facing application,
-- `mavrynt-admin` — administrative application,
-- `mavrynt-landing` — static marketing landing page.
-
-SPA host projects:
-- `Mavrynt.Web.App`,
-- `Mavrynt.Web.Admin`,
-- `Mavrynt.Web.Landing`.
-
-Shared packages live under `src/frontend/shared/*` and may include:
-- TypeScript configuration,
-- ESLint configuration,
-- design tokens,
-- UI primitives,
-- application URL configuration,
-- shared auth UI components.
-
-The frontend must not reference backend projects directly. Integration happens through APIs, adapters, and explicit contracts.
-
----
-
-## 6. Tests
-
-Tests live in `tests`.
-
-Current split:
-- `tests/backend/Mavrynt.Architecture.Tests` — architectural tests protecting dependency boundaries across all modules.
-- `tests/backend/Mavrynt.BuildingBlocks.Domain.Tests` — tests for domain primitives.
-- `tests/Mavrynt.Modules.Users.Domain.Tests` — Users domain tests.
-- `tests/Mavrynt.Modules.Users.Application.Tests` — Users command/query handler tests.
-- `tests/Mavrynt.Modules.Users.Infrastructure.Tests` — Users infrastructure tests with PostgreSQL through Testcontainers.
-- `tests/Mavrynt.Modules.FeatureManagement.Domain.Tests` — FeatureManagement domain tests.
-- `tests/Mavrynt.Modules.FeatureManagement.Application.Tests` — FeatureManagement command/query handler tests.
-- `tests/Mavrynt.Modules.FeatureManagement.Infrastructure.Tests` — FeatureManagement infrastructure tests with PostgreSQL through Testcontainers.
-- `tests/Mavrynt.Modules.Notifications.Domain.Tests` — Notifications domain tests.
-- `tests/Mavrynt.Modules.Notifications.Application.Tests` — Notifications command/query handler and template renderer tests.
-- `tests/Mavrynt.Modules.Notifications.Infrastructure.Tests` — Notifications infrastructure tests with PostgreSQL through Testcontainers.
-- `tests/Mavrynt.Api.IntegrationTests` — main API integration tests.
-- `tests/Mavrynt.AdminApp.IntegrationTests` — AdminApp integration tests (role assignment, feature flag, and notifications endpoints).
-
-Target backend validation has three layers:
-1. architectural tests,
-2. module unit tests,
-3. integration tests with a real database through Testcontainers.
-
----
-
-## 7. Documentation
-
-Documentation lives in `docs`.
-
-The most important files are:
-- `architecture.pl.md` / `architecture.en.md` — solution architecture,
-- `decisions.pl.md` / `decisions.en.md` — architecture decision log,
-- `repo-structure.pl.md` / `repo-structure.en.md` — repository structure.
-
-`AGENTS.md` contains short operational instructions for AI agents and should remain consistent with the documents under `docs`.
-
----
-
-## 8. Rules for adding new elements
-
-A new backend domain module should be added under `src/backend` as a set of projects:
+Each SPA is wrapped by an ASP.NET SpaProxy host project so that Aspire AppHost
+can launch the dev server. **The SPA source lives one level below the host.**
 
 ```text
-Mavrynt.Modules.{Name}.Domain/
-Mavrynt.Modules.{Name}.Application/
-Mavrynt.Modules.{Name}.Infrastructure/
+src/frontend/
+├── Mavrynt.Web.App/
+│   └── mavrynt-web/          User-facing SPA (React 19 + Vite + TS)
+├── Mavrynt.Web.Admin/
+│   └── mavrynt-admin/        Admin SPA (login, dashboard, flags, SMTP, settings)
+├── Mavrynt.Web.Landing/
+│   └── mavrynt-landing/      Marketing landing (decoupled from backend, ADR-015)
+└── shared/
+    ├── auth-ui/              @mavrynt/auth-ui     Login/register, AuthService port
+    ├── config/               @mavrynt/config      env, app-urls, i18n bootstrap
+    ├── design-tokens/        @mavrynt/design-tokens
+    ├── eslint-config/        @mavrynt/eslint-config
+    ├── tsconfig-base/        @mavrynt/tsconfig-base
+    └── ui/                   @mavrynt/ui          Presentational primitives
 ```
 
-New module tests should be added under `tests` as separate test projects:
+Per-SPA scripts (run from the SPA folder):
 
-```text
-Mavrynt.Modules.{Name}.Domain.Tests/
-Mavrynt.Modules.{Name}.Application.Tests/
-Mavrynt.Modules.{Name}.Infrastructure.Tests/
+```bash
+npm run dev          # Vite dev server (HMR)
+npm run build        # tsc -b && vite build
+npm run test         # Vitest
+npm run typecheck    # tsc -b --noEmit
+npm run lint
+npm run test:e2e     # landing only — Playwright
 ```
 
-A new frontend application should be added under `src/frontend` and should use shared packages only when they are genuinely shared.
-
-A new architectural decision should be added to both `docs/decisions.pl.md` and `docs/decisions.en.md`.
+The frontend must not reference backend projects. All integration goes through
+HTTP API or ports (auth, analytics, lead capture).
 
 ---
 
-## 9. Current Phase 1 direction
+## 5. Tests (`tests/`)
+
+Backend test layout (see ADR-021 for the strategy):
+
+```text
+tests/
+├── backend/
+│   ├── Mavrynt.Architecture.Tests              dependency rules across all modules
+│   └── Mavrynt.BuildingBlocks.Domain.Tests
+├── Mavrynt.Modules.Users.Domain.Tests
+├── Mavrynt.Modules.Users.Application.Tests
+├── Mavrynt.Modules.Users.Infrastructure.Tests           Testcontainers
+├── Mavrynt.Modules.FeatureManagement.Domain.Tests
+├── Mavrynt.Modules.FeatureManagement.Application.Tests
+├── Mavrynt.Modules.FeatureManagement.Infrastructure.Tests   Testcontainers
+├── Mavrynt.Modules.Notifications.Domain.Tests
+├── Mavrynt.Modules.Notifications.Application.Tests
+├── Mavrynt.Modules.Notifications.Infrastructure.Tests       Testcontainers
+├── Mavrynt.Api.IntegrationTests                              Testcontainers
+└── Mavrynt.AdminApp.IntegrationTests                         Testcontainers
+```
+
+> **Gap:** `Modules.Audit` has no dedicated test project. Tracked in `docs/next-work.md`.
+
+Run the whole suite: `dotnet test Mavrynt.sln --no-build`. Docker is required
+for Testcontainers-based integration tests.
+
+---
+
+## 6. Documentation (`docs/`)
+
+| File | Purpose |
+|---|---|
+| `architecture.en.md` | Solution architecture (canonical) |
+| `architecture.pl.md` | Polish summary (non-canonical) |
+| `decisions.en.md` | ADR log (canonical) — append new ADRs here |
+| `decisions.pl.md` | Polish summary (non-canonical) |
+| `repo-structure.en.md` | This file (canonical) |
+| `repo-structure.pl.md` | Polish summary (non-canonical) |
+| `ai-context.md` | Compact AI agent context snapshot |
+| `status.md` | Current phase progress (single source of truth) |
+| `next-work.md` | Recommended next implementation tasks |
+| `frontends.en.md` | Frontend overview |
+| `auth-ui.en.md` | `@mavrynt/auth-ui` reference |
+| `adr/` | Detailed implementation notes (auth, persistence, audit). See note in `decisions.en.md` about numbering. |
+
+---
+
+## 7. Adding new elements
+
+### New backend module
+
+Create three projects under `src/backend/`:
+
+```text
+Mavrynt.Modules.{Name}.Domain
+Mavrynt.Modules.{Name}.Application
+Mavrynt.Modules.{Name}.Infrastructure
+```
+
+Mirror three test projects under `tests/`:
+
+```text
+Mavrynt.Modules.{Name}.Domain.Tests
+Mavrynt.Modules.{Name}.Application.Tests
+Mavrynt.Modules.{Name}.Infrastructure.Tests
+```
+
+Register the module in the relevant host (`Mavrynt.Api` and/or `Mavrynt.AdminApp`)
+through its `AddXxxApplication(...)` and `AddXxxInfrastructure(...)` extension
+methods. Use `Mavrynt.Modules.Users.*` as the template.
+
+### New frontend SPA
+
+Add an ASP.NET SpaProxy wrapper under `src/frontend/Mavrynt.Web.{Name}/` and the
+SPA folder one level below. Reuse shared packages from `src/frontend/shared/*`
+where possible.
+
+### New architecture decision
+
+Append a new ADR to `docs/decisions.en.md` (and update its index table). Never
+edit past ADRs; mark them `Superseded` instead.
+
+---
+
+## 8. Current Phase 1 direction
 
 Phase 1 focuses on the platform foundation:
-- users,
-- login,
-- roles and permissions,
+
+- users, login, roles and permissions,
 - feature flags managed from AdminApp,
 - system audit,
-- basic email communication,
+- email communication,
 - observability,
 - testability,
 - preparation for CI/CD.
 
-The administrative vertical slice (roles/permissions + FeatureManagement + persistent audit, wired through AdminApp, protected by `AdminOnly`, covered by architecture/unit/integration tests) is **complete** as of 2026-04-29.
+The administrative vertical slice (roles, FeatureManagement, persistent Audit,
+AdminApp endpoints, full backend test pyramid) is **complete** as of 2026-04-29.
+The Notifications module (DB-backed SMTP, templates, `IEmailNotificationService`,
+AdminApp endpoints) is **complete** as of 2026-04-30.
 
-The Notifications module (database-backed SMTP, predefined email templates, template rendering engine, `IEmailNotificationService`, and AdminApp endpoints) is **complete** as of 2026-04-30.
-
-Remaining Phase 1 items: CI/CD pipeline configuration, staging environment wiring.
+Remaining Phase 1 items: **CI/CD pipeline configuration and staging environment
+wiring** (`docs/next-work.md`).
 
 ---
 
-## 10. Summary
+## 9. Summary
 
-The Mavrynt repository has the modular monolith foundation, backend hosts, the Users / FeatureManagement / Audit / Notifications modules, frontend applications, and a multi-layer backend test pyramid (architecture, unit, and Testcontainers integration tests). The repository structure should remain stable, and the next work should develop remaining Phase 1 items (CI/CD) without breaking layer boundaries or moving business logic into hosts.
+The repository contains the modular-monolith backend, three React SPAs hosted
+under Aspire SpaProxy projects, shared `@mavrynt/*` workspace packages, and a
+multi-layer backend test pyramid. Layer and module boundaries (ADR-001 / ADR-005
+/ ADR-022 / ADR-023) must be preserved when extending the codebase.
